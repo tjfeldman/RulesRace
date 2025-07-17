@@ -1,40 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://domcs12gwth4y"]
 
 [ext_resource type="Texture2D" uid="uid://x5pr6eoxpfyf" path="res://assets/dice.png" id="1_ju2fo"]
-[ext_resource type="Script" uid="uid://dcwysxvwdj6j8" path="res://Dice.gd" id="2_m4jp2"]
-
-[sub_resource type="Animation" id="Animation_m4jp2"]
-resource_name = "Roll"
-length = 0.6
-loop_mode = 1
-step = 0.1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [0, 1, 5, 3, 4, 2]
-}
-
-[sub_resource type="Animation" id="Animation_qu4n6"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [0]
-}
+[ext_resource type="Script" uid="uid://dcwysxvwdj6j8" path="res://scripts/Dice.gd" id="2_m4jp2"]
 
 [sub_resource type="Animation" id="Animation_ju2fo"]
 resource_name = "1"
@@ -84,6 +51,22 @@ tracks/0/keys = {
 "values": [3]
 }
 
+[sub_resource type="Animation" id="Animation_y4pxb"]
+resource_name = "Escape"
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [5]
+}
+
 [sub_resource type="Animation" id="Animation_0c8ac"]
 resource_name = "Jail"
 step = 0.1
@@ -100,9 +83,8 @@ tracks/0/keys = {
 "values": [4]
 }
 
-[sub_resource type="Animation" id="Animation_y4pxb"]
-resource_name = "Escape"
-step = 0.1
+[sub_resource type="Animation" id="Animation_qu4n6"]
+length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -113,7 +95,25 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [5]
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_m4jp2"]
+resource_name = "Roll"
+length = 0.6
+loop_mode = 1
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 5, 3, 4, 2]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xak8u"]
