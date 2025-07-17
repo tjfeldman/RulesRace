@@ -10,7 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://b032ktrvh0mbc" path="res://assets/green_tile.png" id="6_7x4bf"]
 [ext_resource type="Texture2D" uid="uid://clcxwlup0s2k4" path="res://assets/purple_tile.png" id="7_8aqfc"]
 [ext_resource type="Texture2D" uid="uid://d2r5jy8ghs5ff" path="res://assets/jail_tile.png" id="9_7x4bf"]
-[ext_resource type="Script" uid="uid://dcwysxvwdj6j8" path="res://Die.gd" id="10_q22oy"]
+[ext_resource type="PackedScene" uid="uid://domcs12gwth4y" path="res://dice.tscn" id="10_8aqfc"]
 [ext_resource type="Script" uid="uid://o22httwb3xv5" path="res://Player.gd" id="11_8aqfc"]
 
 [node name="Main" type="Node2D"]
@@ -106,15 +106,8 @@ texture = ExtResource("6_7x4bf")
 position = Vector2(840, 60)
 texture = ExtResource("9_7x4bf")
 
-[node name="Die" type="Node2D" parent="."]
-script = ExtResource("10_q22oy")
-
-[node name="DieResult" type="Label" parent="Die"]
-offset_left = 580.0
-offset_top = 342.0
-offset_right = 700.0
-offset_bottom = 378.0
-text = "Die Rolled:"
+[node name="Dice" parent="." instance=ExtResource("10_8aqfc")]
+position = Vector2(640, 360)
 
 [node name="PlayerToken" type="Node2D" parent="."]
 script = ExtResource("11_8aqfc")
@@ -122,3 +115,5 @@ script = ExtResource("11_8aqfc")
 [node name="PlayerPiece" type="Sprite2D" parent="PlayerToken"]
 position = Vector2(321, 634)
 texture = ExtResource("2_qq0id")
+
+[connection signal="dice_has_rolled" from="Dice" to="." method="_on_dice_dice_has_rolled"]
