@@ -1,11 +1,11 @@
 V0.1 Tasklist
-- [x] v0.01 - Add Board, Player Token, and Die. Player Token moves based on the Die's roll. Includes Jail space.~~
-- [ ] v0.02 - Add Tile Object that contains information about Tile Color and if Tile is a special tile. 
-- [ ] v0.03 - When player's land on a special tile, a pop up appears giving them options.
-- [ ] v0.04 - Add Inventory to Player to store Escape Tickets. 
-- [ ] v0.05 - Allow Escape Tickets to be used to get out of Jail.
-- [ ] v0.06 - Add UI Hub that shows the player and their inventory tickets.
-- [ ] v0.07 - Add Die animation when the player rolls. Add UI button for player's roll.
-- [ ] v0.08 - Add special die that can be rolled when conditions are met.
-- [ ] v0.09 - Add State Manager that controls the turn.
-- [ ] v0.10 - Add a Bot Player that rolls die and moves.
+- [x] Add Board, Player Token, and Die. Player Token moves based on the Die's roll. Includes Jail space.~~
+- [ ] Add Tile Object that contains information about Tile Color and if Tile is a special tile. 
+- [ ] When player's land on a special tile, a pop up appears giving them options.
+- [ ] Add Inventory to Player to store Escape Tickets. 
+- [ ] Allow Escape Tickets to be used to get out of Jail.
+- [ ] Add UI Hub that shows the player and their inventory tickets.
+- [ ] Add Die animation when the player rolls. Add UI button for player's roll.
+- [ ] Add special die that can be rolled when conditions are met.
+- [ ] Add State Manager that controls the turn.
+- [ ] Add a Bot Player that rolls die and moves.
