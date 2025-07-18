@@ -1,0 +1,134 @@
+[gd_scene load_steps=10 format=3 uid="uid://bykn11n338pv0"]
+
+[ext_resource type="Script" uid="uid://cq5ivvdg7ugkb" path="res://scripts/Board.gd" id="1_wmvsh"]
+[ext_resource type="Texture2D" uid="uid://bqs8rsgv7qrpt" path="res://assets/start_goal_tile.png" id="2_n230i"]
+[ext_resource type="Texture2D" uid="uid://bndm58i0cayh6" path="res://assets/blue_tile.png" id="3_ar2e0"]
+[ext_resource type="Script" uid="uid://3w6d6shgt228" path="res://scripts/Tile.gd" id="4_n230i"]
+[ext_resource type="Texture2D" uid="uid://tbn0cd3md851" path="res://assets/yellow_tile.png" id="4_pnb36"]
+[ext_resource type="Texture2D" uid="uid://b72v4oci6pjcf" path="res://assets/red_tile.png" id="5_mvl7x"]
+[ext_resource type="Texture2D" uid="uid://b032ktrvh0mbc" path="res://assets/green_tile.png" id="6_mwcd8"]
+[ext_resource type="Texture2D" uid="uid://clcxwlup0s2k4" path="res://assets/purple_tile.png" id="7_74c1j"]
+[ext_resource type="Texture2D" uid="uid://d2r5jy8ghs5ff" path="res://assets/jail_tile.png" id="8_ba0us"]
+
+[node name="Board" type="Node2D" node_paths=PackedStringArray("boardTiles", "jailTile")]
+script = ExtResource("1_wmvsh")
+boardTiles = [NodePath("StartGoalTile"), NodePath("BlueTile"), NodePath("YellowTile"), NodePath("RedTile"), NodePath("GreenTile"), NodePath("PurpleTile"), NodePath("BlueTile2"), NodePath("YellowTile2"), NodePath("RedTile2"), NodePath("GreenTile2"), NodePath("PurpleTile2"), NodePath("BlueTile3"), NodePath("YellowTile3"), NodePath("RedTile3"), NodePath("GreenTile3"), NodePath("PurpleTile3"), NodePath("BlueTile4"), NodePath("YellowTile4"), NodePath("RedTile4"), NodePath("GreenTile4"), NodePath("StartGoalTile")]
+jailTile = NodePath("JailTile")
+
+[node name="JailTile" type="Sprite2D" parent="."]
+position = Vector2(480, -300)
+texture = ExtResource("8_ba0us")
+
+[node name="StartGoalTile" type="Sprite2D" parent="."]
+position = Vector2(-300, 300)
+texture = ExtResource("2_n230i")
+
+[node name="BlueTile" type="Sprite2D" parent="."]
+position = Vector2(-300, 180)
+texture = ExtResource("3_ar2e0")
+script = ExtResource("4_n230i")
+
+[node name="YellowTile" type="Sprite2D" parent="."]
+position = Vector2(-300, 60)
+texture = ExtResource("4_pnb36")
+script = ExtResource("4_n230i")
+color = 1
+
+[node name="RedTile" type="Sprite2D" parent="."]
+position = Vector2(-300, -60)
+texture = ExtResource("5_mvl7x")
+script = ExtResource("4_n230i")
+color = 2
+
+[node name="GreenTile" type="Sprite2D" parent="."]
+position = Vector2(-300, -180)
+texture = ExtResource("6_mwcd8")
+script = ExtResource("4_n230i")
+color = 3
+
+[node name="PurpleTile" type="Sprite2D" parent="."]
+position = Vector2(-300, -300)
+texture = ExtResource("7_74c1j")
+script = ExtResource("4_n230i")
+color = 4
+
+[node name="BlueTile2" type="Sprite2D" parent="."]
+position = Vector2(-180, -300)
+texture = ExtResource("3_ar2e0")
+script = ExtResource("4_n230i")
+
+[node name="YellowTile2" type="Sprite2D" parent="."]
+position = Vector2(-60, -300)
+texture = ExtResource("4_pnb36")
+script = ExtResource("4_n230i")
+color = 1
+
+[node name="RedTile2" type="Sprite2D" parent="."]
+position = Vector2(60, -300)
+texture = ExtResource("5_mvl7x")
+script = ExtResource("4_n230i")
+color = 2
+
+[node name="GreenTile2" type="Sprite2D" parent="."]
+position = Vector2(180, -300)
+texture = ExtResource("6_mwcd8")
+script = ExtResource("4_n230i")
+color = 3
+
+[node name="PurpleTile2" type="Sprite2D" parent="."]
+position = Vector2(300, -300)
+texture = ExtResource("7_74c1j")
+script = ExtResource("4_n230i")
+color = 4
+
+[node name="BlueTile3" type="Sprite2D" parent="."]
+position = Vector2(300, -180)
+texture = ExtResource("3_ar2e0")
+script = ExtResource("4_n230i")
+
+[node name="YellowTile3" type="Sprite2D" parent="."]
+position = Vector2(300, -60)
+texture = ExtResource("4_pnb36")
+script = ExtResource("4_n230i")
+color = 1
+
+[node name="RedTile3" type="Sprite2D" parent="."]
+position = Vector2(300, 60)
+texture = ExtResource("5_mvl7x")
+script = ExtResource("4_n230i")
+color = 2
+
+[node name="GreenTile3" type="Sprite2D" parent="."]
+position = Vector2(300, 180)
+texture = ExtResource("6_mwcd8")
+script = ExtResource("4_n230i")
+color = 3
+
+[node name="PurpleTile3" type="Sprite2D" parent="."]
+position = Vector2(300, 300)
+texture = ExtResource("7_74c1j")
+script = ExtResource("4_n230i")
+color = 4
+
+[node name="BlueTile4" type="Sprite2D" parent="."]
+position = Vector2(180, 300)
+texture = ExtResource("3_ar2e0")
+script = ExtResource("4_n230i")
+
+[node name="YellowTile4" type="Sprite2D" parent="."]
+position = Vector2(60, 300)
+texture = ExtResource("4_pnb36")
+script = ExtResource("4_n230i")
+color = 1
+
+[node name="RedTile4" type="Sprite2D" parent="."]
+position = Vector2(-60, 300)
+texture = ExtResource("5_mvl7x")
+script = ExtResource("4_n230i")
+color = 2
+
+[node name="GreenTile4" type="Sprite2D" parent="."]
+position = Vector2(-180, 300)
+texture = ExtResource("6_mwcd8")
+script = ExtResource("4_n230i")
+color = 3
