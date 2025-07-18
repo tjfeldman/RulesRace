@@ -2,7 +2,8 @@ extends Node
 class_name Colors
 
 enum TileColor {
-	BlUE,
+	NONE,
+	BLUE,
 	YELLOW,
 	RED,
 	GREEN,
