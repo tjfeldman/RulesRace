@@ -3,7 +3,7 @@ extends Node2D
 @onready var player : Node2D = $PlayerToken;
 @onready var board : Node2D = $Board;
 
-func _on_dice_dice_has_rolled(roll: String) -> void:
+func _on_dice_dice_has_rolled(roll: Variant) -> void:
 	match roll:
 		"Jail":
 			player.sendToJail(board.getJailPosition());
@@ -12,13 +12,12 @@ func _on_dice_dice_has_rolled(roll: String) -> void:
 		_:
 			if !player.isInJail():
 				var currentPosition = player.getBoardPosition();
-				var spaces = int(roll);
-				while spaces > 0:
+				while roll > 0:
 					currentPosition += 1;
 					var nextTilePosition = board.getTilePosition(currentPosition);
 					if nextTilePosition != null:
 						await player.movePlayer(nextTilePosition);
-					spaces -= 1;
+					roll -= 1;
 						
 				#update board position after while loop
 				player.setBoardPosition(currentPosition);
