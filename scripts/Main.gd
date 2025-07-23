@@ -3,7 +3,7 @@ extends Node2D
 @onready var player : Node2D = $PlayerToken;
 @onready var board : Node2D = $Board;
 
-func _on_dice_dice_has_rolled(roll: Variant) -> void:
+func _on_dice_has_rolled(roll: Variant) -> void:
 	match roll:
 		"Jail":
 			player.sendToJail(board.getJailPosition());
@@ -24,5 +24,6 @@ func _on_dice_dice_has_rolled(roll: Variant) -> void:
 				
 				#check if the tile landed on is an office space
 				if board.isOfficeSpace(currentPosition):
-					#TODO add popup
-					print("Office Space Landed On");
+					var officeChoiceBox = preload("res://scenes/officeChoice.tscn");
+					var choiceBox = officeChoiceBox.instantiate();
+					add_child(choiceBox);
