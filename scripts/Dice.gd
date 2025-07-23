@@ -4,9 +4,9 @@ extends Sprite2D
 @onready var timer : Timer = $Timer;
 @onready var label : Label = $Label;
 
-signal dice_has_rolled(roll: String);
+signal dice_has_rolled(roll: Variant);
 
-var sides : Array[String] = ["1", "2", "2", "3", "Jail", "Escape"];
+var sides : Array[Variant] = [1, 2, 2, 3, "Jail", "Escape"];
 
 func _unhandled_input(event: InputEvent) -> void:
 	if (Input.is_action_just_pressed("ui_click") && timer.is_stopped()):
@@ -16,6 +16,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_timer_timeout() -> void:
 	var rolledValue = sides.pick_random();
-	animationPlayer.play(rolledValue);
+	animationPlayer.play(str(rolledValue));
 	label.visible = true;
 	emit_signal("dice_has_rolled", rolledValue);

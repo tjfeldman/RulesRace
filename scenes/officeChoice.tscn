@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3 uid="uid://d4edrr0dtbmtw"]
+
+[ext_resource type="Script" uid="uid://ch2rwk0k6v5ax" path="res://scripts/OfficeChoice.gd" id="1_2v6ay"]
+
+[node name="OfficeChoice" type="CenterContainer"]
+offset_right = 1280.0
+offset_bottom = 720.0
+script = ExtResource("1_2v6ay")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Select a Bonus"
+horizontal_alignment = 1
+
+[node name="TicketButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "1 Escape Ticket"
+
+[node name="DieButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Roll the Special Die"
+
+[node name="RuleButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Edit the Group Rule"
+
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/TicketButton" to="." method="_on_ticket_button_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/DieButton" to="." method="_on_die_button_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/RuleButton" to="." method="_on_rule_button_pressed"]

@@ -3,16 +3,27 @@ extends Node2D
 @onready var player : Node2D = $PlayerToken;
 @onready var board : Node2D = $Board;
 
-func _on_dice_dice_has_rolled(roll: String) -> void:
+func _on_dice_has_rolled(roll: Variant) -> void:
 	match roll:
 		"Jail":
-			player.sendToJail(board.jailTile.global_position);
+			player.sendToJail(board.getJailPosition());
 		"Escape":
-			player.escapeFromJail(board.getTile(player.getBoardPosition()).global_position);
+			player.escapeFromJail(board.getPlayerPosition(player));
 		_:
 			if !player.isInJail():
-				print("Moving player %s space(s)" % roll);
-				var moves = board.calculateMove(player.getBoardPosition(), int(roll));
-				player.movePlayer(int(roll), moves);
-			else:
-				print("Cannot move player due to being in Jail");
+				var currentPosition = player.getBoardPosition();
+				while roll > 0:
+					currentPosition += 1;
+					var nextTilePosition = board.getTilePosition(currentPosition);
+					if nextTilePosition != null:
+						await player.movePlayer(nextTilePosition);
+					roll -= 1;
+						
+				#update board position after while loop
+				player.setBoardPosition(currentPosition);
+				
+				#check if the tile landed on is an office space
+				if board.isOfficeSpace(currentPosition):
+					var officeChoiceBox = preload("res://scenes/officeChoice.tscn");
+					var choiceBox = officeChoiceBox.instantiate();
+					add_child(choiceBox);

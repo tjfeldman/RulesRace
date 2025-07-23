@@ -1,110 +1,16 @@
-[gd_scene load_steps=13 format=3 uid="uid://bfjvv7ybhocmc"]
+[gd_scene load_steps=6 format=3 uid="uid://bfjvv7ybhocmc"]
 
 [ext_resource type="Script" uid="uid://cru50j3o060kc" path="res://scripts/Main.gd" id="1_hc47j"]
-[ext_resource type="Script" uid="uid://cq5ivvdg7ugkb" path="res://scripts/Board.gd" id="2_k5sdh"]
+[ext_resource type="PackedScene" uid="uid://bykn11n338pv0" path="res://scenes/board.tscn" id="2_oi1hd"]
 [ext_resource type="Texture2D" uid="uid://dvou8cmqetxjd" path="res://assets/player_piece.png" id="2_qq0id"]
-[ext_resource type="Texture2D" uid="uid://bndm58i0cayh6" path="res://assets/blue_tile.png" id="2_rv52q"]
-[ext_resource type="Texture2D" uid="uid://bqs8rsgv7qrpt" path="res://assets/start_goal_tile.png" id="3_b3se1"]
-[ext_resource type="Texture2D" uid="uid://b72v4oci6pjcf" path="res://assets/red_tile.png" id="3_k5sdh"]
-[ext_resource type="Texture2D" uid="uid://tbn0cd3md851" path="res://assets/yellow_tile.png" id="5_q22oy"]
-[ext_resource type="Texture2D" uid="uid://b032ktrvh0mbc" path="res://assets/green_tile.png" id="6_7x4bf"]
-[ext_resource type="Texture2D" uid="uid://clcxwlup0s2k4" path="res://assets/purple_tile.png" id="7_8aqfc"]
-[ext_resource type="Texture2D" uid="uid://d2r5jy8ghs5ff" path="res://assets/jail_tile.png" id="9_7x4bf"]
-[ext_resource type="PackedScene" uid="uid://domcs12gwth4y" path="res://dice.tscn" id="10_8aqfc"]
+[ext_resource type="PackedScene" uid="uid://domcs12gwth4y" path="res://scenes/dice.tscn" id="10_8aqfc"]
 [ext_resource type="Script" uid="uid://o22httwb3xv5" path="res://scripts/Player.gd" id="11_8aqfc"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_hc47j")
 
-[node name="Board" type="Node2D" parent="." node_paths=PackedStringArray("boardTiles", "jailTile")]
-position = Vector2(280, 0)
-script = ExtResource("2_k5sdh")
-boardTiles = [NodePath("StartGoalTile"), NodePath("BlueTile"), NodePath("YellowTile"), NodePath("RedTile"), NodePath("GreenTile"), NodePath("PurpleTile"), NodePath("BlueTile2"), NodePath("YellowTile2"), NodePath("RedTile2"), NodePath("GreenTile2"), NodePath("PurpleTile2"), NodePath("BlueTile3"), NodePath("YellowTile3"), NodePath("RedTile3"), NodePath("GreenTile3"), NodePath("PurpleTile3"), NodePath("BlueTile4"), NodePath("YellowTile4"), NodePath("RedTile4"), NodePath("GreenTile4"), NodePath("StartGoalTile")]
-jailTile = NodePath("JailTile")
-
-[node name="StartGoalTile" type="Sprite2D" parent="Board"]
-position = Vector2(60, 660)
-texture = ExtResource("3_b3se1")
-
-[node name="BlueTile" type="Sprite2D" parent="Board"]
-position = Vector2(60, 540)
-texture = ExtResource("2_rv52q")
-
-[node name="YellowTile" type="Sprite2D" parent="Board"]
-position = Vector2(60, 420)
-texture = ExtResource("5_q22oy")
-
-[node name="RedTile" type="Sprite2D" parent="Board"]
-position = Vector2(60, 300)
-texture = ExtResource("3_k5sdh")
-
-[node name="GreenTile" type="Sprite2D" parent="Board"]
-position = Vector2(60, 180)
-texture = ExtResource("6_7x4bf")
-
-[node name="PurpleTile" type="Sprite2D" parent="Board"]
-position = Vector2(60, 60)
-texture = ExtResource("7_8aqfc")
-
-[node name="BlueTile2" type="Sprite2D" parent="Board"]
-position = Vector2(180, 60)
-texture = ExtResource("2_rv52q")
-
-[node name="YellowTile2" type="Sprite2D" parent="Board"]
-position = Vector2(300, 60)
-texture = ExtResource("5_q22oy")
-
-[node name="RedTile2" type="Sprite2D" parent="Board"]
-position = Vector2(420, 60)
-texture = ExtResource("3_k5sdh")
-
-[node name="GreenTile2" type="Sprite2D" parent="Board"]
-position = Vector2(540, 60)
-texture = ExtResource("6_7x4bf")
-
-[node name="PurpleTile2" type="Sprite2D" parent="Board"]
-position = Vector2(660, 60)
-texture = ExtResource("7_8aqfc")
-
-[node name="BlueTile3" type="Sprite2D" parent="Board"]
-position = Vector2(660, 180)
-texture = ExtResource("2_rv52q")
-
-[node name="YellowTile3" type="Sprite2D" parent="Board"]
-position = Vector2(660, 300)
-texture = ExtResource("5_q22oy")
-
-[node name="RedTile3" type="Sprite2D" parent="Board"]
-position = Vector2(660, 420)
-texture = ExtResource("3_k5sdh")
-
-[node name="GreenTile3" type="Sprite2D" parent="Board"]
-position = Vector2(660, 540)
-texture = ExtResource("6_7x4bf")
-
-[node name="PurpleTile3" type="Sprite2D" parent="Board"]
-position = Vector2(660, 660)
-texture = ExtResource("7_8aqfc")
-
-[node name="BlueTile4" type="Sprite2D" parent="Board"]
-position = Vector2(540, 660)
-texture = ExtResource("2_rv52q")
-
-[node name="YellowTile4" type="Sprite2D" parent="Board"]
-position = Vector2(420, 660)
-texture = ExtResource("5_q22oy")
-
-[node name="RedTile4" type="Sprite2D" parent="Board"]
-position = Vector2(300, 660)
-texture = ExtResource("3_k5sdh")
-
-[node name="GreenTile4" type="Sprite2D" parent="Board"]
-position = Vector2(180, 660)
-texture = ExtResource("6_7x4bf")
-
-[node name="JailTile" type="Sprite2D" parent="Board"]
-position = Vector2(840, 60)
-texture = ExtResource("9_7x4bf")
+[node name="Board" parent="." instance=ExtResource("2_oi1hd")]
+position = Vector2(640, 360)
 
 [node name="Dice" parent="." instance=ExtResource("10_8aqfc")]
 position = Vector2(640, 360)
@@ -116,4 +22,4 @@ script = ExtResource("11_8aqfc")
 position = Vector2(321, 634)
 texture = ExtResource("2_qq0id")
 
-[connection signal="dice_has_rolled" from="Dice" to="." method="_on_dice_dice_has_rolled"]
+[connection signal="dice_has_rolled" from="Dice" to="." method="_on_dice_has_rolled"]
