@@ -28,9 +28,11 @@ func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
 		await tween.finished;
 	
 func movePlayerForward():
-	_boardPosition += 1;
-	var targetTile = board.getTilePosition(_boardPosition);
-	await _movePlayer(targetTile);
+	#prevent movement if player is in jail
+	if !_inJail:
+		_boardPosition += 1;
+		var targetTile = board.getTilePosition(_boardPosition);
+		await _movePlayer(targetTile);
 	
 func sendToJail():
 	if !_inJail:

@@ -2,7 +2,7 @@ V0.1 Tasklist
 - [x] Add Board, Player Token, and Die. Player Token moves based on the Die's roll. Includes Jail space.~~
 - [x] Add Tile Object that contains information about Tile Color and if Tile is a special tile. 
 - [x] When player's land on a special tile, a pop up appears giving them options.
-- [ ] Add Inventory to Player to store Escape Tickets. 
+- [x] Add Inventory to Player to store Escape Tickets. 
 - [ ] Allow Escape Tickets to be used to get out of Jail.
 - [ ] Add UI Hub that shows the player and their inventory tickets.
 - [x] Add Die animation when the player rolls. Add UI for player's roll.
