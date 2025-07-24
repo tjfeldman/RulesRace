@@ -2,6 +2,7 @@ extends Node2D
 
 @onready var player : Node2D = $PlayerToken;
 @onready var board : Node2D = $Board;
+@onready var dice : Sprite2D = $Dice;
 
 func _ready() -> void:
 	player.addEscapeTicket();
@@ -24,3 +25,5 @@ func _on_dice_has_rolled(roll: Variant) -> void:
 					var officeChoiceBox = preload("res://scenes/officeChoice.tscn");
 					var choiceBox = officeChoiceBox.instantiate();
 					add_child(choiceBox);
+	#TODO: Handled in state manager
+	dice.canClick = true;
