@@ -16,7 +16,7 @@ func _on_dice_has_rolled(roll: Variant) -> void:
 		_:
 			if !player.isInJail():
 				while roll > 0:
-					player.movePlayerForward();
+					await player.movePlayerForward();
 					roll -= 1;
 				
 				#check if the tile landed on is an office space
