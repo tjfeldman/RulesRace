@@ -18,7 +18,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		print("Dice Rolling");
 		animationPlayer.play("Roll");
 		timer.start();
-		label.visible = false;
 		canClick = false;
 
 func _on_timer_timeout() -> void:

@@ -12,6 +12,9 @@ var _inJail : bool = false;
 func getBoardPosition():
 	return _boardPosition;
 	
+func hasEscapeTicket():
+	return _escapeTickets > 0;
+	
 func getEscapeTicketCount():
 	return _escapeTickets;
 	
