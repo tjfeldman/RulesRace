@@ -1,11 +1,18 @@
 extends Node2D
 
+class_name Player
+
 @onready var piece : Sprite2D = $PlayerPiece;
 @onready var board : Node2D = $"../Board";
 var playerMoveSpeed: float = 0.33;
 
 #private variables
-var _escapeTickets : int = 0;
+var _escapeTickets : int = 0:
+	set(value):
+		#Update value and then emit signal
+		_escapeTickets = value;
+		Events.emit_signal("updated_escape_tickets", self);
+		
 var _boardPosition : int = 0;
 var _inJail : bool = false;
 

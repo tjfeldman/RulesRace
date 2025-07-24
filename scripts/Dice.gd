@@ -15,7 +15,6 @@ const SIDES : Array[Variant] = [1, 2, 2, 3, "Jail", "Escape"];
 
 func _unhandled_input(event: InputEvent) -> void:
 	if (Input.is_action_just_pressed("ui_click") and timer.is_stopped() and canClick):
-		print("Dice Rolling");
 		animationPlayer.play("Roll");
 		timer.start();
 		canClick = false;

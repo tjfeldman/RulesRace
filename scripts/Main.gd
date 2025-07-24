@@ -3,17 +3,21 @@ extends Node2D
 @onready var player : Node2D = $PlayerToken;
 @onready var board : Node2D = $Board;
 @onready var dice : Sprite2D = $Dice;
+@onready var hud: CanvasLayer = $HUD
 
 #TODO: Move to state manager
 var _asked : bool = false;
 
 func _ready() -> void:
-	player.addEscapeTicket();
-	print(player.getEscapeTicketCount());
-	
 	#connect to events
 	Events.office_choice_selected.connect(_on_office_choice_selected);
 	Events.escape_jail_with_ticket.connect(_on_escape_with_ticket);
+	
+	#add UI to HUD
+	var playerUI = preload("res://scenes/playerUI.tscn");
+	var ui = playerUI.instantiate();
+	ui.assignedPlayer = player;
+	hud.add_child(ui);
 	
 func _process(delta: float) -> void:
 	if (!_asked && player.isInJail() and player.hasEscapeTicket()):
@@ -25,7 +29,6 @@ func _process(delta: float) -> void:
 		add_child(choiceBox);
 
 func _on_dice_has_rolled(roll: Variant) -> void:
-	roll = 4;
 	#reset asked value after rolling
 	_asked = false;
 	match roll:
@@ -56,7 +59,6 @@ func _on_office_choice_selected(type : Events.OfficeChoice):
 	match type:
 		Events.OfficeChoice.Ticket:
 			player.addEscapeTicket();
-			print(player.getEscapeTicketCount());
 		Events.OfficeChoice.Dice:
 			print("Player rolls special die");
 		Events.OfficeChoice.Rule:

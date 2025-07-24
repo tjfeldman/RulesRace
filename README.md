@@ -4,7 +4,7 @@ V0.1 Tasklist
 - [x] When player's land on a special tile, a pop up appears giving them options.
 - [x] Add Inventory to Player to store Escape Tickets. 
 - [x] Allow Escape Tickets to be used to get out of Jail.
-- [ ] Add UI Hub that shows the player and their inventory tickets.
+- [x] Add UI Hub that shows the player and their inventory tickets.
 - [x] Add Die animation when the player rolls. Add UI for player's roll.
 - [ ] Add special die that can be rolled when conditions are met.
 - [ ] Add State Manager that controls the turn.
