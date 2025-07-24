@@ -22,4 +22,6 @@ script = ExtResource("11_8aqfc")
 position = Vector2(321, 634)
 texture = ExtResource("2_qq0id")
 
+[node name="HUD" type="CanvasLayer" parent="."]
+
 [connection signal="dice_has_rolled" from="Dice" to="." method="_on_dice_has_rolled"]

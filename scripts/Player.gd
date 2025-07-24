@@ -1,31 +1,57 @@
 extends Node2D
 
-@onready var piece : Sprite2D = $PlayerPiece;
+class_name Player
 
+@onready var piece : Sprite2D = $PlayerPiece;
+@onready var board : Node2D = $"../Board";
 var playerMoveSpeed: float = 0.33;
 
+#private variables
+var _escapeTickets : int = 0:
+	set(value):
+		#Update value and then emit signal
+		_escapeTickets = value;
+		Events.emit_signal("updated_escape_tickets", self);
+		
 var _boardPosition : int = 0;
 var _inJail : bool = false;
 
 func getBoardPosition():
 	return _boardPosition;
 	
-func setBoardPosition(pos: int):
-	_boardPosition = pos;
+func hasEscapeTicket():
+	return _escapeTickets > 0;
 	
-func movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
-	var tween =  create_tween();
-	tween.tween_property(piece, "position", newPos, moveSpeed);
-	await tween.finished;
+func getEscapeTicketCount():
+	return _escapeTickets;
 	
-func sendToJail(jailPosition:Vector2):
+func addEscapeTicket():
+	_escapeTickets += 1;
+	
+func removeEscapeTicket():
+	_escapeTickets -= 1;
+	
+func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
+	if newPos != null:
+		var tween =  create_tween();
+		tween.tween_property(piece, "position", newPos, moveSpeed);
+		await tween.finished;
+	
+func movePlayerForward():
+	#prevent movement if player is in jail
 	if !_inJail:
-		await movePlayer(jailPosition, playerMoveSpeed * 3);
+		_boardPosition += 1;
+		var targetTile = board.getTilePosition(_boardPosition);
+		await _movePlayer(targetTile);
+	
+func sendToJail():
+	if !_inJail:
+		await _movePlayer(board.getJailPosition(), playerMoveSpeed * 3);
 		_inJail = true;
 		
-func escapeFromJail(boardPosition:Vector2):
+func escapeFromJail():
 	if _inJail:
-		await movePlayer(boardPosition, playerMoveSpeed * 3);
+		await _movePlayer(board.getTilePosition(_boardPosition), playerMoveSpeed * 3);
 		_inJail = false;
 
 func isInJail():
