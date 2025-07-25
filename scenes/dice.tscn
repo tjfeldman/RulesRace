@@ -113,7 +113,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
 "update": 1,
-"values": [0, 1, 5, 3, 4, 2]
+"values": [0, 5, 1, 3, 2, 4]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xak8u"]
@@ -131,8 +131,10 @@ _data = {
 texture = ExtResource("1_ju2fo")
 hframes = 6
 script = ExtResource("2_m4jp2")
+metadata/SIDES = [1, 2, 2, 3, &"Jail", "Escape"]
 
 [node name="Label" type="Label" parent="."]
+visible = false
 offset_left = -45.0
 offset_top = -39.0
 offset_right = 45.0

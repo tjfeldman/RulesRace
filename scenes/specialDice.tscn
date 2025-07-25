@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://bxyr41hboor7s"]
+
+[ext_resource type="PackedScene" uid="uid://domcs12gwth4y" path="res://scenes/dice.tscn" id="1_m2b37"]
+[ext_resource type="Texture2D" uid="uid://d3sv71iu2oc0b" path="res://assets/special_die.png" id="2_prny6"]
+
+[node name="Dice" instance=ExtResource("1_m2b37")]
+texture = ExtResource("2_prny6")
+type = 1
+metadata/SIDES = [1, 2, 2, 3, 3, 3]
