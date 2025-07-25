@@ -6,6 +6,6 @@ V0.1 Tasklist
 - [x] Allow Escape Tickets to be used to get out of Jail.
 - [x] Add UI Hub that shows the player and their inventory tickets.
 - [x] Add Die animation when the player rolls. Add UI for player's roll.
-- [ ] Add special die that can be rolled when conditions are met.
+- [x] Add special die that can be rolled when conditions are met.
 - [ ] Add State Manager that controls the turn.
 - [ ] Add a Bot Player that rolls die and moves.

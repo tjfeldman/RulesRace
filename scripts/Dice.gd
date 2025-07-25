@@ -4,14 +4,15 @@ extends Sprite2D
 @onready var timer : Timer = $Timer;
 @onready var label : Label = $Label;
 
-var canClick = true :
+@export var type : Dice.Type;
+
+#default to false and then set true
+var canClick = false :
 	set(value):
 		canClick = value;
 		label.visible = value;
 
-signal dice_has_rolled(roll: Variant);
-
-const SIDES : Array[Variant] = [1, 2, 2, 3, "Jail", "Escape"];	
+signal dice_has_rolled(type : Dice.Type, roll: Variant);
 
 func _unhandled_input(event: InputEvent) -> void:
 	if (Input.is_action_just_pressed("ui_click") and timer.is_stopped() and canClick):
@@ -20,6 +21,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		canClick = false;
 
 func _on_timer_timeout() -> void:
-	var rolledValue = SIDES.pick_random();
+	#Get random value from the metadata of SIDES
+	var rolledValue = get_meta("SIDES").pick_random();
 	animationPlayer.play(str(rolledValue));
-	emit_signal("dice_has_rolled", rolledValue);
+	emit_signal("dice_has_rolled", type, rolledValue);

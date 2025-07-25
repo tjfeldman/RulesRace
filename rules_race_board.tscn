@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://bfjvv7ybhocmc"]
+[gd_scene load_steps=7 format=3 uid="uid://bfjvv7ybhocmc"]
 
 [ext_resource type="Script" uid="uid://cru50j3o060kc" path="res://scripts/Main.gd" id="1_hc47j"]
 [ext_resource type="PackedScene" uid="uid://bykn11n338pv0" path="res://scenes/board.tscn" id="2_oi1hd"]
 [ext_resource type="Texture2D" uid="uid://dvou8cmqetxjd" path="res://assets/player_piece.png" id="2_qq0id"]
+[ext_resource type="PackedScene" uid="uid://bxyr41hboor7s" path="res://scenes/specialDice.tscn" id="4_s36df"]
 [ext_resource type="PackedScene" uid="uid://domcs12gwth4y" path="res://scenes/dice.tscn" id="10_8aqfc"]
 [ext_resource type="Script" uid="uid://o22httwb3xv5" path="res://scripts/Player.gd" id="11_8aqfc"]
 
@@ -15,6 +16,10 @@ position = Vector2(640, 360)
 [node name="Dice" parent="." instance=ExtResource("10_8aqfc")]
 position = Vector2(640, 360)
 
+[node name="SpecialDice" parent="." instance=ExtResource("4_s36df")]
+visible = false
+position = Vector2(640, 360)
+
 [node name="PlayerToken" type="Node2D" parent="."]
 script = ExtResource("11_8aqfc")
 
@@ -25,3 +30,4 @@ texture = ExtResource("2_qq0id")
 [node name="HUD" type="CanvasLayer" parent="."]
 
 [connection signal="dice_has_rolled" from="Dice" to="." method="_on_dice_has_rolled"]
+[connection signal="dice_has_rolled" from="SpecialDice" to="." method="_on_dice_has_rolled"]
