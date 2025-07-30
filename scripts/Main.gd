@@ -4,6 +4,7 @@ extends Node2D
 @onready var dice : Sprite2D = $Dice;
 @onready var special_dice: Sprite2D = $SpecialDice
 @onready var hud: CanvasLayer = $HUD
+@onready var turn_status: Label = $HUD/TurnStatus
 
 #Player Manager
 @export var players : Array[Node2D];
@@ -17,6 +18,7 @@ enum TurnState {
 	WAIT, #Wait for Roll Triggers
 	END, #End of Player's Turn
 	SWITCHING, #Switching Player's Turn
+	OVER, #Game is over
 };
 var currentTurnState : TurnState = TurnState.LOADING;
 var currentPlayerTurn : int = 0 :
@@ -51,12 +53,17 @@ func _process(_delta: float) -> void:
 func handleTurnState():
 	var currentPlayer = players[currentPlayerTurn];
 	if currentTurnState == TurnState.START:
+		turn_status.text = "%s's Turn" % currentPlayer.playerName;
+		#Give delay between Bot Actions
+		if currentPlayer.isBot():
+			await get_tree().create_timer(0.5).timeout;
 		if currentPlayer.isInJail() and currentPlayer.hasEscapeTicket():
 			promptForEscapeTicketInJail(currentPlayer);
 		else:
 			moveToRollState(currentPlayer);
 	if currentTurnState == TurnState.END:
 		currentTurnState = TurnState.SWITCHING;
+		turn_status.text = "%s's turn is ending" % currentPlayer.playerName;
 		currentPlayerTurn += 1;
 		await get_tree().create_timer(0.5).timeout;
 		currentTurnState = TurnState.START;
@@ -70,7 +77,6 @@ func promptForEscapeTicketInJail(player: Player):
 	else:
 		#Bot will always use an escape ticket to escape
 		self._on_escape_with_ticket(true);
-		pass;
 		
 func promptForOfficeReward(player: Player):
 	if !player.isBot():
@@ -81,11 +87,11 @@ func promptForOfficeReward(player: Player):
 		#TODO Right now there is no mechanic to change group rule so bot can't chose it right now
 		var choices: Array[Events.OfficeChoice] = [Events.OfficeChoice.Ticket, Events.OfficeChoice.Dice];
 		var picked = choices.pick_random();
-		print("Bot picked %s" % picked);
 		self._on_office_choice_selected(picked);
 		pass;
 	
 func moveToRollState(player: Player):
+	turn_status.text = "%s's turn to roll die" % player.playerName;
 	currentTurnState = TurnState.ROLL;
 	enable_die(player);
 	
@@ -115,25 +121,33 @@ func _on_dice_has_rolled(type: Dice.Type, roll: Variant) -> void:
 				if board.isOfficeSpace(currentPlayer.getBoardPosition()):
 					promptForOfficeReward(currentPlayer);
 					return; #skip swapping turn state to end
+				elif board.isGoalSpace(currentPlayer.getBoardPosition()):
+					currentTurnState = TurnState.OVER;
+					turn_status.text = "%s reached goal and won" % currentPlayer.playerName;
+					return;
 			currentTurnState = TurnState.END;
 	
 func _on_office_choice_selected(type : Events.OfficeChoice):
 	var currentPlayer = players[currentPlayerTurn];
 	match type:
 		Events.OfficeChoice.Ticket:
+			turn_status.text = "%s picked an escape ticket" % currentPlayer.playerName;
 			currentPlayer.addEscapeTicket();
+			await get_tree().create_timer(0.5).timeout;;
 			currentTurnState = TurnState.END;
 		Events.OfficeChoice.Dice:
+			turn_status.text = "%s picked to roll special die" % currentPlayer.playerName;
 			enable_special_die(currentPlayer);
 		Events.OfficeChoice.Rule:
-			print("Player changes group rule");
+			turn_status.text = "%s picked to change group rule" % currentPlayer.playerName;
 			currentTurnState = TurnState.END;
 			
 func _on_escape_with_ticket(choice: bool):
 	var currentPlayer = players[currentPlayerTurn];
 	if choice:
+		turn_status.text = "%s used an Escape Ticket to Leave Jail" % currentPlayer.playerName;
 		currentPlayer.removeEscapeTicket();
-		currentPlayer.escapeFromJail();
+		await currentPlayer.escapeFromJail();
 	moveToRollState(currentPlayer);
 
 func enable_die(player: Player):
@@ -144,7 +158,7 @@ func enable_die(player: Player):
 		dice.canClick = true;
 	else:
 		#give bot slight delay
-		await get_tree().create_timer(0.5).timeout;
+		await get_tree().create_timer(0.5).timeout;;
 		dice.rollDie();	
 	
 func enable_special_die(player: Player):
@@ -155,5 +169,5 @@ func enable_special_die(player: Player):
 		special_dice.canClick = true; 
 	else:
 		#give bot slight delay
-		await get_tree().create_timer(0.5).timeout;
+		await get_tree().create_timer(0.5).timeout;;
 		special_dice.rollDie();	

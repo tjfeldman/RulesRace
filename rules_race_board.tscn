@@ -53,5 +53,19 @@ text = "B"
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
+[node name="TurnStatus" type="Label" parent="HUD"]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.3
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -55.0
+offset_top = -10.0
+offset_right = 55.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "STATUS LABEL"
+
 [connection signal="dice_has_rolled" from="Dice" to="." method="_on_dice_has_rolled"]
 [connection signal="dice_has_rolled" from="SpecialDice" to="." method="_on_dice_has_rolled"]
