@@ -1,6 +1,5 @@
 extends Node2D
 
-@onready var player : Node2D = $PlayerToken;
 @onready var board : Node2D = $Board;
 @onready var dice : Sprite2D = $Dice;
 @onready var special_dice: Sprite2D = $SpecialDice
@@ -16,7 +15,8 @@ enum TurnState {
 	STANDBY, #Wait for Start of Turn Triggers
 	ROLL, #Player can Roll
 	WAIT, #Wait for Roll Triggers
-	END #End of Player's Turn
+	END, #End of Player's Turn
+	SWITCHING, #Switching Player's Turn
 };
 var currentTurnState : TurnState = TurnState.LOADING;
 var currentPlayerTurn : int = 0 :
@@ -26,101 +26,134 @@ var currentPlayerTurn : int = 0 :
 			value = 0;
 		currentPlayerTurn = value;
 
-#TODO: Move to state manager
-var _asked : bool = false;
-
 func _ready() -> void:
-	print(currentTurnState);
 	#connect to events
 	Events.office_choice_selected.connect(_on_office_choice_selected);
 	Events.escape_jail_with_ticket.connect(_on_escape_with_ticket);
 	
 	#add UI to HUD
-	var playerUI = preload("res://scenes/playerUI.tscn");
-	var ui = playerUI.instantiate();
-	ui.assignedPlayer = player;
-	hud.add_child(ui);
+	var offset = 0;
+	for player in players:
+		var playerUI = preload("res://scenes/playerUI.tscn");
+		var ui = playerUI.instantiate();
+		ui.assignedPlayer = player;
+		hud.add_child(ui);
+		ui.position += Vector2(0, offset);
+		offset+= ui.size.y + 16;
 	
 	#start game
 	currentTurnState = TurnState.START;
 	
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if currentTurnState != TurnState.LOADING:
 		handleTurnState();
 				
 func handleTurnState():
-	var p = players[currentPlayerTurn];
+	var currentPlayer = players[currentPlayerTurn];
 	if currentTurnState == TurnState.START:
-		if p.isInJail() and player.hasEscapeTicket():
-			promptForEscapeTicketInJail();
+		if currentPlayer.isInJail() and currentPlayer.hasEscapeTicket():
+			promptForEscapeTicketInJail(currentPlayer);
 		else:
-			moveToRollState();
+			moveToRollState(currentPlayer);
 	if currentTurnState == TurnState.END:
+		currentTurnState = TurnState.SWITCHING;
+		currentPlayerTurn += 1;
+		await get_tree().create_timer(0.5).timeout;
 		currentTurnState = TurnState.START;
 			
-func promptForEscapeTicketInJail():
+func promptForEscapeTicketInJail(player: Player):
 	currentTurnState = TurnState.STANDBY;
-	var escapeChoiceBox = preload("res://scenes/escapeConfirm.tscn");
-	var choiceBox = escapeChoiceBox.instantiate();
-	add_child(choiceBox);
+	if !player.isBot():
+		var escapeChoiceBox = preload("res://scenes/escapeConfirm.tscn");
+		var choiceBox = escapeChoiceBox.instantiate();
+		add_child(choiceBox);
+	else:
+		#Bot will always use an escape ticket to escape
+		self._on_escape_with_ticket(true);
+		pass;
+		
+func promptForOfficeReward(player: Player):
+	if !player.isBot():
+		var officeChoiceBox = preload("res://scenes/officeChoice.tscn");
+		var choiceBox = officeChoiceBox.instantiate();
+		add_child(choiceBox);
+	else:
+		#TODO Right now there is no mechanic to change group rule so bot can't chose it right now
+		var choices: Array[Events.OfficeChoice] = [Events.OfficeChoice.Ticket, Events.OfficeChoice.Dice];
+		var picked = choices.pick_random();
+		print("Bot picked %s" % picked);
+		self._on_office_choice_selected(picked);
+		pass;
 	
-func moveToRollState():
+func moveToRollState(player: Player):
 	currentTurnState = TurnState.ROLL;
-	enable_die();
+	enable_die(player);
 	
 func _on_dice_has_rolled(type: Dice.Type, roll: Variant) -> void:
 	#If currentTurnState is Roll, then move to Wait state
 	if currentTurnState == TurnState.ROLL:
 		currentTurnState = TurnState.WAIT;
 		
+	var currentPlayer = players[currentPlayerTurn];
 	match roll:
 		"Jail":
-			await player.sendToJail();
+			await currentPlayer.sendToJail();
 			currentTurnState = TurnState.END;
 		"Escape":
-			await player.escapeFromJail();
-			currentTurnState = TurnState.END;
+			if await currentPlayer.escapeFromJail():
+				#when player escapes from jail, they get to roll again
+				enable_die(currentPlayer);
+			else:
+				currentTurnState = TurnState.END;
 		_:
-			if !player.isInJail():
+			if !currentPlayer.isInJail():
 				while roll > 0:
-					await player.movePlayerForward();
+					await currentPlayer.movePlayerForward();
 					roll -= 1;
 				
 				#check if the tile landed on is an office space
-				if board.isOfficeSpace(player.getBoardPosition()):
-					var officeChoiceBox = preload("res://scenes/officeChoice.tscn");
-					var choiceBox = officeChoiceBox.instantiate();
-					add_child(choiceBox);
-					pass;
-				elif type == Dice.Type.SPECIAL:
-					await get_tree().create_timer(0.5).timeout;
+				if board.isOfficeSpace(currentPlayer.getBoardPosition()):
+					promptForOfficeReward(currentPlayer);
+					return; #skip swapping turn state to end
 			currentTurnState = TurnState.END;
 	
 func _on_office_choice_selected(type : Events.OfficeChoice):
+	var currentPlayer = players[currentPlayerTurn];
 	match type:
 		Events.OfficeChoice.Ticket:
-			player.addEscapeTicket();
+			currentPlayer.addEscapeTicket();
 			currentTurnState = TurnState.END;
 		Events.OfficeChoice.Dice:
-			enable_special_die();
+			enable_special_die(currentPlayer);
 		Events.OfficeChoice.Rule:
 			print("Player changes group rule");
 			currentTurnState = TurnState.END;
 			
 func _on_escape_with_ticket(choice: bool):
+	var currentPlayer = players[currentPlayerTurn];
 	if choice:
-		player.removeEscapeTicket();
-		player.escapeFromJail();
-	moveToRollState();
+		currentPlayer.removeEscapeTicket();
+		currentPlayer.escapeFromJail();
+	moveToRollState(currentPlayer);
 
-func enable_die():
-	dice.canClick = true;
+func enable_die(player: Player):
 	dice.visible = true;
 	special_dice.canClick = false; 
 	special_dice.visible = false;
+	if !player.isBot():
+		dice.canClick = true;
+	else:
+		#give bot slight delay
+		await get_tree().create_timer(0.5).timeout;
+		dice.rollDie();	
 	
-func enable_special_die():
+func enable_special_die(player: Player):
 	dice.canClick = false;
 	dice.visible = false;
-	special_dice.canClick = true; 
 	special_dice.visible = true;
+	if !player.isBot():
+		special_dice.canClick = true; 
+	else:
+		#give bot slight delay
+		await get_tree().create_timer(0.5).timeout;
+		special_dice.rollDie();	
