@@ -2,6 +2,9 @@ extends Node2D
 
 class_name Player
 
+@export var playerName: String = "Player";
+@export var bot : bool = false;
+
 @onready var piece : Sprite2D = $PlayerPiece;
 @onready var board : Node2D = $"../Board";
 var playerMoveSpeed: float = 0.33;
@@ -32,27 +35,37 @@ func removeEscapeTicket():
 	_escapeTickets -= 1;
 	
 func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
-	if newPos != null:
-		var tween =  create_tween();
-		tween.tween_property(piece, "position", newPos, moveSpeed);
-		await tween.finished;
+	#TODO: Should be calculated by the board based on pieces on tile
+	if bot:
+		newPos.x += 12;
+	else:
+		newPos.x -= 12;
+	var tween =  create_tween();
+	tween.tween_property(piece, "position", newPos, moveSpeed);
+	await tween.finished;
 	
 func movePlayerForward():
 	#prevent movement if player is in jail
 	if !_inJail:
 		_boardPosition += 1;
 		var targetTile = board.getTilePosition(_boardPosition);
-		await _movePlayer(targetTile);
+		await _movePlayer(targetTile); #TODO: Better Handling to prevent moving past goal
 	
 func sendToJail():
 	if !_inJail:
 		await _movePlayer(board.getJailPosition(), playerMoveSpeed * 3);
 		_inJail = true;
 		
+#returns true if player escaped from jail and should roll again
 func escapeFromJail():
 	if _inJail:
 		await _movePlayer(board.getTilePosition(_boardPosition), playerMoveSpeed * 3);
 		_inJail = false;
+		return true;
+	return false;
 
 func isInJail():
 	return _inJail;
+	
+func isBot():
+	return bot;

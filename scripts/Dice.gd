@@ -14,11 +14,15 @@ var canClick = false :
 
 signal dice_has_rolled(type : Dice.Type, roll: Variant);
 
-func _unhandled_input(event: InputEvent) -> void:
-	if (Input.is_action_just_pressed("ui_click") and timer.is_stopped() and canClick):
+func rollDie():
+	if timer.is_stopped():
 		animationPlayer.play("Roll");
 		timer.start();
 		canClick = false;
+
+func _unhandled_input(event: InputEvent) -> void:
+	if (Input.is_action_just_pressed("ui_click") and canClick):
+		rollDie();
 
 func _on_timer_timeout() -> void:
 	#Get random value from the metadata of SIDES
