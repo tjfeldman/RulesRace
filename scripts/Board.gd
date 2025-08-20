@@ -6,7 +6,7 @@ extends Node2D
 var numberOfTiles : int;
 
 func _ready() -> void:
-	numberOfTiles = boardTiles.size();
+	numberOfTiles = boardTiles.size() -1;
 	
 func _getTile(pos: int):
 	if pos >= 0 && pos < numberOfTiles:

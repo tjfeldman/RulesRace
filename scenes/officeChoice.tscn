@@ -35,6 +35,7 @@ layout_mode = 2
 text = "Roll the Special Die"
 
 [node name="RuleButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 text = "Edit the Group Rule"
 

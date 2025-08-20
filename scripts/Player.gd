@@ -55,6 +55,8 @@ func sendToJail():
 	if !_inJail:
 		await _movePlayer(board.getJailPosition(), playerMoveSpeed * 3);
 		_inJail = true;
+		return true;
+	return false;
 		
 #returns true if player escaped from jail and should roll again
 func escapeFromJail():

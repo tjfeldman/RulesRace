@@ -9,18 +9,6 @@ extends Node2D
 #Player Manager
 @export var players : Array[Node2D];
 
-#Turn Manager
-enum TurnState {
-	LOADING, #Game is Loading
-	START, #Start of Turn Triggers
-	STANDBY, #Wait for Start of Turn Triggers
-	ROLL, #Player can Roll
-	WAIT, #Wait for Roll Triggers
-	END, #End of Player's Turn
-	SWITCHING, #Switching Player's Turn
-	OVER, #Game is over
-};
-var currentTurnState : TurnState = TurnState.LOADING;
 var currentPlayerTurn : int = 0 :
 	set(value):
 		#if the current player turn is set over the size of players, set it to 0
@@ -29,9 +17,10 @@ var currentPlayerTurn : int = 0 :
 		currentPlayerTurn = value;
 
 func _ready() -> void:
-	#connect to events
-	Events.office_choice_selected.connect(_on_office_choice_selected);
-	Events.escape_jail_with_ticket.connect(_on_escape_with_ticket);
+	Events.end_turn.connect(_on_turn_end);
+	Events.roll_die_action.connect(_die_rolling);
+	Events.office_choice_selected.connect(_office_choice);
+	Events.escape_jail_action.connect(_used_escape_ticket);
 	
 	#add UI to HUD
 	var offset = 0;
@@ -44,39 +33,8 @@ func _ready() -> void:
 		offset+= ui.size.y + 16;
 	
 	#start game
-	currentTurnState = TurnState.START;
-	
-func _process(_delta: float) -> void:
-	if currentTurnState != TurnState.LOADING:
-		handleTurnState();
-				
-func handleTurnState():
-	var currentPlayer = players[currentPlayerTurn];
-	if currentTurnState == TurnState.START:
-		turn_status.text = "%s's Turn" % currentPlayer.playerName;
-		#Give delay between Bot Actions
-		if currentPlayer.isBot():
-			await get_tree().create_timer(0.5).timeout;
-		if currentPlayer.isInJail() and currentPlayer.hasEscapeTicket():
-			promptForEscapeTicketInJail(currentPlayer);
-		else:
-			moveToRollState(currentPlayer);
-	if currentTurnState == TurnState.END:
-		currentTurnState = TurnState.SWITCHING;
-		turn_status.text = "%s's turn is ending" % currentPlayer.playerName;
-		currentPlayerTurn += 1;
-		await get_tree().create_timer(0.5).timeout;
-		currentTurnState = TurnState.START;
-			
-func promptForEscapeTicketInJail(player: Player):
-	currentTurnState = TurnState.STANDBY;
-	if !player.isBot():
-		var escapeChoiceBox = preload("res://scenes/escapeConfirm.tscn");
-		var choiceBox = escapeChoiceBox.instantiate();
-		add_child(choiceBox);
-	else:
-		#Bot will always use an escape ticket to escape
-		self._on_escape_with_ticket(true);
+	turn_status.text = "%s's Turn" % players[currentPlayerTurn].playerName;
+	Events.emit_signal("start_turn", players[currentPlayerTurn]);
 		
 func promptForOfficeReward(player: Player):
 	if !player.isBot():
@@ -87,87 +45,58 @@ func promptForOfficeReward(player: Player):
 		#TODO Right now there is no mechanic to change group rule so bot can't chose it right now
 		var choices: Array[Events.OfficeChoice] = [Events.OfficeChoice.Ticket, Events.OfficeChoice.Dice];
 		var picked = choices.pick_random();
-		self._on_office_choice_selected(picked);
-		pass;
+		Events.emit_signal("office_choice_selected", picked);
 	
-func moveToRollState(player: Player):
-	turn_status.text = "%s's turn to roll die" % player.playerName;
-	currentTurnState = TurnState.ROLL;
-	enable_die(player);
-	
-func _on_dice_has_rolled(type: Dice.Type, roll: Variant) -> void:
-	#If currentTurnState is Roll, then move to Wait state
-	if currentTurnState == TurnState.ROLL:
-		currentTurnState = TurnState.WAIT;
-		
+func _on_dice_has_rolled(type: Dice.Type, roll: Variant) -> void:	
 	var currentPlayer = players[currentPlayerTurn];
 	match roll:
 		"Jail":
-			await currentPlayer.sendToJail();
-			currentTurnState = TurnState.END;
+			var sentToJail = await currentPlayer.sendToJail();
+			if sentToJail:
+				turn_status.text = "%s went to jail" %currentPlayer.playerName;
+			Events.emit_signal("player_moved", Events.Movements.Jail if sentToJail else Events.Movements.None);
 		"Escape":
-			if await currentPlayer.escapeFromJail():
-				#when player escapes from jail, they get to roll again
-				enable_die(currentPlayer);
-			else:
-				currentTurnState = TurnState.END;
+			var escapeFromJail = await currentPlayer.escapeFromJail();
+			if escapeFromJail:
+				turn_status.text = "%s escaped jail" %currentPlayer.playerName;
+			Events.emit_signal("player_moved", Events.Movements.Escape if escapeFromJail else Events.Movements.None);
 		_:
 			if !currentPlayer.isInJail():
+				turn_status.text = "%s is moving %s spaces" %[players[currentPlayerTurn].playerName, roll];
 				while roll > 0:
 					await currentPlayer.movePlayerForward();
 					roll -= 1;
 				
 				#check if the tile landed on is an office space
 				if board.isOfficeSpace(currentPlayer.getBoardPosition()):
+					turn_status.text = "%s landed on office" %currentPlayer.playerName;
+					Events.emit_signal("player_moved", Events.Movements.Office);
 					promptForOfficeReward(currentPlayer);
-					return; #skip swapping turn state to end
 				elif board.isGoalSpace(currentPlayer.getBoardPosition()):
-					currentTurnState = TurnState.OVER;
-					turn_status.text = "%s reached goal and won" % currentPlayer.playerName;
-					return;
-			currentTurnState = TurnState.END;
-	
-func _on_office_choice_selected(type : Events.OfficeChoice):
-	var currentPlayer = players[currentPlayerTurn];
-	match type:
-		Events.OfficeChoice.Ticket:
-			turn_status.text = "%s picked an escape ticket" % currentPlayer.playerName;
-			currentPlayer.addEscapeTicket();
-			await get_tree().create_timer(0.5).timeout;;
-			currentTurnState = TurnState.END;
-		Events.OfficeChoice.Dice:
-			turn_status.text = "%s picked to roll special die" % currentPlayer.playerName;
-			enable_special_die(currentPlayer);
-		Events.OfficeChoice.Rule:
-			turn_status.text = "%s picked to change group rule" % currentPlayer.playerName;
-			currentTurnState = TurnState.END;
-			
-func _on_escape_with_ticket(choice: bool):
-	var currentPlayer = players[currentPlayerTurn];
-	if choice:
-		turn_status.text = "%s used an Escape Ticket to Leave Jail" % currentPlayer.playerName;
-		currentPlayer.removeEscapeTicket();
-		await currentPlayer.escapeFromJail();
-	moveToRollState(currentPlayer);
+					turn_status.text = "%s landed on goal and won" %currentPlayer.playerName;
+					Events.emit_signal("player_moved", Events.Movements.Goal);
+				else:
+					Events.emit_signal("player_moved", Events.Movements.Tile);
+			else:
+				Events.emit_signal("player_moved", Events.Movements.None);
 
-func enable_die(player: Player):
-	dice.visible = true;
-	special_dice.canClick = false; 
-	special_dice.visible = false;
-	if !player.isBot():
-		dice.canClick = true;
-	else:
-		#give bot slight delay
-		await get_tree().create_timer(0.5).timeout;;
-		dice.rollDie();	
+func _on_turn_end():
+	currentPlayerTurn += 1;
+	await get_tree().create_timer(0.5).timeout;
+	turn_status.text = "%s's Turn" % players[currentPlayerTurn].playerName;
+	Events.emit_signal("start_turn", players[currentPlayerTurn]);
 	
-func enable_special_die(player: Player):
-	dice.canClick = false;
-	dice.visible = false;
-	special_dice.visible = true;
-	if !player.isBot():
-		special_dice.canClick = true; 
-	else:
-		#give bot slight delay
-		await get_tree().create_timer(0.5).timeout;;
-		special_dice.rollDie();	
+#For Status Update
+func _die_rolling(special: bool):
+	var dieName = "the special die" if special else "the die";
+	turn_status.text = "%s is rolling %s" %[players[currentPlayerTurn].playerName, dieName];
+	
+func _office_choice(choice: Events.OfficeChoice):
+	match choice:
+		Events.OfficeChoice.Ticket:
+			turn_status.text = "%s recieved an escape ticket" % players[currentPlayerTurn].playerName;
+		Events.OfficeChoice.Dice:
+			turn_status.text = "%s can roll the special die" % players[currentPlayerTurn].playerName;
+			
+func _used_escape_ticket():
+	turn_status.text = "%s used an escape ticket to leave jail" % players[currentPlayerTurn].playerName;
