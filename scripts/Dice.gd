@@ -6,7 +6,7 @@ extends Sprite2D
 
 @export var type : Dice.Type;
 
-signal dice_has_rolled(type : Dice.Type, roll: Variant);\
+signal dice_has_rolled(type : Dice.Type, roll: Variant);
 
 func _ready() -> void:
 	Events.roll_die_action.connect(rollDie);
