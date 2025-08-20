@@ -47,7 +47,7 @@ func promptForOfficeReward(player: Player):
 		var picked = choices.pick_random();
 		Events.emit_signal("office_choice_selected", picked);
 	
-func _on_dice_has_rolled(type: Dice.Type, roll: Variant) -> void:	
+func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:	
 	var currentPlayer = players[currentPlayerTurn];
 	match roll:
 		"Jail":

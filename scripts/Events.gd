@@ -1,5 +1,8 @@
 extends Node
 
+#since this is an event bus class, the signals will never be used within the class itself
+@warning_ignore_start("unused_signal")
+
 enum OfficeChoice {Ticket, Dice, Rule};
 enum Movements {Jail, Escape, Tile, Office, Goal, None}
 
