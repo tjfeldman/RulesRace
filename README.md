@@ -13,7 +13,8 @@ V0.1 Tasklist
 V0.2 Tasklist (Every Check is ~0.005)
 - [x] Add UI element with buttons for actions
 - [x] Revamp State Manager with UI.
-- [ ] Add Group Rule UI element that shows current group rule selection and also shows other rules. Group rule categories: When, Trigger, Effect
+- [x] Add Group Rule UI element that shows current group rule selection and also shows other rules. Group rule categories: When, Trigger, Effect
+- [ ] Add Group Rule Manager
 - [ ] Add Group Rule check for When category of "Every player, on their turn"
 - [ ] Add Group Rule check for When category of "At any time, player(s) in prison"
 - [ ] Add Group Rule check for When category of "The leading player(s), on their turn,"
