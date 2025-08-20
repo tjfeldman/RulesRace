@@ -9,3 +9,27 @@ V0.1 Tasklist
 - [x] Add special die that can be rolled when conditions are met.
 - [x] Add State Manager that controls the turn.
 - [x] Add a Bot Player that rolls die and moves.
+
+V0.2 Tasklist (Every Check is ~0.005)
+- [x] Add UI element with buttons for actions
+- [x] Revamp State Manager with UI.
+- [ ] Add Group Rule UI element that shows current group rule selection and also shows other rules. Group rule categories: When, Trigger, Effect
+- [ ] Add Group Rule check for When category of "Every player, on their turn"
+- [ ] Add Group Rule check for When category of "At any time, player(s) in prison"
+- [ ] Add Group Rule check for When category of "The leading player(s), on their turn,"
+- [ ] Add Group Rule check for Trigger category of "If they roll Prison, they won't move to Prison, and can"
+- [ ] Add Group Rule check for Trigger category of "If they roll 1, they will move one space and then can"
+- [ ] Add Group Rule check for Trigger category of "If they roll 2, they will move two space and then can"
+- [ ] Add Group Rule check for Trigger category of "If they roll 3, they will move three space and then can"
+- [ ] Add Group Rule check for Trigger category of "every time another player goes to Prison, they can"
+- [ ] Add Group Rule check for Trigger category of "they can move 2 spaces backwards and then"
+- [ ] Add Group Rule check for Trigger category of "they can discard an escape ticket(s) and"
+- [ ] Add Group Rule check for Trigger category of "they can forfeit their dice roll and"
+- [ ] Add Group Rule action for Effect category of "move one space forward"
+- [ ] Add Group Rule action for Effect category of "gain one escape ticket"
+- [ ] Add Group Rule action for Effect category of "give one escape ticket to a different player"
+- [ ] Add Group Rule action for Effect category of "roll the dice again"
+- [ ] Add Group Rule action for Effect category of "move to the space of the player in front of them"
+- [ ] Add Group Rule action for Effect category of "move one space backward"
+- [ ] Add Group Rule action for Effect category of "roll the special die"
+- [ ] Add Group Rule action for Effect category of "send one other player one space backward"

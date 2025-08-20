@@ -6,26 +6,25 @@ extends Sprite2D
 
 @export var type : Dice.Type;
 
-#default to false and then set true
-var canClick = false :
-	set(value):
-		canClick = value;
-		label.visible = value;
-
 signal dice_has_rolled(type : Dice.Type, roll: Variant);
 
-func rollDie():
-	if timer.is_stopped():
+func _ready() -> void:
+	Events.roll_die_action.connect(rollDie);
+
+func rollDie(special: bool):
+	if !_correct_die(special):
+		self.visible = false;
+	elif timer.is_stopped():
+		self.visible = true;
 		animationPlayer.play("Roll");
 		timer.start();
-		canClick = false;
-
-func _unhandled_input(event: InputEvent) -> void:
-	if (Input.is_action_just_pressed("ui_click") and canClick):
-		rollDie();
 
 func _on_timer_timeout() -> void:
 	#Get random value from the metadata of SIDES
 	var rolledValue = get_meta("SIDES").pick_random();
 	animationPlayer.play(str(rolledValue));
 	emit_signal("dice_has_rolled", type, rolledValue);
+
+func _correct_die(special: bool):
+	var isSpecialDie = type == Dice.Type.SPECIAL;
+	return isSpecialDie == special;
