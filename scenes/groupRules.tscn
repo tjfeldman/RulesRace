@@ -1,14 +1,18 @@
-[gd_scene load_steps=7 format=3 uid="uid://df1kr1qk1gne6"]
+[gd_scene load_steps=8 format=3 uid="uid://df1kr1qk1gne6"]
 
+[ext_resource type="Script" uid="uid://bavdaked06e7c" path="res://scripts/GroupRuleManager.gd" id="1_4swj5"]
 [ext_resource type="Theme" uid="uid://b1apnwye66uxq" path="res://themes/when_button.tres" id="1_g8sjv"]
 [ext_resource type="Theme" uid="uid://bnpru5ian53ls" path="res://themes/trigger_button.tres" id="2_qp2mt"]
 [ext_resource type="Theme" uid="uid://cqtbbkrffjv4t" path="res://themes/effect_button.tres" id="3_4swj5"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_iuvjf"]
+resource_name = "When"
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_g8sjv"]
+resource_name = "Trigger"
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_wejwk"]
+resource_name = "Effect"
 
 [node name="GroupRules" type="CenterContainer"]
 anchors_preset = 8
@@ -22,6 +26,7 @@ offset_right = 556.5
 offset_bottom = 156.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_4swj5")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2

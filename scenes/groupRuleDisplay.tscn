@@ -1,0 +1,72 @@
+[gd_scene load_steps=3 format=3 uid="uid://cpjihb12mmhvt"]
+
+[ext_resource type="Script" uid="uid://be4kfyxeoeqn1" path="res://scripts/GroupRuleDisplay.gd" id="1_03cib"]
+[ext_resource type="PackedScene" uid="uid://df1kr1qk1gne6" path="res://scenes/groupRules.tscn" id="1_rnt2w"]
+
+[node name="GroupRuleDisplay" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_03cib")
+
+[node name="WhenDisplay" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 150.0
+offset_bottom = 100.0
+color = Color(0.792157, 0.643137, 0.254902, 1)
+
+[node name="Label" type="Label" parent="WhenDisplay"]
+layout_mode = 2
+offset_right = 150.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="TriggerDisplay" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 155.0
+offset_right = 305.0
+offset_bottom = 100.0
+color = Color(0.152941, 0.384314, 0.698039, 1)
+
+[node name="Label" type="Label" parent="TriggerDisplay"]
+layout_mode = 2
+offset_right = 150.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="EffectDisplay" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 310.0
+offset_right = 460.0
+offset_bottom = 100.0
+color = Color(0.298039, 0.529412, 0.298039, 1)
+
+[node name="Label" type="Label" parent="EffectDisplay"]
+layout_mode = 2
+offset_right = 150.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Background" type="Panel" parent="."]
+show_behind_parent = true
+layout_mode = 0
+offset_right = 460.0
+offset_bottom = 100.0
+
+[node name="GroupRules" parent="." instance=ExtResource("1_rnt2w")]
+visible = false
+layout_mode = 1
+offset_left = -288.0
+offset_top = 109.0
+offset_right = 825.0
+offset_bottom = 421.0
+
+[connection signal="gui_input" from="Background" to="." method="_on_background_gui_input"]

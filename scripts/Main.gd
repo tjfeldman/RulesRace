@@ -4,7 +4,7 @@ extends Node2D
 @onready var dice : Sprite2D = $Dice;
 @onready var special_dice: Sprite2D = $SpecialDice
 @onready var hud: CanvasLayer = $HUD
-@onready var turn_status: Label = $HUD/TurnStatus
+@onready var turn_status: Label = $TurnStatus
 
 #Player Manager
 @export var players : Array[Node2D];
