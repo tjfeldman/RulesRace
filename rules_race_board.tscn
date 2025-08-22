@@ -76,7 +76,7 @@ text = "STATUS LABEL"
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
-[node name="GroupRuleDisplay" parent="." instance=ExtResource("8_rv52q")]
+[node name="GroupRuleManager" parent="." instance=ExtResource("8_rv52q")]
 offset_left = 410.0
 offset_top = 130.0
 offset_right = 410.0

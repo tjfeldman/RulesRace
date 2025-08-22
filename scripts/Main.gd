@@ -5,6 +5,7 @@ extends Node2D
 @onready var special_dice: Sprite2D = $SpecialDice
 @onready var hud: CanvasLayer = $HUD
 @onready var turn_status: Label = $TurnStatus
+@onready var group_rule_manager: Control = $GroupRuleManager
 
 #Player Manager
 @export var players : Array[Node2D];

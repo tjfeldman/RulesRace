@@ -1,39 +1,28 @@
-extends CenterContainer
+extends Control
 
-var whenGroupButtons: Array[BaseButton];
-var triggerGroupButtons: Array[BaseButton];
-var effectGroupButtons: Array[BaseButton];
+@onready var group_rule_selector: CenterContainer = $GroupRuleSelector
+@onready var whenLabel: Label = $WhenDisplay/Label
+@onready var triggerLabel: Label = $TriggerDisplay/Label
+@onready var effectLabel: Label = $EffectDisplay/Label
 
-var selectedWhenRule : BaseButton;
-var selectedTriggerRule : BaseButton;
-var selectedEffectRule : BaseButton;
-
-signal rulesUpdated(whenRule: BaseButton, triggerRule: BaseButton, effectRule: BaseButton);
+#set to -1 to represent None
+var whenRule: GroupRules.When = -1;
+var triggerRule: GroupRules.Trigger = -1;
+var effectRule: GroupRules.Effect = -1;
 
 func _ready() -> void:
-	whenGroupButtons = $PanelContainer/MarginContainer/GroupRuleSelection/Whens/EveryPlayer.button_group.get_buttons();
-	triggerGroupButtons = $PanelContainer/MarginContainer/GroupRuleSelection/Triggers/RollPrison.button_group.get_buttons();
-	effectGroupButtons = $PanelContainer/MarginContainer/GroupRuleSelection/Effects/MoveForward.button_group.get_buttons();
+	group_rule_selector.visible = false;
+	group_rule_selector.rulesUpdated.connect(_on_rules_updated);
 	
-	call_deferred("random_rule");
-
-func random_rule():
-	#select random group rules
-	selectedWhenRule = whenGroupButtons.pick_random();
-	selectedTriggerRule = triggerGroupButtons.pick_random();
-	selectedEffectRule = effectGroupButtons.pick_random();
+func _on_background_gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_click"):
+		group_rule_selector.visible = !group_rule_selector.visible;
+		
+func _on_rules_updated(whenRuleBtn: RuleButton, triggerRuleBtn: RuleButton, effectRuleBtn: RuleButton):
+	whenLabel.text = whenRuleBtn.description;
+	triggerLabel.text = triggerRuleBtn.description;
+	effectLabel.text = effectRuleBtn.description;
 	
-	#toggle selected
-	selectedWhenRule.button_pressed = true;
-	selectedTriggerRule.button_pressed = true;
-	selectedEffectRule.button_pressed = true;
-	
-	#disable all other buttons
-	for toDisable in whenGroupButtons.filter(func(btn): return btn != selectedWhenRule):
-		toDisable.disabled = true;
-	for toDisable in triggerGroupButtons.filter(func(btn): return btn != selectedTriggerRule):
-			toDisable.disabled = true;
-	for toDisable in effectGroupButtons.filter(func(btn): return btn != selectedEffectRule):
-			toDisable.disabled = true;
-			
-	rulesUpdated.emit(selectedWhenRule, selectedTriggerRule, selectedEffectRule);
+	whenRule = whenRuleBtn.type;
+	triggerRule = triggerRuleBtn.type;
+	effectRule = effectRuleBtn.type;

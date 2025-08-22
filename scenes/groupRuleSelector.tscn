@@ -1,9 +1,12 @@
-[gd_scene load_steps=8 format=3 uid="uid://df1kr1qk1gne6"]
+[gd_scene load_steps=11 format=3 uid="uid://df1kr1qk1gne6"]
 
-[ext_resource type="Script" uid="uid://bavdaked06e7c" path="res://scripts/GroupRuleManager.gd" id="1_4swj5"]
-[ext_resource type="Theme" uid="uid://b1apnwye66uxq" path="res://themes/when_button.tres" id="1_g8sjv"]
-[ext_resource type="Theme" uid="uid://bnpru5ian53ls" path="res://themes/trigger_button.tres" id="2_qp2mt"]
-[ext_resource type="Theme" uid="uid://cqtbbkrffjv4t" path="res://themes/effect_button.tres" id="3_4swj5"]
+[ext_resource type="Script" uid="uid://bavdaked06e7c" path="res://scripts/GroupRuleSelector.gd" id="1_lxafq"]
+[ext_resource type="Theme" uid="uid://b1apnwye66uxq" path="res://themes/when_button.tres" id="2_bqmq2"]
+[ext_resource type="Theme" uid="uid://bnpru5ian53ls" path="res://themes/trigger_button.tres" id="3_1lymc"]
+[ext_resource type="Script" uid="uid://dumljh5lrdy7y" path="res://scripts/RuleButtons/WhenButton.gd" id="3_bqmq2"]
+[ext_resource type="Theme" uid="uid://cqtbbkrffjv4t" path="res://themes/effect_button.tres" id="4_ni8qs"]
+[ext_resource type="Script" uid="uid://cljr32n2dqp41" path="res://scripts/RuleButtons/TriggerButton.gd" id="5_1lymc"]
+[ext_resource type="Script" uid="uid://cpo4oypp633ro" path="res://scripts/RuleButtons/EffectButton.gd" id="7_ni8qs"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_iuvjf"]
 resource_name = "When"
@@ -14,7 +17,7 @@ resource_name = "Trigger"
 [sub_resource type="ButtonGroup" id="ButtonGroup_wejwk"]
 resource_name = "Effect"
 
-[node name="GroupRules" type="CenterContainer"]
+[node name="GroupRuleSelector" type="CenterContainer" node_paths=PackedStringArray("whenGroupButtons", "triggerGroupButtons", "effectGroupButtons")]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -26,7 +29,10 @@ offset_right = 556.5
 offset_bottom = 156.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_4swj5")
+script = ExtResource("1_lxafq")
+whenGroupButtons = [NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Whens/EveryPlayer"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Whens/PrisonPlayer"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Whens/LeadingPlayer")]
+triggerGroupButtons = [NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Triggers/RollPrison"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Triggers/RollOne"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Triggers/RollTwo"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Triggers/RollThree"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Triggers/GoesPrison"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Triggers/MovesBack"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Triggers/DiscardTicket"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Triggers/ForfeitDie")]
+effectGroupButtons = [NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Effects/MoveForward"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Effects/GainTicket"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Effects/TransferTicket"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Effects/Reroll"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Effects/JumpAhead"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Effects/MoveBack"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Effects/SpecialDie"), NodePath("PanelContainer/MarginContainer/GroupRuleSelection/Effects/SendBack")]
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2
@@ -47,139 +53,174 @@ size_flags_vertical = 4
 
 [node name="EveryPlayer" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Whens"]
 layout_mode = 2
-theme = ExtResource("1_g8sjv")
+theme = ExtResource("2_bqmq2")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_iuvjf")
 text = "Every player, on their turn"
+script = ExtResource("3_bqmq2")
 
 [node name="PrisonPlayer" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Whens"]
 layout_mode = 2
-theme = ExtResource("1_g8sjv")
+theme = ExtResource("2_bqmq2")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_iuvjf")
 text = "At any time, player(s) in prison"
+script = ExtResource("3_bqmq2")
+type = 1
 
 [node name="LeadingPlayer" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Whens"]
 layout_mode = 2
-theme = ExtResource("1_g8sjv")
+theme = ExtResource("2_bqmq2")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_iuvjf")
 text = "The leading player(s), on their turn,"
+script = ExtResource("3_bqmq2")
+type = 2
 
 [node name="Triggers" type="VBoxContainer" parent="PanelContainer/MarginContainer/GroupRuleSelection"]
 layout_mode = 2
 
 [node name="RollPrison" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Triggers"]
 layout_mode = 2
-theme = ExtResource("2_qp2mt")
+theme = ExtResource("3_1lymc")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_g8sjv")
 text = "If they roll Prison, they won't move to Prison, and can"
+script = ExtResource("5_1lymc")
 
 [node name="RollOne" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Triggers"]
 layout_mode = 2
-theme = ExtResource("2_qp2mt")
+theme = ExtResource("3_1lymc")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_g8sjv")
 text = "If they roll 1, they will move one space and then can"
+script = ExtResource("5_1lymc")
+type = 1
 
 [node name="RollTwo" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Triggers"]
 layout_mode = 2
-theme = ExtResource("2_qp2mt")
+theme = ExtResource("3_1lymc")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_g8sjv")
 text = "If they roll 2, they will move two space and then can"
+script = ExtResource("5_1lymc")
+type = 2
 
 [node name="RollThree" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Triggers"]
 layout_mode = 2
-theme = ExtResource("2_qp2mt")
+theme = ExtResource("3_1lymc")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_g8sjv")
 text = "If they roll 3, they will move three space and then can"
+script = ExtResource("5_1lymc")
+type = 3
 
 [node name="GoesPrison" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Triggers"]
 layout_mode = 2
-theme = ExtResource("2_qp2mt")
+theme = ExtResource("3_1lymc")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_g8sjv")
 text = "every time another player goes to Prison, they can"
+script = ExtResource("5_1lymc")
+type = 4
 
 [node name="MovesBack" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Triggers"]
 layout_mode = 2
-theme = ExtResource("2_qp2mt")
+theme = ExtResource("3_1lymc")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_g8sjv")
 text = "they can move 2 spaces backwards and then"
+script = ExtResource("5_1lymc")
+type = 5
 
 [node name="DiscardTicket" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Triggers"]
 layout_mode = 2
-theme = ExtResource("2_qp2mt")
+theme = ExtResource("3_1lymc")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_g8sjv")
 text = "they can discard an escape ticket(s) and"
+script = ExtResource("5_1lymc")
+type = 6
 
 [node name="ForfeitDie" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Triggers"]
 layout_mode = 2
-theme = ExtResource("2_qp2mt")
+theme = ExtResource("3_1lymc")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_g8sjv")
 text = "they can forfeit their dice roll and"
+script = ExtResource("5_1lymc")
+type = 7
 
 [node name="Effects" type="VBoxContainer" parent="PanelContainer/MarginContainer/GroupRuleSelection"]
 layout_mode = 2
 
 [node name="MoveForward" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Effects"]
 layout_mode = 2
-theme = ExtResource("3_4swj5")
+theme = ExtResource("4_ni8qs")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_wejwk")
 text = "move one space forward"
+script = ExtResource("7_ni8qs")
 
 [node name="GainTicket" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Effects"]
 layout_mode = 2
-theme = ExtResource("3_4swj5")
+theme = ExtResource("4_ni8qs")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_wejwk")
 text = "gain one escape ticket"
+script = ExtResource("7_ni8qs")
+type = 1
 
 [node name="TransferTicket" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Effects"]
 layout_mode = 2
-theme = ExtResource("3_4swj5")
+theme = ExtResource("4_ni8qs")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_wejwk")
 text = "give one escape ticket to a different player"
+script = ExtResource("7_ni8qs")
+type = 2
 
 [node name="Reroll" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Effects"]
 layout_mode = 2
-theme = ExtResource("3_4swj5")
+theme = ExtResource("4_ni8qs")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_wejwk")
 text = "roll the dice again"
+script = ExtResource("7_ni8qs")
+type = 3
 
 [node name="JumpAhead" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Effects"]
 layout_mode = 2
-theme = ExtResource("3_4swj5")
+theme = ExtResource("4_ni8qs")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_wejwk")
 text = "move to the space of the player in front of them"
+script = ExtResource("7_ni8qs")
+type = 4
 
 [node name="MoveBack" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Effects"]
 layout_mode = 2
-theme = ExtResource("3_4swj5")
+theme = ExtResource("4_ni8qs")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_wejwk")
 text = "move one space backward"
+script = ExtResource("7_ni8qs")
+type = 5
 
 [node name="SpecialDie" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Effects"]
 layout_mode = 2
-theme = ExtResource("3_4swj5")
+theme = ExtResource("4_ni8qs")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_wejwk")
 text = "roll the special die"
+script = ExtResource("7_ni8qs")
+type = 6
 
 [node name="SendBack" type="Button" parent="PanelContainer/MarginContainer/GroupRuleSelection/Effects"]
 layout_mode = 2
-theme = ExtResource("3_4swj5")
+theme = ExtResource("4_ni8qs")
 toggle_mode = true
 button_group = SubResource("ButtonGroup_wejwk")
 text = "send one other player one space backward"
+script = ExtResource("7_ni8qs")
+type = 7
