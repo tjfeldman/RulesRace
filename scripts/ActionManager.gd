@@ -1,4 +1,5 @@
 extends Control
+class_name ActionManager
 
 @onready var escape: Button = $PanelContainer/MarginContainer/VBoxContainer/Escape
 @onready var dice: Button = $PanelContainer/MarginContainer/VBoxContainer/Dice
@@ -17,53 +18,23 @@ enum TurnState {
 	OVER, #Game is over
 };
 
-var currentTurnPlayer : Player;
-var currentTurnState : TurnState = TurnState.LOADING :
-	set(value):
-		match(value):
-			TurnState.START:
-				_enable_all_actions();
-				escape.visible = _player_can_escape_jail();
-				dice.visible = true;
-				special.visible = false;
-				group.visible = false;
-				end.visible = false;
-			TurnState.ROLLING:
-				_disable_all_actions();
-			TurnState.SELECTING:
-				_disable_all_actions();
-			TurnState.REROLL:
-				_enable_all_actions();
-				escape.visible = false;
-				dice.visible = true;
-				special.visible = false;
-				group.visible = false;
-				end.visible = false;
-			TurnState.SPECIAL:
-				_enable_all_actions();
-				escape.visible = false;
-				dice.visible = false;
-				special.visible = true;
-				group.visible = false;
-				end.visible = false;
-			TurnState.END:
-				_enable_all_actions();
-				escape.visible = false;
-				dice.visible = false;
-				special.visible = false;
-				group.visible = false;
-				end.visible = true;
-		currentTurnState = value;
+#Static Fields
+static var _currentTurnState: TurnState = TurnState.LOADING;
+static var _currentTurnPlayer : Player;
+static func getCurrentTurnState(): return _currentTurnState;
+static func getCurrentTurnPlayer(): return _currentTurnPlayer;
+
 
 func _ready() -> void:
 	#connect events
 	Events.start_turn.connect(_next_turn);
 	Events.player_moved.connect(_player_moved);
 	Events.office_choice_selected.connect(_office_choice);
+	Events.declined_rule_effect.connect(_no_effect_used)
 	
 func _next_turn(player: Player):
-	currentTurnPlayer = player;
-	currentTurnState = TurnState.START;
+	_currentTurnPlayer = player;
+	_updateTurnState(TurnState.START);
 	if (player.isBot()):
 		self.visible = false;
 		_bot_start_turn();
@@ -73,30 +44,31 @@ func _next_turn(player: Player):
 func _player_moved(movement: Events.Movements):
 	match movement:
 		Events.Movements.Escape:
-			currentTurnState = TurnState.REROLL;
+			_updateTurnState(TurnState.REROLL);
 		Events.Movements.Office:
-			currentTurnState = TurnState.SELECTING;
+			_updateTurnState(TurnState.SELECTING);
+		Events.Movements.Rule:
+			_updateTurnState(TurnState.SELECTING);
 		Events.Movements.Goal:
-			currentTurnState = TurnState.OVER;
+			_updateTurnState(TurnState.OVER);
 			self.visible = false;
 		_:
-			currentTurnState = TurnState.END;
-			
-	if currentTurnPlayer.isBot() && currentTurnState != TurnState.SELECTING:
-		await get_tree().create_timer(0.5).timeout;
-		_bot_after_roll();
+			_updateTurnState(TurnState.END);
+	_check_for_bot_action();
+	
 
 func _office_choice(type : Events.OfficeChoice):
 	match type:
 		Events.OfficeChoice.Ticket:
-			currentTurnPlayer.addEscapeTicket();
-			currentTurnState = TurnState.END;
+			_currentTurnPlayer.addEscapeTicket();
+			_updateTurnState(TurnState.END);
 		Events.OfficeChoice.Dice:
-			currentTurnState = TurnState.SPECIAL;
-			
-	if currentTurnPlayer.isBot():
-		await get_tree().create_timer(0.5).timeout;
-		_bot_after_roll();
+			_updateTurnState(TurnState.SPECIAL);
+	_check_for_bot_action();
+	
+func _no_effect_used():
+	_updateTurnState(TurnState.END);
+	_check_for_bot_action();
 			
 func _on_escape_pressed() -> void:
 	_disable_all_actions();
@@ -105,11 +77,11 @@ func _on_escape_pressed() -> void:
 	_enable_all_actions();
 
 func _on_dice_pressed() -> void:
-	currentTurnState = TurnState.ROLLING;
+	_updateTurnState(TurnState.ROLLING);
 	Events.emit_signal("roll_die_action", false);
 	
 func _on_special_pressed() -> void:
-	currentTurnState = TurnState.ROLLING;
+	_updateTurnState(TurnState.ROLLING);
 	Events.emit_signal("roll_die_action", true);
 	
 func _on_end_pressed() -> void:
@@ -131,12 +103,12 @@ func _enable_all_actions():
 	end.disabled = false;
 	
 func _player_can_escape_jail():
-	return currentTurnPlayer.isInJail() && currentTurnPlayer.hasEscapeTicket();
+	return _currentTurnPlayer.isInJail() && _currentTurnPlayer.hasEscapeTicket();
 	
 func _player_escapes_jail():
 	Events.emit_signal("escape_jail_action");
-	currentTurnPlayer.removeEscapeTicket();
-	await currentTurnPlayer.escapeFromJail();
+	_currentTurnPlayer.removeEscapeTicket();
+	await _currentTurnPlayer.escapeFromJail();
 	
 #BOT ACTIONS
 func _bot_start_turn():
@@ -146,19 +118,61 @@ func _bot_start_turn():
 		await _player_escapes_jail();
 		await get_tree().create_timer(0.5).timeout;
 	#then the bot will roll their dice
-	currentTurnState = TurnState.ROLLING;
+	_updateTurnState(TurnState.ROLLING);
 	Events.emit_signal("roll_die_action", false);
 	
 func _bot_after_roll():
-	match currentTurnState:
+	match _currentTurnState:
 		TurnState.REROLL:
 			#if bot has reroll, they will reroll
-			currentTurnState = TurnState.ROLLING;
+			_updateTurnState(TurnState.ROLLING);
 			Events.emit_signal("roll_die_action", false);
 		TurnState.SPECIAL:
 			#if bot has special die, they will roll it
-			currentTurnState = TurnState.ROLLING;
+			_updateTurnState(TurnState.ROLLING);
 			Events.emit_signal("roll_die_action", true);
 		TurnState.END:
 			#if it's the end of the bots turn, they will end
 			Events.emit_signal("end_turn");
+			
+func _check_for_bot_action():
+	if _currentTurnPlayer.isBot() && _currentTurnState != TurnState.SELECTING:
+		await get_tree().create_timer(0.5).timeout;
+		_bot_after_roll();
+			
+#Turn State Update Manager
+func _updateTurnState(newState: TurnState):
+	match(newState):
+		TurnState.START:
+			_enable_all_actions();
+			escape.visible = _player_can_escape_jail();
+			dice.visible = true;
+			special.visible = false;
+			group.visible = false;
+			end.visible = false;
+		TurnState.ROLLING:
+			_disable_all_actions();
+		TurnState.SELECTING:
+			_disable_all_actions();
+		TurnState.REROLL:
+			_enable_all_actions();
+			escape.visible = false;
+			dice.visible = true;
+			special.visible = false;
+			group.visible = false;
+			end.visible = false;
+		TurnState.SPECIAL:
+			_enable_all_actions();
+			escape.visible = false;
+			dice.visible = false;
+			special.visible = true;
+			group.visible = false;
+			end.visible = false;
+		TurnState.END:
+			_enable_all_actions();
+			escape.visible = false;
+			dice.visible = false;
+			special.visible = false;
+			group.visible = false;
+			end.visible = true;
+	_currentTurnState = newState;

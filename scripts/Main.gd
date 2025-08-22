@@ -49,13 +49,20 @@ func promptForOfficeReward(player: Player):
 		Events.emit_signal("office_choice_selected", picked);
 	
 func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:	
-	var currentPlayer = players[currentPlayerTurn];
+	var currentPlayer = ActionManager.getCurrentTurnPlayer();
+	var groupRuleTriggered = group_rule_manager.checkRollTrigger(roll);
 	match roll:
 		"Jail":
-			var sentToJail = await currentPlayer.sendToJail();
-			if sentToJail:
-				turn_status.text = "%s went to jail" %currentPlayer.playerName;
-			Events.emit_signal("player_moved", Events.Movements.Jail if sentToJail else Events.Movements.None);
+			#if the group rule triggered on rolling prison, player does not go to prison
+			if not groupRuleTriggered:
+				var sentToJail = await currentPlayer.sendToJail();
+				if sentToJail:
+					turn_status.text = "%s went to jail" %currentPlayer.playerName;
+				Events.emit_signal("player_moved", Events.Movements.Jail if sentToJail else Events.Movements.None);
+			else:
+				turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
+				Events.emit_signal("player_moved", Events.Movements.Rule);
+				group_rule_manager.promptRuleEffect(currentPlayer);
 		"Escape":
 			var escapeFromJail = await currentPlayer.escapeFromJail();
 			if escapeFromJail:
@@ -63,7 +70,7 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 			Events.emit_signal("player_moved", Events.Movements.Escape if escapeFromJail else Events.Movements.None);
 		_:
 			if !currentPlayer.isInJail():
-				turn_status.text = "%s is moving %s spaces" %[players[currentPlayerTurn].playerName, roll];
+				turn_status.text = "%s is moving %s spaces" %[currentPlayer.playerName, roll];
 				while roll > 0:
 					await currentPlayer.movePlayerForward();
 					roll -= 1;
@@ -76,8 +83,16 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 				elif board.isGoalSpace(currentPlayer.getBoardPosition()):
 					turn_status.text = "%s landed on goal and won" %currentPlayer.playerName;
 					Events.emit_signal("player_moved", Events.Movements.Goal);
+				elif groupRuleTriggered:
+					turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
+					Events.emit_signal("player_moved", Events.Movements.Rule);
+					group_rule_manager.promptRuleEffect(currentPlayer);
 				else:
 					Events.emit_signal("player_moved", Events.Movements.Tile);
+			elif groupRuleTriggered:
+				turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
+				Events.emit_signal("player_moved", Events.Movements.Rule);
+				group_rule_manager.promptRuleEffect(currentPlayer);
 			else:
 				Events.emit_signal("player_moved", Events.Movements.None);
 
@@ -90,14 +105,14 @@ func _on_turn_end():
 #For Status Update
 func _die_rolling(special: bool):
 	var dieName = "the special die" if special else "the die";
-	turn_status.text = "%s is rolling %s" %[players[currentPlayerTurn].playerName, dieName];
+	turn_status.text = "%s is rolling %s" %[ActionManager.getCurrentTurnPlayer().playerName, dieName];
 	
 func _office_choice(choice: Events.OfficeChoice):
 	match choice:
 		Events.OfficeChoice.Ticket:
-			turn_status.text = "%s recieved an escape ticket" % players[currentPlayerTurn].playerName;
+			turn_status.text = "%s recieved an escape ticket" % ActionManager.getCurrentTurnPlayer().playerName;
 		Events.OfficeChoice.Dice:
-			turn_status.text = "%s can roll the special die" % players[currentPlayerTurn].playerName;
+			turn_status.text = "%s can roll the special die" % ActionManager.getCurrentTurnPlayer().playerName;
 			
 func _used_escape_ticket():
-	turn_status.text = "%s used an escape ticket to leave jail" % players[currentPlayerTurn].playerName;
+	turn_status.text = "%s used an escape ticket to leave jail" % ActionManager.getCurrentTurnPlayer().playerName;

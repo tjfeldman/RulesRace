@@ -4,7 +4,7 @@ extends Node
 @warning_ignore_start("unused_signal")
 
 enum OfficeChoice {Ticket, Dice, Rule};
-enum Movements {Jail, Escape, Tile, Office, Goal, None}
+enum Movements {Jail, Escape, Tile, Office, Rule, Goal, None}
 
 signal office_choice_selected(choice: OfficeChoice);
 signal updated_escape_tickets(player: Player);
@@ -16,6 +16,10 @@ signal end_turn();
 #Action Events
 signal roll_die_action(special: bool);
 signal escape_jail_action();
+signal declined_rule_effect();
 
 #Move Events
 signal player_moved(movement: Movements);
+
+#Rule Events
+signal confirm_rule_effect(affectedPlayer: Player, choice: bool);

@@ -38,7 +38,7 @@ var selectedWhenRule : WhenButton;
 var selectedTriggerRule : TriggerButton;
 var selectedEffectRule : EffectButton;
 
-signal rulesUpdated(whenRule: RuleButton, triggerRule: RuleButton, effectRule: RuleButton);
+signal rules_updated(whenRule: RuleButton, triggerRule: RuleButton, effectRule: RuleButton);
 
 func _ready() -> void:
 	call_deferred("random_rule");
@@ -62,4 +62,4 @@ func random_rule():
 	for btn in effectGroupButtons:
 		btn.disable();
 			
-	rulesUpdated.emit(selectedWhenRule, selectedTriggerRule, selectedEffectRule);
+	rules_updated.emit(selectedWhenRule, selectedTriggerRule, selectedEffectRule);
