@@ -6,9 +6,9 @@ extends Control
 @onready var effectLabel: Label = $EffectDisplay/Label
 
 #set to -1 to represent None
-var whenRule: GroupRules.When = -1;
-var triggerRule: GroupRules.Trigger = -1;
-var effectRule: GroupRules.Effect = -1;
+var whenRule: GroupRules.When = GroupRules.When.NONE;
+var triggerRule: GroupRules.Trigger = GroupRules.Trigger.NONE;
+var effectRule: GroupRules.Effect = GroupRules.Effect.NONE;
 
 func _ready() -> void:
 	group_rule_selector.visible = false;

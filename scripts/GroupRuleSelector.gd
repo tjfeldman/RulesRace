@@ -4,7 +4,8 @@ class_name GroupRules
 enum When {
 	TURN,
 	PRISON,
-	LEADING
+	LEADING,
+	NONE
 }
 
 enum Trigger {
@@ -15,7 +16,8 @@ enum Trigger {
 	MOVES_PRISON,
 	MOVE_BACK_TWO,
 	DISCARD_TICKET,
-	FORFEIT_DIE
+	FORFEIT_DIE,
+	NONE
 }
 
 enum Effect {
@@ -26,7 +28,8 @@ enum Effect {
 	MOVE_TO_PLAYER_AHEAD,
 	MOVE_BACK,
 	ROLL_SPECIAL_DIE,
-	SEND_PLAYER_BACK_ONE
+	SEND_PLAYER_BACK_ONE,
+	NONE
 }
 
 @export var whenGroupButtons: Array[WhenButton];
