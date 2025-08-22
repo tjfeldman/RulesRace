@@ -10,6 +10,12 @@ var whenRule: GroupRules.When = GroupRules.When.NONE;
 var triggerRule: GroupRules.Trigger = GroupRules.Trigger.NONE;
 var effectRule: GroupRules.Effect = GroupRules.Effect.NONE;
 
+const LABEL_TEXT = {
+	GroupRules.Effect.MOVE_ONE: "Would you like to move 1 space forward?",
+	GroupRules.Effect.GAIN_TICKET: "Would you like to gain 1 Escape Ticket?",
+	GroupRules.Effect.REROLL_DIE: "Would you like to roll the die again?",
+}
+
 func _ready() -> void:
 	group_rule_selector.visible = false;
 	group_rule_selector.rules_updated.connect(_on_rules_updated);
@@ -40,6 +46,8 @@ func _trigger_effect(affectedPlayer: Player):
 			await affectedPlayer.movePlayerForward();
 		GroupRules.Effect.GAIN_TICKET:
 			affectedPlayer.addEscapeTicket();
+		GroupRules.Effect.REROLL_DIE:
+			Events.emit_signal("gain_die_roll", false);
 			
 func checkRollTrigger(roll: Variant):
 	match [triggerRule, roll]:
@@ -62,8 +70,8 @@ func promptRuleEffect(player: Player):
 	if !player.isBot():
 		var confirmBox = preload("res://scenes/confirmRuleUsage.tscn");
 		var confirm = confirmBox.instantiate();
-		#confirm.setLabel();
 		self.get_parent().add_child(confirm);
+		confirm.setLabel(LABEL_TEXT[effectRule]);
 		if await confirm.choice_choosen:
 			await _trigger_effect(player);
 	else:

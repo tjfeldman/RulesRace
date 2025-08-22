@@ -18,6 +18,7 @@ var _escapeTickets : int = 0:
 		
 var _boardPosition : int = 0;
 var _inJail : bool = false;
+var _finished : bool = false;
 
 func getBoardPosition():
 	return _boardPosition;
@@ -33,6 +34,9 @@ func addEscapeTicket():
 	
 func removeEscapeTicket():
 	_escapeTickets -= 1;
+	
+func hasFinished():
+	return _finished;
 	
 func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
 	#TODO: Should be calculated by the board based on pieces on tile
@@ -50,6 +54,11 @@ func movePlayerForward():
 		_boardPosition += 1;
 		var targetTile = board.getTilePosition(_boardPosition);
 		await _movePlayer(targetTile); #TODO: Better Handling to prevent moving past goal
+		
+		#check if player reached goal
+		if board.isGoalSpace(_boardPosition):
+			_finished = true;
+			Events.emit_signal("player_reached_goal", self);
 	
 func sendToJail():
 	if !_inJail:

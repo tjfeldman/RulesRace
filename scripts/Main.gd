@@ -4,8 +4,9 @@ extends Node2D
 @onready var dice : Sprite2D = $Dice;
 @onready var special_dice: Sprite2D = $SpecialDice
 @onready var hud: CanvasLayer = $HUD
-@onready var turn_status: Label = $TurnStatus
 @onready var group_rule_manager: Control = $GroupRuleManager
+@onready var action_ui: ActionManager = $ActionUI
+@onready var turn_status: Label = $TurnStatus
 
 #Player Manager
 @export var players : Array[Node2D];
@@ -20,8 +21,8 @@ var currentPlayerTurn : int = 0 :
 func _ready() -> void:
 	Events.end_turn.connect(_on_turn_end);
 	Events.roll_die_action.connect(_die_rolling);
-	Events.office_choice_selected.connect(_office_choice);
 	Events.escape_jail_action.connect(_used_escape_ticket);
+	Events.player_reached_goal.connect(_player_finished);
 	
 	#add UI to HUD
 	var offset = 0;
@@ -38,15 +39,24 @@ func _ready() -> void:
 	Events.emit_signal("start_turn", players[currentPlayerTurn]);
 		
 func promptForOfficeReward(player: Player):
+	var picked;
 	if !player.isBot():
 		var officeChoiceBox = preload("res://scenes/officeChoice.tscn");
 		var choiceBox = officeChoiceBox.instantiate();
 		add_child(choiceBox);
+		picked = await choiceBox.choice_selected;
 	else:
 		#TODO Right now there is no mechanic to change group rule so bot can't chose it right now
-		var choices: Array[Events.OfficeChoice] = [Events.OfficeChoice.Ticket, Events.OfficeChoice.Dice];
-		var picked = choices.pick_random();
-		Events.emit_signal("office_choice_selected", picked);
+		var choices: Array[OfficeChoice.Option] = [OfficeChoice.Option.TICKET, OfficeChoice.Option.DIE];
+		picked = choices.pick_random();
+		
+	match picked:
+		OfficeChoice.Option.TICKET:
+			turn_status.text = "%s recieved an escape ticket" % ActionManager.getCurrentTurnPlayer().playerName;
+		OfficeChoice.Option.DIE:
+			turn_status.text = "%s can roll the special die" % ActionManager.getCurrentTurnPlayer().playerName;
+			
+	return picked;
 	
 func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:	
 	var currentPlayer = ActionManager.getCurrentTurnPlayer();
@@ -58,39 +68,39 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 				var sentToJail = await currentPlayer.sendToJail();
 				if sentToJail:
 					turn_status.text = "%s went to jail" %currentPlayer.playerName;
-				Events.emit_signal("player_moved", Events.Movements.Jail if sentToJail else Events.Movements.None);
+				Events.emit_signal("player_moved", false);
 			else:
 				turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
 				await group_rule_manager.promptRuleEffect(currentPlayer);
-				Events.emit_signal("player_moved", Events.Movements.None);
+				Events.emit_signal("player_moved", false);
 		"Escape":
 			var escapeFromJail = await currentPlayer.escapeFromJail();
 			if escapeFromJail:
 				turn_status.text = "%s escaped jail" %currentPlayer.playerName;
-			Events.emit_signal("player_moved", Events.Movements.Escape if escapeFromJail else Events.Movements.None);
+			Events.emit_signal("player_moved", escapeFromJail);
 		_:
 			if !currentPlayer.isInJail():
 				turn_status.text = "%s is moving %s spaces" %[currentPlayer.playerName, roll];
 				while roll > 0:
 					await currentPlayer.movePlayerForward();
 					roll -= 1;
-				
-				#check if the tile landed on is an office space
-				if board.isOfficeSpace(currentPlayer.getBoardPosition()):
+					
+				if currentPlayer.hasFinished():
+					pass;#Player has won, no need to do anything more
+				elif board.isOfficeSpace(currentPlayer.getBoardPosition()): #check if the tile landed on is an office space
 					turn_status.text = "%s landed on office" %currentPlayer.playerName;
-					Events.emit_signal("player_moved", Events.Movements.Office);
-					promptForOfficeReward(currentPlayer);
-				elif board.isGoalSpace(currentPlayer.getBoardPosition()):
-					turn_status.text = "%s landed on goal and won" %currentPlayer.playerName;
-					Events.emit_signal("player_moved", Events.Movements.Goal);
-				else:
-					Events.emit_signal("player_moved", Events.Movements.Tile);
-			else:
-				Events.emit_signal("player_moved", Events.Movements.None);
+					var option = await promptForOfficeReward(currentPlayer);
+					Events.emit_signal("office_choice_picked", option);
 			
 			if groupRuleTriggered:
 				turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
 				await group_rule_manager.promptRuleEffect(currentPlayer);
+			Events.emit_signal("player_moved", false);
+
+#TODO: Factor for more than 2 players
+func _player_finished(player: Player):
+	action_ui.playerFinished();
+	turn_status.text = "%s reached the goal" %player.playerName;
 
 func _on_turn_end():
 	currentPlayerTurn += 1;
@@ -102,13 +112,6 @@ func _on_turn_end():
 func _die_rolling(special: bool):
 	var dieName = "the special die" if special else "the die";
 	turn_status.text = "%s is rolling %s" %[ActionManager.getCurrentTurnPlayer().playerName, dieName];
-	
-func _office_choice(choice: Events.OfficeChoice):
-	match choice:
-		Events.OfficeChoice.Ticket:
-			turn_status.text = "%s recieved an escape ticket" % ActionManager.getCurrentTurnPlayer().playerName;
-		Events.OfficeChoice.Dice:
-			turn_status.text = "%s can roll the special die" % ActionManager.getCurrentTurnPlayer().playerName;
 			
 func _used_escape_ticket():
 	turn_status.text = "%s used an escape ticket to leave jail" % ActionManager.getCurrentTurnPlayer().playerName;

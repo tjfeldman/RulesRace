@@ -29,7 +29,7 @@ V0.2 Tasklist (Every Check is ~0.005)
 - [x] Add Group Rule action for Effect category of "move one space forward"
 - [x] Add Group Rule action for Effect category of "gain one escape ticket"
 - [ ] Add Group Rule action for Effect category of "give one escape ticket to a different player"
-- [ ] Add Group Rule action for Effect category of "roll the dice again"
+- [x] Add Group Rule action for Effect category of "roll the dice again"
 - [ ] Add Group Rule action for Effect category of "move to the space of the player in front of them"
 - [ ] Add Group Rule action for Effect category of "move one space backward"
 - [ ] Add Group Rule action for Effect category of "roll the special die"

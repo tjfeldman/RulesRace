@@ -3,10 +3,12 @@ extends Node
 #since this is an event bus class, the signals will never be used within the class itself
 @warning_ignore_start("unused_signal")
 
-enum OfficeChoice {Ticket, Dice, Rule};
-enum Movements {Jail, Escape, Tile, Office, Rule, Goal, None}
+enum Movements {
+	JAIL,
+	ESCAPE,
+	NONE
+}
 
-signal office_choice_selected(choice: OfficeChoice);
 signal updated_escape_tickets(player: Player);
 
 #Turn Events
@@ -16,7 +18,9 @@ signal end_turn();
 #Action Events
 signal roll_die_action(special: bool);
 signal escape_jail_action();
-signal declined_rule_effect();
+signal office_choice_picked(choice: OfficeChoice.Option);
+signal gain_die_roll(special: bool);
 
 #Move Events
-signal player_moved(movement: Movements);
+signal player_moved(escapedFromPrison: bool);
+signal player_reached_goal(player: Player);
