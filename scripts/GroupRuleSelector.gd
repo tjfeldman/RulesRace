@@ -49,7 +49,7 @@ func _ready() -> void:
 func random_rule():
 	#select random group rules
 	selectedWhenRule = whenGroupButtons[0];
-	selectedTriggerRule = triggerGroupButtons[0];
+	selectedTriggerRule = triggerGroupButtons[randi_range(0,3)];
 	selectedEffectRule = effectGroupButtons[0];
 	
 	#toggle selected

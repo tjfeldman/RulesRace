@@ -13,7 +13,6 @@ var effectRule: GroupRules.Effect = GroupRules.Effect.NONE;
 func _ready() -> void:
 	group_rule_selector.visible = false;
 	group_rule_selector.rules_updated.connect(_on_rules_updated);
-	Events.confirm_rule_effect.connect(_trigger_effect);
 	
 func _on_background_gui_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_click"):
@@ -27,14 +26,20 @@ func _on_rules_updated(whenRuleBtn: RuleButton, triggerRuleBtn: RuleButton, effe
 	whenRule = whenRuleBtn.type;
 	triggerRule = triggerRuleBtn.type;
 	effectRule = effectRuleBtn.type;
-
-func _trigger_effect(affectedPlayer: Player, choice: bool):
-	match [effectRule, choice]:
-		[GroupRules.Effect.MOVE_ONE, true]:
-			await affectedPlayer.movePlayerForward();
-			Events.emit_signal("player_moved", Events.Movements.None);
+	
+func _can_benefit_from_effect(affectedPlayer: Player):
+	match effectRule:
+		GroupRules.Effect.MOVE_ONE:
+			return !affectedPlayer.isInJail();
 		_:
-			Events.emit_signal("declined_rule_effect");
+			return true;
+
+func _trigger_effect(affectedPlayer: Player):
+	match effectRule:
+		GroupRules.Effect.MOVE_ONE:
+			await affectedPlayer.movePlayerForward();
+		GroupRules.Effect.GAIN_TICKET:
+			affectedPlayer.addEscapeTicket();
 			
 func checkRollTrigger(roll: Variant):
 	match [triggerRule, roll]:
@@ -51,11 +56,16 @@ func checkRollTrigger(roll: Variant):
 
 #prompts the player who triggered the rule to gain the benefit
 func promptRuleEffect(player: Player):
+	if not _can_benefit_from_effect(player):
+		return; #no reason to prompt player for effect since they cannot benefit
+		
 	if !player.isBot():
 		var confirmBox = preload("res://scenes/confirmRuleUsage.tscn");
 		var confirm = confirmBox.instantiate();
 		#confirm.setLabel();
-		confirm.setAffectedPlayer(player);
 		self.get_parent().add_child(confirm);
+		if await confirm.choice_choosen:
+			await _trigger_effect(player);
 	else:
-		Events.emit_signal("confirm_rule_effect", player, true);
+		await get_tree().create_timer(0.5).timeout;
+		await _trigger_effect(player);

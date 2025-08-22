@@ -20,6 +20,3 @@ signal declined_rule_effect();
 
 #Move Events
 signal player_moved(movement: Movements);
-
-#Rule Events
-signal confirm_rule_effect(affectedPlayer: Player, choice: bool);

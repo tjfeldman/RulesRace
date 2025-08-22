@@ -61,8 +61,8 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 				Events.emit_signal("player_moved", Events.Movements.Jail if sentToJail else Events.Movements.None);
 			else:
 				turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
-				Events.emit_signal("player_moved", Events.Movements.Rule);
-				group_rule_manager.promptRuleEffect(currentPlayer);
+				await group_rule_manager.promptRuleEffect(currentPlayer);
+				Events.emit_signal("player_moved", Events.Movements.None);
 		"Escape":
 			var escapeFromJail = await currentPlayer.escapeFromJail();
 			if escapeFromJail:
@@ -83,18 +83,14 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 				elif board.isGoalSpace(currentPlayer.getBoardPosition()):
 					turn_status.text = "%s landed on goal and won" %currentPlayer.playerName;
 					Events.emit_signal("player_moved", Events.Movements.Goal);
-				elif groupRuleTriggered:
-					turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
-					Events.emit_signal("player_moved", Events.Movements.Rule);
-					group_rule_manager.promptRuleEffect(currentPlayer);
 				else:
 					Events.emit_signal("player_moved", Events.Movements.Tile);
-			elif groupRuleTriggered:
-				turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
-				Events.emit_signal("player_moved", Events.Movements.Rule);
-				group_rule_manager.promptRuleEffect(currentPlayer);
 			else:
 				Events.emit_signal("player_moved", Events.Movements.None);
+			
+			if groupRuleTriggered:
+				turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
+				await group_rule_manager.promptRuleEffect(currentPlayer);
 
 func _on_turn_end():
 	currentPlayerTurn += 1;
