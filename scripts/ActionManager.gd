@@ -18,26 +18,24 @@ enum TurnState {
 
 #Static Fields
 static var _currentTurnState: TurnState = TurnState.LOADING;
-static var _currentTurnPlayer : Player;
 static func getCurrentTurnState(): return _currentTurnState;
-static func getCurrentTurnPlayer(): return _currentTurnPlayer;
 
 var _currentDieToRoll = Dice.Type.NONE;
+
+#TODO: Maybe change to Static Class
 
 func _ready() -> void:
 	#connect events
 	Events.start_turn.connect(_next_turn);
 	Events.player_moved.connect(_player_moved);
 	Events.gain_die_roll.connect(_gain_die);
-	Events.office_choice_picked.connect(_office_choice);
 	
-func _next_turn(player: Player):
+func _next_turn():
 	if _currentTurnState != TurnState.OVER:
-		_currentTurnPlayer = player;
 		_currentDieToRoll = Dice.Type.NORMAL;
 		_currentTurnState = TurnState.START;
 		_show_actions();
-		if player.isBot():
+		if PlayerManager.getCurrentTurnPlayer().isBot():
 			self.visible = false;
 			_bot_turn_action();
 		else:
@@ -47,15 +45,8 @@ func _player_moved(escapedFromPrison: bool):
 	if escapedFromPrison:
 		_currentDieToRoll = Dice.Type.NORMAL;
 	_updateTurnState();
-	if _currentTurnPlayer.isBot():
+	if PlayerManager.getCurrentTurnPlayer().isBot():
 		_bot_turn_action();
-
-func _office_choice(type : OfficeChoice.Option):
-	match type:
-		OfficeChoice.Option.TICKET:
-			_currentTurnPlayer.addEscapeTicket();
-		OfficeChoice.Option.DIE:
-			_currentDieToRoll = Dice.Type.SPECIAL;
 			
 func _gain_die(special_die: bool):
 	if special_die:
@@ -102,15 +93,21 @@ func _enable_all_actions():
 	
 #player can only escape jail with ticket at start of turn while in jail with at least 1 escape ticket	
 func _player_can_escape_jail():
-	return _currentTurnState == TurnState.START and _currentTurnPlayer.isInJail() and _currentTurnPlayer.hasEscapeTicket();
+	var currentTurnPlayer = PlayerManager.getCurrentTurnPlayer();
+	return _currentTurnState == TurnState.START and currentTurnPlayer.isInJail() and currentTurnPlayer.hasEscapeTicket();
 	
 func _player_escapes_jail():
-	Events.emit_signal("escape_jail_action");
-	_currentTurnPlayer.removeEscapeTicket();
-	await _currentTurnPlayer.escapeFromJail();
+	var currentTurnPlayer = PlayerManager.getCurrentTurnPlayer();
+	#TODO: Move Turn Status update to this function?
+	Events.emit_signal("escape_jail_action"); 
+	currentTurnPlayer.removeEscapeTicket();
+	await currentTurnPlayer.escapeFromJail();
 	
 #BOT ACTIONS
 func _bot_turn_action():
+	if _currentTurnState == TurnState.OVER:
+		return; #do nothing if game is over
+		
 	await get_tree().create_timer(0.5).timeout;
 	#At the start of a bot's turn if it's in jail and has an escape ticket, it will escape
 	if _player_can_escape_jail():
@@ -118,9 +115,9 @@ func _bot_turn_action():
 		await get_tree().create_timer(0.5).timeout;
 		
 	#then the bot will roll their dice
-	if _currentDieToRoll == Dice.Type.SPECIAL:
+	if special.visible:
 		_on_special_pressed();
-	elif _currentDieToRoll == Dice.Type.NORMAL:
+	elif dice.visible:
 		_on_dice_pressed();
 	else:
 		_on_end_pressed();

@@ -17,6 +17,8 @@ const LABEL_TEXT = {
 	GroupRules.Effect.ROLL_SPECIAL_DIE: "Would you like to roll the special die?",
 }
 
+#TODO: Maybe change to Static Class
+
 func _ready() -> void:
 	group_rule_selector.visible = false;
 	group_rule_selector.rules_updated.connect(_on_rules_updated);
@@ -66,14 +68,14 @@ func checkRollTrigger(roll: Variant):
 			return false;
 
 #prompts the player who triggered the rule to gain the benefit
-func promptRuleEffect(player: Player):
+func promptRuleEffect(scene: Node2D, player: Player):
 	if not _can_benefit_from_effect(player):
 		return; #no reason to prompt player for effect since they cannot benefit
 		
 	if !player.isBot():
 		var confirmBox = preload("res://scenes/confirmRuleUsage.tscn");
 		var confirm = confirmBox.instantiate();
-		self.get_parent().add_child(confirm);
+		scene.add_child(confirm);
 		confirm.setLabel(LABEL_TEXT[effectRule]);
 		if await confirm.choice_choosen:
 			await _trigger_effect(player);

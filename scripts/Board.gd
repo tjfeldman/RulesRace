@@ -1,4 +1,5 @@
 extends Node2D
+class_name Gameboard
 
 @export var boardTiles : Array[Tile];
 @export var jailTile: Node;

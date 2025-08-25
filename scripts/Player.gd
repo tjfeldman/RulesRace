@@ -6,7 +6,13 @@ class_name Player
 @export var bot : bool = false;
 
 @onready var piece : Sprite2D = $PlayerPiece;
-@onready var board : Node2D = $"../Board";
+#@onready var board : Node2D = $"../Board";
+
+#set the game board once
+var board : Gameboard = null :
+	set(value):
+		if board == null:
+			board = value;
 var playerMoveSpeed: float = 0.33;
 
 #private variables

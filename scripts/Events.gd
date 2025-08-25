@@ -12,13 +12,12 @@ enum Movements {
 signal updated_escape_tickets(player: Player);
 
 #Turn Events
-signal start_turn(player: Player);
+signal start_turn();
 signal end_turn();
 
 #Action Events
 signal roll_die_action(special: bool);
 signal escape_jail_action();
-signal office_choice_picked(choice: OfficeChoice.Option);
 signal gain_die_roll(special: bool);
 
 #Move Events
