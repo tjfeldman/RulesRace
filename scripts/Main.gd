@@ -87,12 +87,13 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 					
 				if currentPlayer.hasFinished():
 					pass;#Player has won, no need to do anything more
-				elif board.isOfficeSpace(currentPlayer.getBoardPosition()): #check if the tile landed on is an office space
+				#check if the tile landed on is an office space if group rule didn't triggered
+				elif not groupRuleTriggered and board.isOfficeSpace(currentPlayer.getBoardPosition()): 
 					turn_status.text = "%s landed on office" %currentPlayer.playerName;
 					var option = await promptForOfficeReward(currentPlayer);
 					Events.emit_signal("office_choice_picked", option);
 			
-			if groupRuleTriggered:
+			if groupRuleTriggered and not currentPlayer.hasFinished():
 				turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
 				await group_rule_manager.promptRuleEffect(currentPlayer);
 			Events.emit_signal("player_moved", false);
@@ -103,10 +104,11 @@ func _player_finished(player: Player):
 	turn_status.text = "%s reached the goal" %player.playerName;
 
 func _on_turn_end():
-	currentPlayerTurn += 1;
-	await get_tree().create_timer(0.5).timeout;
-	turn_status.text = "%s's Turn" % players[currentPlayerTurn].playerName;
-	Events.emit_signal("start_turn", players[currentPlayerTurn]);
+	if ActionManager.getCurrentTurnState() != ActionManager.TurnState.OVER:
+		currentPlayerTurn += 1;
+		await get_tree().create_timer(0.5).timeout;
+		turn_status.text = "%s's Turn" % players[currentPlayerTurn].playerName;
+		Events.emit_signal("start_turn", players[currentPlayerTurn]);
 	
 #For Status Update
 func _die_rolling(special: bool):

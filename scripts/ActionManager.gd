@@ -22,8 +22,7 @@ static var _currentTurnPlayer : Player;
 static func getCurrentTurnState(): return _currentTurnState;
 static func getCurrentTurnPlayer(): return _currentTurnPlayer;
 
-var _currentTurnDieRolls = 1;
-var _currentTurnSpecialDieRolls = 0;
+var _currentDieToRoll = Dice.Type.NONE;
 
 func _ready() -> void:
 	#connect events
@@ -33,20 +32,20 @@ func _ready() -> void:
 	Events.office_choice_picked.connect(_office_choice);
 	
 func _next_turn(player: Player):
-	_currentTurnPlayer = player;
-	_currentTurnDieRolls = 1;
-	_currentTurnSpecialDieRolls = 0;
-	_currentTurnState = TurnState.START;
-	_show_actions();
-	if player.isBot():
-		self.visible = false;
-		_bot_turn_action();
-	else:
-		self.visible = true;
+	if _currentTurnState != TurnState.OVER:
+		_currentTurnPlayer = player;
+		_currentDieToRoll = Dice.Type.NORMAL;
+		_currentTurnState = TurnState.START;
+		_show_actions();
+		if player.isBot():
+			self.visible = false;
+			_bot_turn_action();
+		else:
+			self.visible = true;
 	
 func _player_moved(escapedFromPrison: bool):
 	if escapedFromPrison:
-		_currentTurnDieRolls += 1;
+		_currentDieToRoll = Dice.Type.NORMAL;
 	_updateTurnState();
 	if _currentTurnPlayer.isBot():
 		_bot_turn_action();
@@ -56,13 +55,13 @@ func _office_choice(type : OfficeChoice.Option):
 		OfficeChoice.Option.TICKET:
 			_currentTurnPlayer.addEscapeTicket();
 		OfficeChoice.Option.DIE:
-			_currentTurnSpecialDieRolls += 1;
+			_currentDieToRoll = Dice.Type.SPECIAL;
 			
 func _gain_die(special_die: bool):
 	if special_die:
-		_currentTurnSpecialDieRolls += 1;
+		_currentDieToRoll = Dice.Type.SPECIAL;
 	else:
-		_currentTurnDieRolls += 1;
+		_currentDieToRoll = Dice.Type.NORMAL;
 	_updateTurnState();
 			
 func _on_escape_pressed() -> void:
@@ -72,13 +71,13 @@ func _on_escape_pressed() -> void:
 	_enable_all_actions();
 
 func _on_dice_pressed() -> void:
-	_currentTurnDieRolls -= 1;
+	_currentDieToRoll = Dice.Type.NONE;
 	_disable_all_actions();
 	_currentTurnState = TurnState.ROLLING;
 	Events.emit_signal("roll_die_action", false);
 	
 func _on_special_pressed() -> void:
-	_currentTurnSpecialDieRolls -= 1;
+	_currentDieToRoll = Dice.Type.NONE;
 	_disable_all_actions();
 	_currentTurnState = TurnState.ROLLING;
 	Events.emit_signal("roll_die_action", true);
@@ -119,9 +118,9 @@ func _bot_turn_action():
 		await get_tree().create_timer(0.5).timeout;
 		
 	#then the bot will roll their dice
-	if _currentTurnSpecialDieRolls > 0:
+	if _currentDieToRoll == Dice.Type.SPECIAL:
 		_on_special_pressed();
-	elif _currentTurnDieRolls > 0:
+	elif _currentDieToRoll == Dice.Type.NORMAL:
 		_on_dice_pressed();
 	else:
 		_on_end_pressed();
@@ -131,7 +130,7 @@ func _updateTurnState():
 		return;
 		
 	_show_actions();
-	if _has_no_die_roll():
+	if _currentDieToRoll == Dice.Type.NONE:
 		_currentTurnState = TurnState.END;
 	else:
 		_currentTurnState = TurnState.CAN_ROLL;
@@ -139,13 +138,10 @@ func _updateTurnState():
 func _show_actions():
 	_enable_all_actions();
 	escape.visible = _player_can_escape_jail();
-	dice.visible = _currentTurnDieRolls > 0;
-	special.visible = _currentTurnSpecialDieRolls > 0;
+	dice.visible = _currentDieToRoll == Dice.Type.NORMAL;
+	special.visible = _currentDieToRoll == Dice.Type.SPECIAL;
 	group.visible = false;
-	end.visible = _has_no_die_roll();
-	
-func _has_no_die_roll():
-	return _currentTurnDieRolls == 0 and _currentTurnSpecialDieRolls == 0;
+	end.visible = _currentDieToRoll == Dice.Type.NONE;
 
 func playerFinished():
 	self.visible = false;

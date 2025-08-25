@@ -3,5 +3,6 @@ class_name Dice
 
 enum Type {
 	NORMAL,
-	SPECIAL
+	SPECIAL,
+	NONE
 };
