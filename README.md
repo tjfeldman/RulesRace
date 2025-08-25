@@ -32,5 +32,5 @@ V0.2 Tasklist (Every Check is ~0.005)
 - [x] Add Group Rule action for Effect category of "roll the dice again"
 - [ ] Add Group Rule action for Effect category of "move to the space of the player in front of them"
 - [ ] Add Group Rule action for Effect category of "move one space backward"
-- [ ] Add Group Rule action for Effect category of "roll the special die"
+- [x] Add Group Rule action for Effect category of "roll the special die"
 - [ ] Add Group Rule action for Effect category of "send one other player one space backward"

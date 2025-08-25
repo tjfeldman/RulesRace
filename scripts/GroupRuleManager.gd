@@ -14,6 +14,7 @@ const LABEL_TEXT = {
 	GroupRules.Effect.MOVE_ONE: "Would you like to move 1 space forward?",
 	GroupRules.Effect.GAIN_TICKET: "Would you like to gain 1 Escape Ticket?",
 	GroupRules.Effect.REROLL_DIE: "Would you like to roll the die again?",
+	GroupRules.Effect.ROLL_SPECIAL_DIE: "Would you like to roll the special die?",
 }
 
 func _ready() -> void:
@@ -48,6 +49,8 @@ func _trigger_effect(affectedPlayer: Player):
 			affectedPlayer.addEscapeTicket();
 		GroupRules.Effect.REROLL_DIE:
 			Events.emit_signal("gain_die_roll", false);
+		GroupRules.Effect.ROLL_SPECIAL_DIE:
+			Events.emit_signal("gain_die_roll", true);
 			
 func checkRollTrigger(roll: Variant):
 	match [triggerRule, roll]:
