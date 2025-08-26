@@ -54,17 +54,26 @@ func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
 	tween.tween_property(piece, "position", newPos, moveSpeed);
 	await tween.finished;
 	
+func movePlayerXSpaces(x: int):
+	while x != 0:
+		if x > 0:
+			await _movePlayerForward();
+			x -= 1;
+		else:
+			await _movePlayerBackward();
+			x += 1;
+	
 func moveToPlayer(player: Player):
-	var dist = player.getBoardPosition() - self.getBoardPosition();
-	while dist > 0:
+	var dist = player.getBoardPosition() - _boardPosition;
+	while dist != 0:
 		if dist > 0:
-			await movePlayerForward();
+			await _movePlayerForward();
 			dist -= 1;
 		else:
-			#TODO: Add move PlayerBackward function
+			await _movePlayerBackward();
 			dist += 1;
 	
-func movePlayerForward():
+func _movePlayerForward():
 	#prevent movement if player is in jail or has finished
 	if !_inJail and !_finished:
 		_boardPosition += 1;
@@ -75,6 +84,12 @@ func movePlayerForward():
 		if board.isGoalSpace(_boardPosition):
 			_finished = true;
 			Events.emit_signal("player_reached_goal", self);
+			
+func _movePlayerBackward():
+	if !_inJail and _boardPosition > 0:
+		_boardPosition -= 1;
+		var targetTile = board.getTilePosition(_boardPosition);
+		await _movePlayer(targetTile);
 	
 func sendToJail():
 	if !_inJail:
