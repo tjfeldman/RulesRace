@@ -15,9 +15,12 @@ const LABEL_TEXT = {
 	GroupRules.Effect.GAIN_TICKET: "Would you like to gain 1 Escape Ticket?",
 	GroupRules.Effect.REROLL_DIE: "Would you like to roll the die again?",
 	GroupRules.Effect.ROLL_SPECIAL_DIE: "Would you like to roll the special die?",
+	GroupRules.Effect.MOVE_TO_PLAYER_AHEAD: "Would you like to move to the player ahead?",
 }
 
 #TODO: Maybe change to Static Class
+
+var cachePlayerAhead = null;
 
 func _ready() -> void:
 	group_rule_selector.visible = false;
@@ -40,6 +43,8 @@ func _can_benefit_from_effect(affectedPlayer: Player):
 	match effectRule:
 		GroupRules.Effect.MOVE_ONE:
 			return !affectedPlayer.isInJail();
+		GroupRules.Effect.MOVE_TO_PLAYER_AHEAD:
+			return !affectedPlayer.isInJail() and PlayerManager.getPlayerAhead(affectedPlayer);
 		_:
 			return true;
 
@@ -53,6 +58,8 @@ func _trigger_effect(affectedPlayer: Player):
 			Events.emit_signal("gain_die_roll", false);
 		GroupRules.Effect.ROLL_SPECIAL_DIE:
 			Events.emit_signal("gain_die_roll", true);
+		GroupRules.Effect.MOVE_TO_PLAYER_AHEAD:
+			await affectedPlayer.moveToPlayer(PlayerManager.getPlayerAhead(affectedPlayer));
 			
 func checkRollTrigger(roll: Variant):
 	match [triggerRule, roll]:

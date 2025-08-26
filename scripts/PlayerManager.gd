@@ -22,5 +22,21 @@ static func nextTurn():
 	Events.emit_signal("start_turn");
 	
 #TODO: Add function to track leading player
-#TODO: Add function to locate player ahead
-#TODO: Add function to grab all other players
+
+static func getPlayerAhead(player: Player):
+	var pos = player.getBoardPosition();
+	
+	var closestDist = INF;
+	var closestPlayer = null;
+	for p in _players:
+		if p != player:
+			var dist = p.getBoardPosition() - player.getBoardPosition();
+			if (dist > 0 and dist < closestDist):
+				closestDist = dist;
+				closestPlayer = p;
+	
+	return closestPlayer;
+	
+
+static func getListOfAllOtherPlayers(player: Player):
+	return _players.filter(func(p): return p != player);
