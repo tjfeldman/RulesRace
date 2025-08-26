@@ -20,7 +20,8 @@ const LABEL_TEXT = {
 	GroupRules.Effect.ROLL_SPECIAL_DIE: "Would you like to roll the special die?",
 	GroupRules.Effect.MOVE_TO_PLAYER_AHEAD: "Would you like to move to the player ahead?",
 	GroupRules.Effect.MOVE_BACK: "Would you like to move back 1 space?",
-	GroupRules.Effect.SEND_PLAYER_BACK_ONE: "Pick player to move back 1 space"
+	GroupRules.Effect.SEND_PLAYER_BACK_ONE: "Pick player to move back 1 space",
+	GroupRules.Effect.TRANSFER_TICKET: "Pick player to transfer an escape ticket to",
 }
 
 #TODO: Maybe change to Static Class
@@ -56,6 +57,8 @@ func _can_benefit_from_effect(affectedPlayer: Player):
 		GroupRules.Effect.SEND_PLAYER_BACK_ONE:
 			#we can't move players who are at the start or are currently in jail
 			return PlayerManager.getListOfAllOtherPlayers(affectedPlayer).filter(func(p): return p.getBoardPosition() > 0 and not p.isInJail());
+		GroupRules.Effect.TRANSFER_TICKET:
+			return affectedPlayer.hasEscapeTicket();
 		_:
 			return true;
 
@@ -92,6 +95,14 @@ func _target_effect(scene: Node2D, affectedPlayer: Player):
 				target = await _promptTargetEffect(scene, playerList);
 			if not target: return;	#if no target is selected, exit
 			await target.movePlayerXSpaces(-1);
+		GroupRules.Effect.TRANSFER_TICKET:
+			if affectedPlayer.isBot():
+				target = playerList.pick_random();
+			else:
+				target = await _promptTargetEffect(scene, playerList);
+			if not target: return;	#if no target is selected, exit
+			affectedPlayer.removeEscapeTicket();
+			target.addEscapeTicket();
 			
 func checkRollTrigger(scene: Node2D, player: Player, roll: Variant):
 	match [triggerRule, roll]:
@@ -140,5 +151,6 @@ func _promptTargetEffect(scene: Node2D, targetList: Array[Player]):
 	var selectPrompt = preload("res://scenes/selectPlayerPrompt.tscn");
 	var prompt = selectPrompt.instantiate();
 	scene.add_child(prompt);
+	prompt.setLabel(LABEL_TEXT[effectRule]);
 	prompt.setPlayerList(targetList, triggerRule in canRules);
 	return await prompt.selected_player;

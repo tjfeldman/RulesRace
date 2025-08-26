@@ -50,7 +50,7 @@ func random_rule():
 	#select random group rules
 	selectedWhenRule = whenGroupButtons[0];
 	selectedTriggerRule = triggerGroupButtons[0];
-	selectedEffectRule = effectGroupButtons[7];
+	selectedEffectRule = effectGroupButtons[2];
 	
 	#toggle selected
 	selectedWhenRule.button_pressed = true;

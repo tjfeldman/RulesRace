@@ -5,6 +5,9 @@ extends CenterContainer
 
 signal selected_player(player: Player);
 
+func setLabel(text: String):
+	label.text = text;
+
 func setPlayerList(players: Array[Player], canSelectNone: bool = false):
 	for player in players:
 		var button = Button.new();
