@@ -5,6 +5,7 @@ enum CostType {
 	NONE,
 	MOVE_BACK,
 	TICKET,
+	DIE
 }
 
 var _action_cost_type: CostType;
@@ -16,6 +17,8 @@ func _init(trigger_rule: GroupRules.Trigger = GroupRules.Trigger.NONE, effect: G
 			_action_cost_type = CostType.MOVE_BACK;
 		GroupRules.Trigger.DISCARD_TICKET:
 			_action_cost_type = CostType.TICKET;
+		GroupRules.Trigger.FORFEIT_DIE:
+			_action_cost_type = CostType.DIE;
 		_:
 			_action_cost_type = CostType.NONE;
 	_action_effect = effect;
@@ -31,6 +34,9 @@ func canPay(player: Player):
 				return !player.isInJail() and player.getBoardPosition() >= 2;
 			CostType.TICKET:
 				return player.getEscapeTicketCount() >= (2 if _action_effect == GroupRules.Effect.TRANSFER_TICKET else 1);
+			CostType.DIE:
+				#If the turn state is the start of turn, then the player can forfeit that die roll
+				return ActionManager.getCurrentTurnState() == ActionManager.TurnState.START;
 			_:
 				return true;
 	else:
@@ -42,8 +48,10 @@ func getCostString():
 			return "(-2 Spaces)";
 		CostType.TICKET:
 			return "(-1 Ticket)";
+		CostType.DIE:
+			return "(Forfeit Roll)";
 		_:
-			return "(Cost)"
+			return "(Cost)";
 
 func performAction(player: Player):
 	#pay the cost, then perform effect
@@ -52,4 +60,6 @@ func performAction(player: Player):
 			player.movePlayerXSpaces(-2);
 		CostType.TICKET:
 			player.removeEscapeTicket();
+		CostType.DIE:
+			Events.emit_signal("forfeit_die_roll");
 	Events.emit_signal("perform_rule_effect", player);

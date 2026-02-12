@@ -26,5 +26,6 @@ signal player_reached_goal(player: Player);
 
 #Group Rule Events
 signal group_rule_finished();
+signal forfeit_die_roll();
 signal perform_rule_effect(player: Player);
 signal update_group_action(action: GroupAction);

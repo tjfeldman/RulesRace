@@ -32,7 +32,7 @@ func _start_game():
 	turn_status.text = "%s's Turn" % PlayerManager.getCurrentTurnPlayer().playerName;
 	Events.emit_signal("start_turn");
 		
-func promptForOfficeReward(player: Player):
+func _prompt_for_office_reward(player: Player):
 	var picked;
 	if !player.isBot():
 		var officeChoiceBox = preload("res://scenes/officeChoice.tscn");
@@ -74,13 +74,10 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 			if !currentPlayer.isInJail():
 				turn_status.text = "%s is moving %s spaces" %[currentPlayer.playerName, roll];
 				await currentPlayer.movePlayerXSpaces(roll);
-									
-				if currentPlayer.hasFinished():
-					pass;#Player has won, no need to do anything more
-				#check if the tile landed on is an office space if group rule didn't triggered
-				elif board.isOfficeSpace(currentPlayer.getBoardPosition()): 
+				#if player moves onto office space via roll, then they can pick an office space reward
+				if board.isOfficeSpace(currentPlayer.getBoardPosition()):
 					turn_status.text = "%s landed on office" %currentPlayer.playerName;
-					await promptForOfficeReward(currentPlayer);
+					await _prompt_for_office_reward(currentPlayer);
 			Events.emit_signal("player_moved", false);
 			
 

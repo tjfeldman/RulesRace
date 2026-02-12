@@ -30,6 +30,7 @@ func _ready() -> void:
 	Events.start_turn.connect(_next_turn);
 	Events.player_moved.connect(_player_moved);
 	Events.gain_die_roll.connect(_gain_die);
+	Events.forfeit_die_roll.connect(_forfeit_die);
 	Events.group_rule_finished.connect(_show_actions);
 	Events.update_group_action.connect(_update_group_action);
 	
@@ -134,19 +135,24 @@ func _updateTurnState():
 	if _currentTurnState == TurnState.OVER:
 		return;
 		
-	_show_actions();
 	if _currentDieToRoll == Dice.Type.NONE:
 		_currentTurnState = TurnState.END;
 	else:
 		_currentTurnState = TurnState.CAN_ROLL;
+	_show_actions();
+
+func _forfeit_die():
+	_currentDieToRoll = Dice.Type.NONE;
+	_currentTurnState = TurnState.END;
 		
 func _show_actions():
 	_enable_all_actions();
-	escape.visible = _player_can_escape_jail();
-	dice.visible = _currentDieToRoll == Dice.Type.NORMAL;
-	special.visible = _currentDieToRoll == Dice.Type.SPECIAL;
-	group.visible = _currentGroupAction.isValid() and _currentGroupAction.canPay(PlayerManager.getCurrentTurnPlayer());
-	end.visible = _currentDieToRoll == Dice.Type.NONE;
+	var endOfTurn = _currentTurnState == TurnState.END;
+	escape.visible = _player_can_escape_jail() and not endOfTurn;
+	dice.visible = _currentDieToRoll == Dice.Type.NORMAL and not endOfTurn;
+	special.visible = _currentDieToRoll == Dice.Type.SPECIAL and not endOfTurn;
+	group.visible = _currentGroupAction.isValid() and _currentGroupAction.canPay(PlayerManager.getCurrentTurnPlayer()) and not endOfTurn;
+	end.visible = endOfTurn;
 	
 func _update_group_action(groupAction: GroupAction):
 	_currentGroupAction = groupAction;
