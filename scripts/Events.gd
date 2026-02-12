@@ -13,6 +13,7 @@ signal updated_escape_tickets(player: Player);
 
 #Turn Events
 signal start_turn();
+signal turn_state_changed();
 signal end_turn();
 
 #Action Events

@@ -66,23 +66,23 @@ static func verify_player_can_use_rule(affectedPlayer: Player, effectRule: Effec
 		Effect.MOVE_TO_PLAYER_AHEAD:
 			return !affectedPlayer.isInJail() and PlayerManager.getPlayerAhead(affectedPlayer);
 		Effect.MOVE_BACK:
-			return affectedPlayer.getBoardPosition() > 0;
+			return !affectedPlayer.isInJail() and affectedPlayer.getBoardPosition() > 0;
 		Effect.SEND_PLAYER_BACK_ONE:
 			#we can't move players who are at the start, are currently in jail, or has finished the race
 			return PlayerManager.getListOfAllOtherPlayers(affectedPlayer).filter(func(p): return p.getBoardPosition() > 0 and not p.isInJail() and not p.hasFinished());
 		Effect.TRANSFER_TICKET:
 			return affectedPlayer.hasEscapeTicket();
-		Effect.REROLL_DIE:
-			#can only reroll a die after rolling the die
-			return ActionManager.getCurrentTurnState() != ActionManager.TurnState.START;
+		Effect.REROLL_DIE, Effect.ROLL_SPECIAL_DIE:
+			#dice can only be used on player's turn
+			return PlayerManager.getCurrentTurnPlayer() == affectedPlayer;
 		_:
 			return true;
 
 func random_rule():
 	#select random group rules
-	selectedWhenRule = whenGroupButtons[0];
+	selectedWhenRule = whenGroupButtons[1];
 	selectedTriggerRule = triggerGroupButtons[6];
-	selectedEffectRule = effectGroupButtons[3];
+	selectedEffectRule = effectGroupButtons[7];
 	
 	#toggle selected
 	selectedWhenRule.button_pressed = true;

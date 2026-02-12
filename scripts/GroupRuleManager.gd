@@ -25,11 +25,13 @@ const LABEL_TEXT = {
 }
 
 #TODO: Maybe change to Static Class
+var _groupAction: GroupAction;
 
 func _ready() -> void:
 	group_rule_selector.visible = false;
 	group_rule_selector.rules_updated.connect(_on_rules_updated);
 	Events.perform_rule_effect.connect(_useEffect);
+	Events.turn_state_changed.connect(_promptPrisoners);
 	
 func _on_background_gui_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_click"):
@@ -45,8 +47,8 @@ func _on_rules_updated(whenRuleBtn: RuleButton, triggerRuleBtn: RuleButton, effe
 	effectRule = effectRuleBtn.type;
 	
 	#after we update the display, we must know create a group action object to emit back
-	var groupAction = GroupAction.new(whenRule, triggerRule, effectRule);
-	Events.emit_signal("update_group_action", groupAction);
+	_groupAction = GroupAction.new(whenRule, triggerRule, effectRule);
+	Events.emit_signal("update_group_action", _groupAction);
 
 func _trigger_effect(affectedPlayer: Player):
 	#if the rule can be used, asked the player if they want to use it
@@ -131,12 +133,13 @@ func _useEffect(player: Player):
 	Events.emit_signal("group_rule_finished");
 
 #prompts the player who triggered the rule if they want to use the effect
-func _promptForEffect():		
+func _promptForEffect(cost: String = ""):		
 	var confirmBox = preload("res://scenes/confirmRuleUsage.tscn");
 	var confirm = confirmBox.instantiate();
 	var scene = get_tree().current_scene;
 	scene.add_child(confirm);
 	confirm.setLabel(LABEL_TEXT[effectRule]);
+	if cost: confirm.setCostLabel(cost);
 	return confirm.choice_choosen;
 		
 #prompt the player who they want to target
@@ -148,3 +151,16 @@ func _promptTargetEffect(targetList: Array[Player]):
 	prompt.setLabel(LABEL_TEXT[effectRule]);
 	prompt.setPlayerList(targetList, triggerRule in canRules);
 	return await prompt.selected_player;
+	
+#TODO: The problem with this function atm is that the action manager does not wait for this to finish. This would require a rework when bot logic is updated.
+func _promptPrisoners():
+	if whenRule == GroupRules.When.PRISON:
+		var prisoners: Array[Player] = PlayerManager.getPlayers().filter(func(p): return p.isInJail() and p != PlayerManager.getCurrentTurnPlayer());
+		for prisoner in prisoners:
+			var passed = false;
+			while !passed and _groupAction.isValid() and _groupAction.canPay(prisoner):
+				var confirm = await _promptForEffect(_groupAction.getCostString());
+				if confirm:
+					await _useEffect(prisoner);
+				else:
+					passed = true;

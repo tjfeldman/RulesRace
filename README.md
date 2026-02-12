@@ -34,3 +34,6 @@ V0.2 Tasklist (Every Check is ~0.004)
 - [x] Add Group Rule action for Effect category of "move one space backward"
 - [x] Add Group Rule action for Effect category of "roll the special die"
 - [x] Add Group Rule action for Effect category of "send one other player one space backward"
+
+Future Work
+- [ ] Allow prison players to use a valid group rule during other player's turns

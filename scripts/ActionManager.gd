@@ -23,7 +23,11 @@ enum TurnState {
 };
 
 #Static Fields
-static var _currentTurnState: TurnState = TurnState.LOADING;
+static var _currentTurnState: TurnState = TurnState.LOADING:
+	set(value):
+			#Update value and then emit signal
+			_currentTurnState = value;
+			#Events.emit_signal("turn_state_changed");
 static func getCurrentTurnState(): return _currentTurnState;
 
 var _hasNormalDie: bool = false;
@@ -126,15 +130,14 @@ func _player_can_use_group_rule():
 	#The player can pay for the group rule
 	var canPay = _currentGroupAction.canPay(PlayerManager.getCurrentTurnPlayer());
 	
-	var endOfTurn = _currentTurnState == TurnState.END;
-	#If the rule grants special dice, it is not the end of turn and the player does not have a special die
+	#If the rule grants special dice, the player does not already have a special die
 	if _currentGroupAction.isGrantSpecialDie():
-		return isValid and canPay and not _hasSpecialDie and not endOfTurn;
-	#if the rule grants a reroll, it is end of turn and the player does not have a normal die
+		return isValid and canPay and not _hasSpecialDie;
+	#if the rule grants a reroll, the player does not have a normal die
 	elif _currentGroupAction.isGrantReroll():
-		return isValid and canPay and not _hasNormalDie and endOfTurn
+		return isValid and canPay and not _hasNormalDie
 	#otherwise just check if it is not end of turn
-	return isValid and canPay and not endOfTurn;
+	return isValid and canPay;
 	
 func _player_escapes_jail():
 	var currentTurnPlayer = PlayerManager.getCurrentTurnPlayer();
