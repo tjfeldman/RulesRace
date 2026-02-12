@@ -48,11 +48,11 @@ func _on_rules_updated(whenRuleBtn: RuleButton, triggerRuleBtn: RuleButton, effe
 	var groupAction = GroupAction.new(triggerRule, effectRule);
 	Events.emit_signal("update_group_action", groupAction);
 
-func _trigger_effect(scene: Node2D, affectedPlayer: Player):
+func _trigger_effect(affectedPlayer: Player):
 	#if the rule can be used, asked the player if they want to use it
 	if triggerRule in canRules and not affectedPlayer.isBot():
 		#exit if they decline
-		if not await _promptForEffect(scene): return;
+		if not await _promptForEffect(): return;
 	match effectRule:
 		GroupRules.Effect.MOVE_ONE:
 			await affectedPlayer.movePlayerXSpaces(1);
@@ -67,7 +67,7 @@ func _trigger_effect(scene: Node2D, affectedPlayer: Player):
 		GroupRules.Effect.MOVE_BACK:
 			await affectedPlayer.movePlayerXSpaces(-1);
 				
-func _target_effect(scene: Node2D, affectedPlayer: Player):
+func _target_effect(affectedPlayer: Player):
 	#we can't move players who are at the start or are currently in jail
 	var playerList = PlayerManager.getListOfAllOtherPlayers(affectedPlayer);
 	var target : Player = null;		
@@ -78,64 +78,67 @@ func _target_effect(scene: Node2D, affectedPlayer: Player):
 			if affectedPlayer.isBot():
 				target = playerList.pick_random();
 			else:
-				target = await _promptTargetEffect(scene, playerList);
+				target = await _promptTargetEffect(playerList);
 			if not target: return;	#if no target is selected, exit
 			await target.movePlayerXSpaces(-1);
 		GroupRules.Effect.TRANSFER_TICKET:
 			if affectedPlayer.isBot():
 				target = playerList.pick_random();
 			else:
-				target = await _promptTargetEffect(scene, playerList);
+				target = await _promptTargetEffect(playerList);
 			if not target: return;	#if no target is selected, exit
 			affectedPlayer.removeEscapeTicket();
 			target.addEscapeTicket();
 			
-func checkRollTrigger(scene: Node2D, player: Player, roll: Variant):
+func checkRollTrigger(player: Player, roll: Variant):
 	match [triggerRule, roll]:
 		[GroupRules.Trigger.ROLL_PRISON, "Jail"]:
 			#DO NOT GO TO JAIL AND CAN USE EFFECT
 			if GroupRules.verify_player_can_use_rule(player, effectRule):
-				await _useEffect(scene, player);
+				await _useEffect(player);
 			return true;
 		[GroupRules.Trigger.ROLL_ONE, 1]:
 			#MOVE PLAYER FORWARD 1 AND CAN USE EFFECT
 			await player.movePlayerXSpaces(1);
 			if GroupRules.verify_player_can_use_rule(player, effectRule):
-				await _useEffect(scene, player);
+				await _useEffect(player);
 			return true;
 		[GroupRules.Trigger.ROLL_TWO, 2]:
 			#MOVE PLAYER FORWARD 2 AND CAN USE EFFECT
 			await player.movePlayerXSpaces(2);
 			if GroupRules.verify_player_can_use_rule(player, effectRule):
-				await _useEffect(scene, player);
+				await _useEffect(player);
 			return true;
 		[GroupRules.Trigger.ROLL_THREE, 3]:
 			#MOVE PLAYER FORWARD 3 AND CAN USE EFFECT
 			await player.movePlayerXSpaces(3);
 			if GroupRules.verify_player_can_use_rule(player, effectRule): 
-				await _useEffect(scene, player);
+				await _useEffect(player);
 			return true;
 		_:
 			return false;
 			
-func _useEffect(scene: Node2D, player: Player):
+func _useEffect(player: Player):
 	if effectRule in targetsAnotherPlayer:
-		await _target_effect(scene, player);
+		await _target_effect(player);
 	else:
-		await _trigger_effect(scene, player);
+		await _trigger_effect(player);
+	Events.emit_signal("group_rule_finished");
 
 #prompts the player who triggered the rule if they want to use the effect
-func _promptForEffect(scene: Node2D):		
+func _promptForEffect():		
 	var confirmBox = preload("res://scenes/confirmRuleUsage.tscn");
 	var confirm = confirmBox.instantiate();
+	var scene = get_tree().current_scene;
 	scene.add_child(confirm);
 	confirm.setLabel(LABEL_TEXT[effectRule]);
 	return confirm.choice_choosen;
 		
 #prompt the player who they want to target
-func _promptTargetEffect(scene: Node2D, targetList: Array[Player]):
+func _promptTargetEffect(targetList: Array[Player]):
 	var selectPrompt = preload("res://scenes/selectPlayerPrompt.tscn");
 	var prompt = selectPrompt.instantiate();
+	var scene = get_tree().current_scene;
 	scene.add_child(prompt);
 	prompt.setLabel(LABEL_TEXT[effectRule]);
 	prompt.setPlayerList(targetList, triggerRule in canRules);

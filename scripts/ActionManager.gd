@@ -30,6 +30,7 @@ func _ready() -> void:
 	Events.start_turn.connect(_next_turn);
 	Events.player_moved.connect(_player_moved);
 	Events.gain_die_roll.connect(_gain_die);
+	Events.group_rule_finished.connect(_show_actions);
 	Events.update_group_action.connect(_update_group_action);
 	
 func _next_turn():
@@ -77,9 +78,8 @@ func _on_special_pressed() -> void:
 	
 func _on_group_pressed() -> void:
 	#grab the current scene to send with the perform action
-	var currentScene = get_tree().current_scene;
-	_currentGroupAction.performAction(currentScene, PlayerManager.getCurrentTurnPlayer());
-	_show_actions();#update the action display
+	_disable_all_actions();
+	_currentGroupAction.performAction(PlayerManager.getCurrentTurnPlayer());
 	
 func _on_end_pressed() -> void:
 	self.visible = false;

@@ -54,7 +54,7 @@ func promptForOfficeReward(player: Player):
 	
 func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:	
 	var currentPlayer = PlayerManager.getCurrentTurnPlayer();
-	if await group_rule_manager.checkRollTrigger(self, currentPlayer, roll):
+	if await group_rule_manager.checkRollTrigger(currentPlayer, roll):
 		turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
 		Events.emit_signal("player_moved", false);
 		return;

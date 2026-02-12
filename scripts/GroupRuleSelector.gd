@@ -68,8 +68,8 @@ static func verify_player_can_use_rule(affectedPlayer: Player, effectRule: Effec
 func random_rule():
 	#select random group rules
 	selectedWhenRule = whenGroupButtons[0];
-	selectedTriggerRule = triggerGroupButtons[5];
-	selectedEffectRule = effectGroupButtons[1];
+	selectedTriggerRule = triggerGroupButtons[6];
+	selectedEffectRule = effectGroupButtons[2];
 	
 	#toggle selected
 	selectedWhenRule.button_pressed = true;
