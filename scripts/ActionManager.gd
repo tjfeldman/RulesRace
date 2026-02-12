@@ -21,6 +21,7 @@ static var _currentTurnState: TurnState = TurnState.LOADING;
 static func getCurrentTurnState(): return _currentTurnState;
 
 var _currentDieToRoll = Dice.Type.NONE;
+var _currentGroupAction: GroupAction = GroupAction.new();
 
 #TODO: Maybe change to Static Class
 
@@ -29,6 +30,7 @@ func _ready() -> void:
 	Events.start_turn.connect(_next_turn);
 	Events.player_moved.connect(_player_moved);
 	Events.gain_die_roll.connect(_gain_die);
+	Events.update_group_action.connect(_update_group_action);
 	
 func _next_turn():
 	if _currentTurnState != TurnState.OVER:
@@ -72,6 +74,12 @@ func _on_special_pressed() -> void:
 	_disable_all_actions();
 	_currentTurnState = TurnState.ROLLING;
 	Events.emit_signal("roll_die_action", true);
+	
+func _on_group_pressed() -> void:
+	#grab the current scene to send with the perform action
+	var currentScene = get_tree().current_scene;
+	_currentGroupAction.performAction(currentScene, PlayerManager.getCurrentTurnPlayer());
+	_show_actions();#update the action display
 	
 func _on_end_pressed() -> void:
 	self.visible = false;
@@ -137,8 +145,12 @@ func _show_actions():
 	escape.visible = _player_can_escape_jail();
 	dice.visible = _currentDieToRoll == Dice.Type.NORMAL;
 	special.visible = _currentDieToRoll == Dice.Type.SPECIAL;
-	group.visible = false;
+	group.visible = _currentGroupAction.isValid() and _currentGroupAction.canPay(PlayerManager.getCurrentTurnPlayer());
 	end.visible = _currentDieToRoll == Dice.Type.NONE;
+	
+func _update_group_action(groupAction: GroupAction):
+	_currentGroupAction = groupAction;
+	group.text = "Group Rule %s" % groupAction.getCostString();
 
 func playerFinished():
 	self.visible = false;

@@ -29,6 +29,7 @@ const LABEL_TEXT = {
 func _ready() -> void:
 	group_rule_selector.visible = false;
 	group_rule_selector.rules_updated.connect(_on_rules_updated);
+	Events.perform_rule_effect.connect(_useEffect);
 	
 func _on_background_gui_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_click"):
@@ -43,28 +44,13 @@ func _on_rules_updated(whenRuleBtn: RuleButton, triggerRuleBtn: RuleButton, effe
 	triggerRule = triggerRuleBtn.type;
 	effectRule = effectRuleBtn.type;
 	
-func _can_benefit_from_effect(affectedPlayer: Player):
-	#if player has made it to the goal, they cannot benefit from the effect
-	if affectedPlayer.hasFinished(): return false;
-	
-	match effectRule:
-		GroupRules.Effect.MOVE_ONE:
-			return !affectedPlayer.isInJail();
-		GroupRules.Effect.MOVE_TO_PLAYER_AHEAD:
-			return !affectedPlayer.isInJail() and PlayerManager.getPlayerAhead(affectedPlayer);
-		GroupRules.Effect.MOVE_BACK:
-			return affectedPlayer.getBoardPosition() > 0;
-		GroupRules.Effect.SEND_PLAYER_BACK_ONE:
-			#we can't move players who are at the start or are currently in jail
-			return PlayerManager.getListOfAllOtherPlayers(affectedPlayer).filter(func(p): return p.getBoardPosition() > 0 and not p.isInJail());
-		GroupRules.Effect.TRANSFER_TICKET:
-			return affectedPlayer.hasEscapeTicket();
-		_:
-			return true;
+	#after we update the display, we must know create a group action object to emit back
+	var groupAction = GroupAction.new(triggerRule, effectRule);
+	Events.emit_signal("update_group_action", groupAction);
 
 func _trigger_effect(scene: Node2D, affectedPlayer: Player):
 	#if the rule can be used, asked the player if they want to use it
-	if effectRule in canRules and not affectedPlayer.isBot():
+	if triggerRule in canRules and not affectedPlayer.isBot():
 		#exit if they decline
 		if not await _promptForEffect(scene): return;
 	match effectRule:
@@ -108,25 +94,25 @@ func checkRollTrigger(scene: Node2D, player: Player, roll: Variant):
 	match [triggerRule, roll]:
 		[GroupRules.Trigger.ROLL_PRISON, "Jail"]:
 			#DO NOT GO TO JAIL AND CAN USE EFFECT
-			if _can_benefit_from_effect(player):
+			if GroupRules.verify_player_can_use_rule(player, effectRule):
 				await _useEffect(scene, player);
 			return true;
 		[GroupRules.Trigger.ROLL_ONE, 1]:
 			#MOVE PLAYER FORWARD 1 AND CAN USE EFFECT
 			await player.movePlayerXSpaces(1);
-			if _can_benefit_from_effect(player):
+			if GroupRules.verify_player_can_use_rule(player, effectRule):
 				await _useEffect(scene, player);
 			return true;
 		[GroupRules.Trigger.ROLL_TWO, 2]:
 			#MOVE PLAYER FORWARD 2 AND CAN USE EFFECT
 			await player.movePlayerXSpaces(2);
-			if _can_benefit_from_effect(player):
+			if GroupRules.verify_player_can_use_rule(player, effectRule):
 				await _useEffect(scene, player);
 			return true;
 		[GroupRules.Trigger.ROLL_THREE, 3]:
 			#MOVE PLAYER FORWARD 3 AND CAN USE EFFECT
 			await player.movePlayerXSpaces(3);
-			if _can_benefit_from_effect(player): 
+			if GroupRules.verify_player_can_use_rule(player, effectRule): 
 				await _useEffect(scene, player);
 			return true;
 		_:

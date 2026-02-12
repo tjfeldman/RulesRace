@@ -23,3 +23,7 @@ signal gain_die_roll(special: bool);
 #Move Events
 signal player_moved(escapedFromPrison: bool);
 signal player_reached_goal(player: Player);
+
+#Group Rule Events
+signal perform_rule_effect(scene: Node2D, player: Player);
+signal update_group_action(action: GroupAction);

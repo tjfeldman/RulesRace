@@ -45,4 +45,5 @@ text = "End Turn"
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Escape" to="." method="_on_escape_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Dice" to="." method="_on_dice_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Special" to="." method="_on_special_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Group" to="." method="_on_group_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/End" to="." method="_on_end_pressed"]

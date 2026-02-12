@@ -10,7 +10,7 @@ V0.1 Tasklist
 - [x] Add State Manager that controls the turn.
 - [x] Add a Bot Player that rolls die and moves.
 
-V0.2 Tasklist (Every Check is ~0.005)
+V0.2 Tasklist (Every Check is ~0.004)
 - [x] Add UI element with buttons for actions
 - [x] Revamp State Manager with UI.
 - [x] Add Group Rule UI element that shows current group rule selection and also shows other rules. Group rule categories: When, Trigger, Effect
@@ -23,7 +23,7 @@ V0.2 Tasklist (Every Check is ~0.005)
 - [x] Add Group Rule check for Trigger category of "If they roll 2, they will move two space and then can"
 - [x] Add Group Rule check for Trigger category of "If they roll 3, they will move three space and then can"
 - [ ] Add Group Rule check for Trigger category of "every time another player goes to Prison, they can"
-- [ ] Add Group Rule check for Trigger category of "they can move 2 spaces backwards and then"
+- [x] Add Group Rule check for Trigger category of "they can move 2 spaces backwards and then"
 - [ ] Add Group Rule check for Trigger category of "they can discard an escape ticket(s) and"
 - [ ] Add Group Rule check for Trigger category of "they can forfeit their dice roll and"
 - [x] Add Group Rule action for Effect category of "move one space forward"

@@ -101,3 +101,4 @@ func _die_rolling(special: bool):
 			
 func _used_escape_ticket():
 	turn_status.text = "%s used an escape ticket to leave jail" % PlayerManager.getCurrentTurnPlayer().playerName;
+	
