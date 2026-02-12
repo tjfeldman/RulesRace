@@ -45,7 +45,7 @@ func _on_rules_updated(whenRuleBtn: RuleButton, triggerRuleBtn: RuleButton, effe
 	effectRule = effectRuleBtn.type;
 	
 	#after we update the display, we must know create a group action object to emit back
-	var groupAction = GroupAction.new(triggerRule, effectRule);
+	var groupAction = GroupAction.new(whenRule, triggerRule, effectRule);
 	Events.emit_signal("update_group_action", groupAction);
 
 func _trigger_effect(affectedPlayer: Player):
@@ -91,6 +91,11 @@ func _target_effect(affectedPlayer: Player):
 			target.addEscapeTicket();
 			
 func checkRollTrigger(player: Player, roll: Variant):
+	#if the when condition is not met or player is in jail
+	#then we return false
+	if not GroupRules.verify_when(player, whenRule) or player.isInJail():
+		return false;
+		
 	match [triggerRule, roll]:
 		[GroupRules.Trigger.ROLL_PRISON, "Jail"]:
 			#DO NOT GO TO JAIL AND CAN USE EFFECT

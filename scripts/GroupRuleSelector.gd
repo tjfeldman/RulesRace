@@ -46,30 +46,40 @@ signal rules_updated(whenRule: RuleButton, triggerRule: RuleButton, effectRule: 
 func _ready() -> void:
 	call_deferred("random_rule");
 	
+#checks if the player triggering a rule can activate the rule
+static func verify_when(triggerPlayer: Player, whenRule: When):
+	match whenRule:
+		When.TURN:
+			return PlayerManager.getCurrentTurnPlayer() == triggerPlayer;
+		When.PRISON:
+			return triggerPlayer.isInJail();
+		_:
+			return false;
+	
 static func verify_player_can_use_rule(affectedPlayer: Player, effectRule: Effect):
 	#if player has made it to the goal, they cannot benefit from the effect
 	if affectedPlayer.hasFinished(): return false;
 	
 	match effectRule:
-		GroupRules.Effect.MOVE_ONE:
+		Effect.MOVE_ONE:
 			return !affectedPlayer.isInJail();
-		GroupRules.Effect.MOVE_TO_PLAYER_AHEAD:
+		Effect.MOVE_TO_PLAYER_AHEAD:
 			return !affectedPlayer.isInJail() and PlayerManager.getPlayerAhead(affectedPlayer);
-		GroupRules.Effect.MOVE_BACK:
+		Effect.MOVE_BACK:
 			return affectedPlayer.getBoardPosition() > 0;
-		GroupRules.Effect.SEND_PLAYER_BACK_ONE:
+		Effect.SEND_PLAYER_BACK_ONE:
 			#we can't move players who are at the start, are currently in jail, or has finished the race
 			return PlayerManager.getListOfAllOtherPlayers(affectedPlayer).filter(func(p): return p.getBoardPosition() > 0 and not p.isInJail() and not p.hasFinished());
-		GroupRules.Effect.TRANSFER_TICKET:
+		Effect.TRANSFER_TICKET:
 			return affectedPlayer.hasEscapeTicket();
 		_:
 			return true;
 
 func random_rule():
 	#select random group rules
-	selectedWhenRule = whenGroupButtons[0];
-	selectedTriggerRule = triggerGroupButtons[7];
-	selectedEffectRule = effectGroupButtons[0];
+	selectedWhenRule = whenGroupButtons[1];
+	selectedTriggerRule = triggerGroupButtons[5];
+	selectedEffectRule = effectGroupButtons[1];
 	
 	#toggle selected
 	selectedWhenRule.button_pressed = true;

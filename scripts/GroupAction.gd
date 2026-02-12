@@ -10,8 +10,13 @@ enum CostType {
 
 var _action_cost_type: CostType;
 var _action_effect: GroupRules.Effect;
+var _action_when: GroupRules.When;
 
-func _init(trigger_rule: GroupRules.Trigger = GroupRules.Trigger.NONE, effect: GroupRules.Effect = GroupRules.Effect.NONE):
+func _init(
+	actionWhen: GroupRules.When = GroupRules.When.NONE,
+	trigger_rule: GroupRules.Trigger = GroupRules.Trigger.NONE, 
+	effect: GroupRules.Effect = GroupRules.Effect.NONE
+) -> void:
 	match trigger_rule:
 		GroupRules.Trigger.MOVE_BACK_TWO:
 			_action_cost_type = CostType.MOVE_BACK;
@@ -22,13 +27,14 @@ func _init(trigger_rule: GroupRules.Trigger = GroupRules.Trigger.NONE, effect: G
 		_:
 			_action_cost_type = CostType.NONE;
 	_action_effect = effect;
+	_action_when = actionWhen;
 
 func isValid():
 	return _action_cost_type != CostType.NONE;
 	
 func canPay(player: Player):
-	var canBenefit = GroupRules.verify_player_can_use_rule(player, _action_effect);
-	if canBenefit:
+	var canActivate = GroupRules.verify_when(player, _action_when);
+	if canActivate and GroupRules.verify_player_can_use_rule(player, _action_effect):
 		match _action_cost_type:
 			CostType.MOVE_BACK:
 				return !player.isInJail() and player.getBoardPosition() >= 2;

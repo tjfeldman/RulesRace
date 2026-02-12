@@ -63,7 +63,7 @@ func _on_escape_pressed() -> void:
 	_disable_all_actions();
 	escape.visible = false;
 	await _player_escapes_jail();
-	_enable_all_actions();
+	_show_actions();
 
 func _on_dice_pressed() -> void:
 	_currentDieToRoll = Dice.Type.NONE;

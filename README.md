@@ -15,8 +15,8 @@ V0.2 Tasklist (Every Check is ~0.004)
 - [x] Revamp State Manager with UI.
 - [x] Add Group Rule UI element that shows current group rule selection and also shows other rules. Group rule categories: When, Trigger, Effect
 - [x] Add Group Rule Manager
-- [ ] Add Group Rule check for When category of "Every player, on their turn"
-- [ ] Add Group Rule check for When category of "At any time, player(s) in prison"
+- [x] Add Group Rule check for When category of "Every player, on their turn"
+- [x] Add Group Rule check for When category of "At any time, player(s) in prison"
 - [ ] Add Group Rule check for When category of "The leading player(s), on their turn,"
 - [x] Add Group Rule check for Trigger category of "If they roll Prison, they won't move to Prison, and can"
 - [x] Add Group Rule check for Trigger category of "If they roll 1, they will move one space and then can"
