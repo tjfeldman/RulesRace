@@ -28,6 +28,12 @@ func _init(
 			_action_cost_type = CostType.NONE;
 	_action_effect = effect;
 	_action_when = actionWhen;
+	
+func isGrantSpecialDie():
+	return _action_effect == GroupRules.Effect.ROLL_SPECIAL_DIE;
+	
+func isGrantReroll():
+	return _action_effect == GroupRules.Effect.REROLL_DIE;
 
 func isValid():
 	return _action_cost_type != CostType.NONE;

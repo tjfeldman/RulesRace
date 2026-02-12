@@ -7,12 +7,18 @@ class_name ActionManager
 @onready var group: Button = $PanelContainer/MarginContainer/VBoxContainer/Group
 @onready var end: Button = $PanelContainer/MarginContainer/VBoxContainer/End
 
+"""
+When a player's turn starts, they roll a die.
+Before they roll this die, they can use an escape ticket or group rule.
+Once they roll the standard die, their turn ends and they cannot use escape tickets or group rules.
+"""
+
 enum TurnState {
 	LOADING, #Game is Loading
-	START, #Start of Turn
-	CAN_ROLL, #Player can roll
-	ROLLING, #Player is Rolling
-	END, #Player is at end of their turn
+	START, #Start of Turn, player has a die to roll
+	ROLLING, #The player is rolling their die.
+	CAN_ROLL, #The player has additional dice to roll
+	END, #Player is at end of their turn, can no longer do anything else
 	OVER, #Game is over
 };
 
@@ -20,7 +26,8 @@ enum TurnState {
 static var _currentTurnState: TurnState = TurnState.LOADING;
 static func getCurrentTurnState(): return _currentTurnState;
 
-var _currentDieToRoll = Dice.Type.NONE;
+var _hasNormalDie: bool = false;
+var _hasSpecialDie: bool = false;
 var _currentGroupAction: GroupAction = GroupAction.new();
 
 #TODO: Maybe change to Static Class
@@ -33,10 +40,11 @@ func _ready() -> void:
 	Events.forfeit_die_roll.connect(_forfeit_die);
 	Events.group_rule_finished.connect(_show_actions);
 	Events.update_group_action.connect(_update_group_action);
-	
+		
 func _next_turn():
 	if _currentTurnState != TurnState.OVER:
-		_currentDieToRoll = Dice.Type.NORMAL;
+		_hasNormalDie = true;
+		_hasSpecialDie = false;
 		_currentTurnState = TurnState.START;
 		_show_actions();
 		if PlayerManager.getCurrentTurnPlayer().isBot():
@@ -45,19 +53,24 @@ func _next_turn():
 		else:
 			self.visible = true;
 	
-func _player_moved(escapedFromPrison: bool):
-	if escapedFromPrison:
-		_currentDieToRoll = Dice.Type.NORMAL;
-	_updateTurnState();
+func _player_moved():
+	#remove the extra dice the player has one
+	if _hasNormalDie or _hasSpecialDie:
+		_currentTurnState = TurnState.CAN_ROLL;
+	#otherwise their turn is over
+	else:
+		_currentTurnState = TurnState.END;
+	_show_actions();
 	if PlayerManager.getCurrentTurnPlayer().isBot():
 		_bot_turn_action();
 			
 func _gain_die(special_die: bool):
 	if special_die:
-		_currentDieToRoll = Dice.Type.SPECIAL;
+		_hasSpecialDie = true;
 	else:
-		_currentDieToRoll = Dice.Type.NORMAL;
-	_updateTurnState();
+		_hasNormalDie = true;
+	_currentTurnState = TurnState.CAN_ROLL;
+	_show_actions();
 			
 func _on_escape_pressed() -> void:
 	_disable_all_actions();
@@ -66,13 +79,13 @@ func _on_escape_pressed() -> void:
 	_show_actions();
 
 func _on_dice_pressed() -> void:
-	_currentDieToRoll = Dice.Type.NONE;
+	_hasNormalDie = false;
 	_disable_all_actions();
 	_currentTurnState = TurnState.ROLLING;
 	Events.emit_signal("roll_die_action", false);
 	
 func _on_special_pressed() -> void:
-	_currentDieToRoll = Dice.Type.NONE;
+	_hasSpecialDie = false;
 	_disable_all_actions();
 	_currentTurnState = TurnState.ROLLING;
 	Events.emit_signal("roll_die_action", true);
@@ -105,6 +118,24 @@ func _player_can_escape_jail():
 	var currentTurnPlayer = PlayerManager.getCurrentTurnPlayer();
 	return _currentTurnState == TurnState.START and currentTurnPlayer.isInJail() and currentTurnPlayer.hasEscapeTicket();
 	
+func _player_can_use_group_rule():
+	#Players can only use the group rule if the following are true
+	#The group rule is valid
+	var isValid = _currentGroupAction.isValid();
+	
+	#The player can pay for the group rule
+	var canPay = _currentGroupAction.canPay(PlayerManager.getCurrentTurnPlayer());
+	
+	var endOfTurn = _currentTurnState == TurnState.END;
+	#If the rule grants special dice, it is not the end of turn and the player does not have a special die
+	if _currentGroupAction.isGrantSpecialDie():
+		return isValid and canPay and not _hasSpecialDie and not endOfTurn;
+	#if the rule grants a reroll, it is end of turn and the player does not have a normal die
+	elif _currentGroupAction.isGrantReroll():
+		return isValid and canPay and not _hasNormalDie and endOfTurn
+	#otherwise just check if it is not end of turn
+	return isValid and canPay and not endOfTurn;
+	
 func _player_escapes_jail():
 	var currentTurnPlayer = PlayerManager.getCurrentTurnPlayer();
 	#TODO: Move Turn Status update to this function?
@@ -129,30 +160,23 @@ func _bot_turn_action():
 	elif dice.visible:
 		_on_dice_pressed();
 	else:
-		_on_end_pressed();
-		
-func _updateTurnState():
-	if _currentTurnState == TurnState.OVER:
-		return;
-		
-	if _currentDieToRoll == Dice.Type.NONE:
-		_currentTurnState = TurnState.END;
-	else:
-		_currentTurnState = TurnState.CAN_ROLL;
-	_show_actions();
+		_on_end_pressed();	
 
 func _forfeit_die():
-	_currentDieToRoll = Dice.Type.NONE;
 	_currentTurnState = TurnState.END;
 		
 func _show_actions():
 	_enable_all_actions();
-	var endOfTurn = _currentTurnState == TurnState.END;
-	escape.visible = _player_can_escape_jail() and not endOfTurn;
-	dice.visible = _currentDieToRoll == Dice.Type.NORMAL and not endOfTurn;
-	special.visible = _currentDieToRoll == Dice.Type.SPECIAL and not endOfTurn;
-	group.visible = _currentGroupAction.isValid() and _currentGroupAction.canPay(PlayerManager.getCurrentTurnPlayer()) and not endOfTurn;
-	end.visible = endOfTurn;
+	if _currentTurnState == TurnState.OVER:
+		self.visible = false;
+	else:
+		var endOfTurn = _currentTurnState == TurnState.END;
+		
+		escape.visible = _player_can_escape_jail();
+		dice.visible = _hasNormalDie and not _hasSpecialDie and not endOfTurn;
+		special.visible = _hasSpecialDie and not endOfTurn;
+		group.visible =  _player_can_use_group_rule();
+		end.visible = endOfTurn;
 	
 func _update_group_action(groupAction: GroupAction):
 	_currentGroupAction = groupAction;

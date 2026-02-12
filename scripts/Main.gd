@@ -56,7 +56,7 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 	var currentPlayer = PlayerManager.getCurrentTurnPlayer();
 	if await group_rule_manager.checkRollTrigger(currentPlayer, roll):
 		turn_status.text = "%s triggered the group rule" %currentPlayer.playerName;
-		Events.emit_signal("player_moved", false);
+		Events.emit_signal("player_moved");
 		return;
 		
 	match roll:
@@ -64,12 +64,12 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 			var sentToJail = await currentPlayer.sendToJail();
 			if sentToJail:
 				turn_status.text = "%s went to jail" %currentPlayer.playerName;
-			Events.emit_signal("player_moved", false);
+			Events.emit_signal("player_moved");
 		"Escape":
 			var escapeFromJail = await currentPlayer.escapeFromJail();
 			if escapeFromJail:
 				turn_status.text = "%s escaped jail" %currentPlayer.playerName;
-			Events.emit_signal("player_moved", escapeFromJail);
+			Events.emit_signal("player_moved");
 		_:
 			if !currentPlayer.isInJail():
 				turn_status.text = "%s is moving %s spaces" %[currentPlayer.playerName, roll];
@@ -78,7 +78,7 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 				if board.isOfficeSpace(currentPlayer.getBoardPosition()):
 					turn_status.text = "%s landed on office" %currentPlayer.playerName;
 					await _prompt_for_office_reward(currentPlayer);
-			Events.emit_signal("player_moved", false);
+			Events.emit_signal("player_moved");
 			
 
 #TODO: Factor for more than 2 players

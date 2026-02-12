@@ -72,14 +72,17 @@ static func verify_player_can_use_rule(affectedPlayer: Player, effectRule: Effec
 			return PlayerManager.getListOfAllOtherPlayers(affectedPlayer).filter(func(p): return p.getBoardPosition() > 0 and not p.isInJail() and not p.hasFinished());
 		Effect.TRANSFER_TICKET:
 			return affectedPlayer.hasEscapeTicket();
+		Effect.REROLL_DIE:
+			#can only reroll a die after rolling the die
+			return ActionManager.getCurrentTurnState() != ActionManager.TurnState.START;
 		_:
 			return true;
 
 func random_rule():
 	#select random group rules
-	selectedWhenRule = whenGroupButtons[1];
-	selectedTriggerRule = triggerGroupButtons[5];
-	selectedEffectRule = effectGroupButtons[1];
+	selectedWhenRule = whenGroupButtons[0];
+	selectedTriggerRule = triggerGroupButtons[6];
+	selectedEffectRule = effectGroupButtons[3];
 	
 	#toggle selected
 	selectedWhenRule.button_pressed = true;

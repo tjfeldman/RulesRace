@@ -21,7 +21,7 @@ signal escape_jail_action();
 signal gain_die_roll(special: bool);
 
 #Move Events
-signal player_moved(escapedFromPrison: bool);
+signal player_moved();
 signal player_reached_goal(player: Player);
 
 #Group Rule Events
