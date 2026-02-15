@@ -25,7 +25,7 @@ const LABEL_TEXT = {
 }
 
 #TODO: Maybe change to Static Class
-var _groupAction: GroupAction;
+var _groupAction: GroupAction; #TODO: Make Group Action a static class instead or merge with GroupRuleSelector
 
 func _ready() -> void:
 	group_rule_selector.visible = false;
@@ -34,8 +34,14 @@ func _ready() -> void:
 	Events.turn_state_changed.connect(_promptPrisoners);
 	Events.player_sent_to_jail.connect(_check_prison_trigger);
 	
+func prompt_group_rule_change_for_player(player: Player):
+	if player.isBot():
+		group_rule_selector.random_rule();
+	else:
+		group_rule_selector.set_for_editing();
+	
 func _on_background_gui_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_click"):
+	if event.is_action_pressed("ui_click") and not group_rule_selector.isEditing():
 		group_rule_selector.visible = !group_rule_selector.visible;
 		
 func _on_rules_updated(whenRuleBtn: RuleButton, triggerRuleBtn: RuleButton, effectRuleBtn: RuleButton):
