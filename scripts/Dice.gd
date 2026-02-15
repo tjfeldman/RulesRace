@@ -2,7 +2,6 @@ extends Sprite2D
 
 @onready var animationPlayer : AnimationPlayer = $AnimationPlayer;
 @onready var timer : Timer = $Timer;
-@onready var label : Label = $Label;
 
 @export var type : Dice.Type;
 

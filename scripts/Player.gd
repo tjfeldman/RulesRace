@@ -6,7 +6,13 @@ class_name Player
 @export var bot : bool = false;
 
 @onready var piece : Sprite2D = $PlayerPiece;
-@onready var board : Node2D = $"../Board";
+#@onready var board : Node2D = $"../Board";
+
+#set the game board once
+var board : Gameboard = null :
+	set(value):
+		if board == null:
+			board = value;
 var playerMoveSpeed: float = 0.33;
 
 #private variables
@@ -18,6 +24,7 @@ var _escapeTickets : int = 0:
 		
 var _boardPosition : int = 0;
 var _inJail : bool = false;
+var _finished : bool = false;
 
 func getBoardPosition():
 	return _boardPosition;
@@ -34,6 +41,9 @@ func addEscapeTicket():
 func removeEscapeTicket():
 	_escapeTickets -= 1;
 	
+func hasFinished():
+	return _finished;
+	
 func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
 	#TODO: Should be calculated by the board based on pieces on tile
 	if bot:
@@ -44,17 +54,50 @@ func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
 	tween.tween_property(piece, "position", newPos, moveSpeed);
 	await tween.finished;
 	
-func movePlayerForward():
-	#prevent movement if player is in jail
-	if !_inJail:
+func movePlayerXSpaces(x: int):
+	while x != 0:
+		if x > 0:
+			await _movePlayerForward();
+			x -= 1;
+		else:
+			await _movePlayerBackward();
+			x += 1;
+	Events.emit_signal("player_moved", self);
+	
+func moveToPlayer(player: Player):
+	var dist = player.getBoardPosition() - _boardPosition;
+	while dist != 0:
+		if dist > 0:
+			await _movePlayerForward();
+			dist -= 1;
+		else:
+			await _movePlayerBackward();
+			dist += 1;
+	Events.emit_signal("player_moved", self);
+	
+func _movePlayerForward():
+	#prevent movement if player is in jail or has finished
+	if !_inJail and !_finished:
 		_boardPosition += 1;
 		var targetTile = board.getTilePosition(_boardPosition);
-		await _movePlayer(targetTile); #TODO: Better Handling to prevent moving past goal
+		await _movePlayer(targetTile);
+		
+		#check if player reached goal
+		if board.isGoalSpace(_boardPosition):
+			_finished = true;
+			Events.emit_signal("player_reached_goal", self);
+			
+func _movePlayerBackward():
+	if !_inJail and _boardPosition > 0:
+		_boardPosition -= 1;
+		var targetTile = board.getTilePosition(_boardPosition);
+		await _movePlayer(targetTile);
 	
 func sendToJail():
 	if !_inJail:
 		await _movePlayer(board.getJailPosition(), playerMoveSpeed * 3);
 		_inJail = true;
+		Events.emit_signal("player_sent_to_jail", self);
 		return true;
 	return false;
 		
