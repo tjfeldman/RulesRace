@@ -32,19 +32,46 @@ enum Effect {
 	NONE
 }
 
-@export var whenGroupButtons: Array[WhenButton];
-@export var triggerGroupButtons: Array[TriggerButton];
-@export var effectGroupButtons: Array[EffectButton];
+@export var whenGroup: ButtonGroup;
+@export var triggerGroup: ButtonGroup;
+@export var effectGroup: ButtonGroup;
 
-#May not need
-var selectedWhenRule : WhenButton;
-var selectedTriggerRule : TriggerButton;
-var selectedEffectRule : EffectButton;
+@onready var same_rule_warning_label: Label = $PanelContainer/MarginContainer/VBoxContainer/SameRuleWarningLabel
+@onready var incomplete_rule_warning_label: Label = $PanelContainer/MarginContainer/VBoxContainer/IncompleteRuleWarningLabel
+@onready var confirm_btn: Button = $PanelContainer/MarginContainer/VBoxContainer/ConfirmBtn
+func isEditing(): return confirm_btn.visible;
+
+var currentWhenRule : WhenButton;
+var currentTriggerRule : TriggerButton;
+var currentEffectRule : EffectButton;
 
 signal rules_updated(whenRule: RuleButton, triggerRule: RuleButton, effectRule: RuleButton);
 
 func _ready() -> void:
-	call_deferred("random_rule");
+	#call_deferred("random_rule");
+	pass;
+
+func set_for_editing():
+	self.visible = true;
+	for btn in whenGroup.get_buttons():
+		btn.enable();
+	for btn in triggerGroup.get_buttons():
+		btn.enable();
+	for btn in effectGroup.get_buttons():
+		btn.enable();
+	confirm_btn.visible = true;
+	
+func set_for_display():
+	#disable all other buttons
+	for btn in whenGroup.get_buttons():
+		btn.disable();
+	for btn in triggerGroup.get_buttons():
+		btn.disable();
+	for btn in effectGroup.get_buttons():
+		btn.disable();
+	same_rule_warning_label.visible = false;
+	incomplete_rule_warning_label.visible = false;
+	confirm_btn.visible = false;
 	
 #checks if the player triggering a rule can activate the rule
 static func verify_when(triggerPlayer: Player, whenRule: When):
@@ -80,23 +107,63 @@ static func verify_player_can_use_rule(affectedPlayer: Player, effectRule: Effec
 		_:
 			return true;
 
+#TODO: Better logic as not all rules are created equal
 func random_rule():
 	#select random group rules
-	selectedWhenRule = whenGroupButtons[2];
-	selectedTriggerRule = triggerGroupButtons[0];
-	selectedEffectRule = effectGroupButtons[1];
+	var sameWhen = true;
+	var sameTrigger = true;
+	var sameEffect = true;
+	
+	var selectedWhen;
+	var selectedTrigger;
+	var selectedEffect;
+	
+	#pick random rules and make sure it is not the same existing rule
+	while sameWhen and sameTrigger and sameEffect:
+		selectedWhen = whenGroup.get_buttons().pick_random();
+		selectedTrigger = triggerGroup.get_buttons().pick_random();
+		selectedEffect = effectGroup.get_buttons().pick_random();
+		
+		sameWhen = selectedWhen == currentWhenRule;
+		sameTrigger = selectedTrigger == currentTriggerRule;
+		sameEffect = selectedEffect == currentEffectRule;
+	
+	currentWhenRule = selectedWhen;
+	currentTriggerRule = selectedTrigger;
+	currentEffectRule = selectedEffect;
 	
 	#toggle selected
-	selectedWhenRule.button_pressed = true;
-	selectedTriggerRule.button_pressed = true;
-	selectedEffectRule.button_pressed = true;
+	currentWhenRule.button_pressed = true;
+	currentTriggerRule.button_pressed = true;
+	currentEffectRule.button_pressed = true;
 	
-	#disable all other buttons
-	for btn in whenGroupButtons:
-		btn.disable();
-	for btn in triggerGroupButtons:
-		btn.disable();
-	for btn in effectGroupButtons:
-		btn.disable();
-			
-	rules_updated.emit(selectedWhenRule, selectedTriggerRule, selectedEffectRule);
+	set_for_display();			
+	rules_updated.emit(currentWhenRule, currentTriggerRule, currentEffectRule);
+
+func _on_confirm_btn_pressed() -> void:
+	#verify that the selected btns are not the same ones already selected
+	var selectedWhen = whenGroup.get_pressed_button();
+	var selectedTrigger = triggerGroup.get_pressed_button();
+	var selectedEffect = effectGroup.get_pressed_button();
+	
+	var sameWhen = selectedWhen == currentWhenRule;
+	var sameTrigger = selectedTrigger == currentTriggerRule;
+	var sameEffect = selectedEffect == currentEffectRule;
+	
+	#verify that the player has selected a rule in each category
+	if selectedWhen == null or selectedTrigger == null or selectedEffect == null:
+		incomplete_rule_warning_label.visible = true;
+		same_rule_warning_label.visible = false;
+	#verify that the rule is not the same already in effect
+	elif sameWhen and sameTrigger and sameEffect:
+		same_rule_warning_label.visible = true;
+		incomplete_rule_warning_label.visible = false;
+	else:
+		#update the current rule
+		currentWhenRule = selectedWhen;
+		currentTriggerRule = selectedTrigger;
+		currentEffectRule = selectedEffect;
+		
+		self.visible = false;
+		set_for_display();
+		rules_updated.emit(currentWhenRule, currentTriggerRule, currentEffectRule);

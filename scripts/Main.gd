@@ -40,8 +40,7 @@ func _prompt_for_office_reward(player: Player):
 		add_child(choiceBox);
 		picked = await choiceBox.choice_selected;
 	else:
-		#TODO Right now there is no mechanic to change group rule so bot can't chose it right now
-		var choices: Array[OfficeChoice.Option] = [OfficeChoice.Option.TICKET, OfficeChoice.Option.DIE];
+		var choices: Array[OfficeChoice.Option] = [OfficeChoice.Option.TICKET, OfficeChoice.Option.DIE, OfficeChoice.Option.RULE];
 		picked = choices.pick_random();
 		
 	match picked:
@@ -51,6 +50,9 @@ func _prompt_for_office_reward(player: Player):
 		OfficeChoice.Option.DIE:
 			turn_status.text = "%s can roll the special die" % player.playerName;
 			Events.emit_signal("gain_die_roll", true);
+		OfficeChoice.Option.RULE:
+			turn_status.text = "%s is changing the group rule" % player.playerName;
+			group_rule_manager.prompt_group_rule_change_for_player(player);
 	
 func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:	
 	var currentPlayer = PlayerManager.getCurrentTurnPlayer();
