@@ -32,6 +32,7 @@ func _ready() -> void:
 	group_rule_selector.rules_updated.connect(_on_rules_updated);
 	Events.perform_rule_effect.connect(_useEffect);
 	Events.turn_state_changed.connect(_promptPrisoners);
+	Events.player_sent_to_jail.connect(_check_prison_trigger);
 	
 func _on_background_gui_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_click"):
@@ -151,6 +152,28 @@ func _promptTargetEffect(targetList: Array[Player]):
 	prompt.setLabel(LABEL_TEXT[effectRule]);
 	prompt.setPlayerList(targetList, triggerRule in canRules);
 	return await prompt.selected_player;
+	
+func _check_prison_trigger(playerSent: Player):
+	#first we check to make sure the trigger rule is when another is sent to prison
+	if triggerRule == GroupRules.Trigger.MOVES_PRISON:
+		#next we check the when trigger
+		match whenRule:
+			#TODO: Currently no way for a player to be sent to prison outside of their turn
+			GroupRules.When.PRISON:
+				#let's grab a list of all other players who are in prison
+				var prisonPlayers = PlayerManager.getListOfAllOtherPlayers(playerSent).filter(func(p): return p.isInJail());
+				#TODO: Allow bots to use this trigger rule
+				var nonBotPlayers = prisonPlayers.filter(func(p): return !p.isBot());
+				if nonBotPlayers.size() > 0:
+					#there is only 1 non bot right now, so let's grab the only item
+					var player = nonBotPlayers[0];
+					#let's verify the player can use the rule and then use the effect
+					if GroupRules.verify_player_can_use_rule(player, effectRule):
+						await _useEffect(player);
+				pass;
+			_:
+				#default case, do nothing.
+				pass;
 	
 #TODO: The problem with this function atm is that the action manager does not wait for this to finish. This would require a rework when bot logic is updated.
 func _promptPrisoners():

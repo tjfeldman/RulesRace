@@ -30,3 +30,4 @@ signal group_rule_finished();
 signal forfeit_die_roll();
 signal perform_rule_effect(player: Player);
 signal update_group_action(action: GroupAction);
+signal player_sent_to_jail(player: Player);

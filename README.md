@@ -22,7 +22,7 @@ V0.2 Tasklist (Every Check is ~0.004)
 - [x] Add Group Rule check for Trigger category of "If they roll 1, they will move one space and then can"
 - [x] Add Group Rule check for Trigger category of "If they roll 2, they will move two space and then can"
 - [x] Add Group Rule check for Trigger category of "If they roll 3, they will move three space and then can"
-- [ ] Add Group Rule check for Trigger category of "every time another player goes to Prison, they can"
+- [x] Add Group Rule check for Trigger category of "every time another player goes to Prison, they can"
 - [x] Add Group Rule check for Trigger category of "they can move 2 spaces backwards and then"
 - [x] Add Group Rule check for Trigger category of "they can discard an escape ticket(s) and"
 - [x] Add Group Rule check for Trigger category of "they can forfeit their dice roll and"

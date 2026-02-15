@@ -95,6 +95,7 @@ func sendToJail():
 	if !_inJail:
 		await _movePlayer(board.getJailPosition(), playerMoveSpeed * 3);
 		_inJail = true;
+		Events.emit_signal("player_sent_to_jail", self);
 		return true;
 	return false;
 		
