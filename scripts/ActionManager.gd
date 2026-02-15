@@ -39,7 +39,7 @@ var _currentGroupAction: GroupAction = GroupAction.new();
 func _ready() -> void:
 	#connect events
 	Events.start_turn.connect(_next_turn);
-	Events.player_moved.connect(_player_moved);
+	Events.die_rolled.connect(_die_rolled);
 	Events.gain_die_roll.connect(_gain_die);
 	Events.forfeit_die_roll.connect(_forfeit_die);
 	Events.group_rule_finished.connect(_show_actions);
@@ -57,7 +57,7 @@ func _next_turn():
 		else:
 			self.visible = true;
 	
-func _player_moved():
+func _die_rolled():
 	#remove the extra dice the player has one
 	if _hasNormalDie or _hasSpecialDie:
 		_currentTurnState = TurnState.CAN_ROLL;

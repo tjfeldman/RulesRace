@@ -13,6 +13,7 @@ signal updated_escape_tickets(player: Player);
 
 #Turn Events
 signal start_turn();
+signal die_rolled();
 signal turn_state_changed();
 signal end_turn();
 
@@ -22,7 +23,7 @@ signal escape_jail_action();
 signal gain_die_roll(special: bool);
 
 #Move Events
-signal player_moved();
+signal player_moved(player: Player);
 signal player_reached_goal(player: Player);
 
 #Group Rule Events
