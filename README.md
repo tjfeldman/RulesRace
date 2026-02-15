@@ -1,3 +1,12 @@
+v0.3 Tasklist
+- [ ] Group Rule can be changed when landing on the office space.
+- [ ] Create a BotPlayer class that inherits the Player class.
+- [ ] BotPlayer class now handles logic for determing the bot's next move
+- [ ] ActionManager needs to verify all players are ready for the TurnState to change
+- [ ] BotPlayer should have two modes. First mode just rolls dice and picks randomly when prompted. Second mode should extend the first mode, but attempt to utilize Group Rules.
+- [ ] Have 2 BotPlayers added to the board. 1 being the basic bot. 1 being the rule using bot.
+- [ ] Game should now end when all but 1 player has reach the end. This should call a function that currently closes the game.
+
 V0.2 Tasklist (Every Check is ~0.004)
 - [x] Add UI element with buttons for actions
 - [x] Revamp State Manager with UI.
@@ -24,7 +33,7 @@ V0.2 Tasklist (Every Check is ~0.004)
 - [x] Add Group Rule action for Effect category of "send one other player one space backward"
 
 V0.1 Tasklist
-- [x] Add Board, Player Token, and Die. Player Token moves based on the Die's roll. Includes Jail space.~~
+- [x] Add Board, Player Token, and Die. Player Token moves based on the Die's roll. Includes Jail space.
 - [x] Add Tile Object that contains information about Tile Color and if Tile is a special tile. 
 - [x] When player's land on a special tile, a pop up appears giving them options.
 - [x] Add Inventory to Player to store Escape Tickets. 
@@ -34,6 +43,3 @@ V0.1 Tasklist
 - [x] Add special die that can be rolled when conditions are met.
 - [x] Add State Manager that controls the turn.
 - [x] Add a Bot Player that rolls die and moves.
-
-Future Work
-- [ ] Allow prison players to use a valid group rule during other player's turns
