@@ -1,8 +1,10 @@
 v0.3 Tasklist
 - [x] Group Rule can be changed when landing on the office space.
+- [ ] Create a HumanPlayer class that inherits the player class. This class has an ActionUI assigned to it that is always active.
+- [ ] Player class now tracks the dice it has to roll.
+- [ ] Main now asks the active player turn what it's next move is after everyone has done their actions.
 - [ ] Create a BotPlayer class that inherits the Player class.
 - [ ] BotPlayer class now handles logic for determing the bot's next move
-- [ ] ActionManager needs to verify all players are ready for the TurnState to change
 - [ ] BotPlayer should have two modes. First mode just rolls dice and picks randomly when prompted. Second mode should extend the first mode, but attempt to utilize Group Rules.
 - [ ] Have 2 BotPlayers added to the board. 1 being the basic bot. 1 being the rule using bot.
 - [ ] Game should now end when all but 1 player has reach the end. This should call a function that currently closes the game.
