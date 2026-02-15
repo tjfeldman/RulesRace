@@ -1,5 +1,5 @@
 v0.3 Tasklist
-- [ ] Group Rule can be changed when landing on the office space.
+- [x] Group Rule can be changed when landing on the office space.
 - [ ] Create a BotPlayer class that inherits the Player class.
 - [ ] BotPlayer class now handles logic for determing the bot's next move
 - [ ] ActionManager needs to verify all players are ready for the TurnState to change
