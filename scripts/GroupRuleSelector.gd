@@ -44,16 +44,16 @@ const HARMFUL_EFFECTS: Array[Effect] = [Effect.SEND_PLAYER_BACK_ONE];
 @onready var confirm_btn: Button = $PanelContainer/MarginContainer/VBoxContainer/ConfirmBtn
 func isEditing(): return confirm_btn.visible;
 
-var _currentWhenRule : WhenButton;
-var _currentTriggerRule : TriggerButton;
-var _currentEffectRule : EffectButton;
+static var _currentWhenRule : WhenButton;
+static var _currentTriggerRule : TriggerButton;
+static var _currentEffectRule : EffectButton;
 
 static var group_action: GroupAction = GroupAction.new(When.NONE, Trigger.NONE, Effect.NONE);
 
 signal rules_updated(whenRule: RuleButton, triggerRule: RuleButton, effectRule: RuleButton);
 
 func _ready() -> void:
-	call_deferred("_set_new_rule");
+	#call_deferred("_set_new_rule");
 	set_for_display();
 	pass;
 
@@ -78,6 +78,9 @@ func set_for_display():
 	same_rule_warning_label.visible = false;
 	incomplete_rule_warning_label.visible = false;
 	confirm_btn.visible = false;
+	
+static func existing_group_rule():
+	return _currentWhenRule and _currentTriggerRule and _currentEffectRule;
 	
 #checks if the player triggering a rule can activate the rule
 static func verify_when(triggering_player: Player, whenRule: When):
@@ -113,7 +116,6 @@ static func verify_player_can_use_rule(affectedPlayer: Player, effectRule: Effec
 		_:
 			return true;
 
-#TODO: Better logic as not all rules are created equal
 func random_rule():
 	#select random group rules
 	var sameWhen = true;
@@ -126,9 +128,14 @@ func random_rule():
 	
 	#pick random rules and make sure it is not the same existing rule
 	while sameWhen and sameTrigger and sameEffect:
-		selectedWhen = whenGroup.get_buttons().pick_random();
-		selectedTrigger = triggerGroup.get_buttons().pick_random();
-		selectedEffect = effectGroup.get_buttons().pick_random();
+		var random_rule = ValidRules.VALID_RULES.pick_random();	
+		selectedWhen = whenGroup.get_buttons().filter(func(btn): if btn.type == random_rule[0]: return btn)[0];
+		selectedTrigger = triggerGroup.get_buttons().filter(func(btn):  if btn.type == random_rule[1]: return btn)[0];
+		selectedEffect = effectGroup.get_buttons().filter(func(btn):  if btn.type == random_rule[2]: return btn)[0];
+		print(random_rule);
+		print(selectedWhen);
+		print(selectedTrigger);
+		print(selectedEffect);
 		
 		sameWhen = selectedWhen == _currentWhenRule;
 		sameTrigger = selectedTrigger == _currentTriggerRule;

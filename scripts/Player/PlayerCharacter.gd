@@ -9,7 +9,12 @@ var board : Gameboard = null :
 	set(value):
 		if board == null:
 			board = value;
+var board_offset: int = -1:
+	set(value):
+		if board_offset == -1:
+			board_offset = value;
 var playerMoveSpeed: float = 0.33;
+var _x_offsets = [-24, 0, 24];
 
 #private variables
 var _escapeTickets : int = 0:
@@ -42,10 +47,7 @@ func hasFinished():
 	
 func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
 	#TODO: Should be calculated by the board based on pieces on tile
-	if isBot():
-		newPos.x += 12;
-	else:
-		newPos.x -= 12;
+	newPos.x += _x_offsets[board_offset];
 	var tween =  create_tween();
 	tween.tween_property(piece, "position", newPos, moveSpeed);
 	await tween.finished;

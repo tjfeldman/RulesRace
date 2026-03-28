@@ -14,11 +14,15 @@ static func isGameOver(): return _players.size() == 1;
 func _ready() -> void:
 	Events.player_moved.connect(_update_board_order);
 	Events.player_reached_goal.connect(_player_reaches_goal);
+	var offset = 0;
 	for child in self.get_children():
 		if child is Player:
 			child.board = board;
 			_players.append(child);
 			_player_board_order.append(child);
+			#set piece offset
+			child.board_offset = offset;
+			offset += 1;
 	
 func _player_reaches_goal(player: Player):
 	_players.erase(player);
@@ -29,7 +33,7 @@ func _player_reaches_goal(player: Player):
 		Events.emit_signal("game_over");
 				
 func _update_board_order():
-	_player_board_order.sort_custom(func(a, b): a.getBoardPosition() > b.getBoardPosition());
+	_player_board_order.sort_custom(func(a, b): return a.getBoardPosition() > b.getBoardPosition());
 		
 #returns 0 if player hasn't finished
 static func getPlayerFinishedPlace(player: Player):

@@ -6,9 +6,9 @@ v0.3 Tasklist
 - [x] Create a HumanPlayer class that inherits the player class. This class has an ActionUI assigned to it that is always active.
 - [x] Create a BotPlayer class that inherits the Player class.
 - [x] BotPlayer class now handles logic for determing the bot's next move
-- [ ] BotPlayer should have two modes. First mode just rolls dice and picks randomly when prompted. Second mode should extend the first mode, but attempt to utilize Group Rules.
-- [ ] Have 2 BotPlayers added to the board. 1 being the basic bot. 1 being the rule using bot.
-- [ ] Game should now end when all but 1 player has reach the end. This should call a function that currently closes the game.
+- [x] BotPlayer should have two modes. First mode just rolls dice and picks randomly when prompted. Second mode should extend the first mode, but attempt to utilize Group Rules.
+- [x] Have 2 BotPlayers added to the board. 1 being the basic bot. 1 being the rule using bot.
+- [x] Game should now end when all but 1 player has reach the end. This should call a function that currently closes the game.
 
 V0.2 Tasklist (Every Check is ~0.004)
 - [x] Add UI element with buttons for actions
