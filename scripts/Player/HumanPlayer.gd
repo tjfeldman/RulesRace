@@ -4,9 +4,13 @@ class_name HumanPlayer
 @onready var action_ui: Actions = $"../../ActionUI"
 
 func setActionOptions(options: Dictionary[Actions.Type, Callable]):
-	print("In Human Player");
 	action_ui.setActionOptions(options);
 
 func selectOfficeReward():
-	print("Selecting Office Reward");
 	return await action_ui.select_office_reward();
+	
+func confirmGroupEffect():
+	return await action_ui.confirm_group_rule_use();
+
+func selectTargetPlayer(playerlist: Array[Player], is_can_rule):
+	return await action_ui.select_target_for_effect(playerlist, is_can_rule);

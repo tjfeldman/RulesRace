@@ -1,4 +1,5 @@
 extends Node
+class_name TurnManager #TODO Find a better way to get Turn Player without making this class static accessible
 
 @onready var turn_status: Label = $TurnStatus
 @onready var dice: Sprite2D = $Dice
@@ -6,7 +7,8 @@ extends Node
 @onready var board: Gameboard = $Board
 @onready var group_rule_manager: Control = $GroupRuleManager
 
-var _turn_player: Player;
+static var _turn_player: Player;
+static func get_turn_player(): return _turn_player;
 var _round_order: Array[Player];
 
 var _hasRoll: bool = false;
@@ -20,9 +22,7 @@ func _ready() -> void:
 	Events.action_trigger.connect(_add_to_queue);
 
 func startRace():
-	print("Starting Race");
 	_round_order = PlayerManager.getPlayers();
-	print(_round_order);
 	_start_next_turn();
 	
 """
@@ -90,7 +90,6 @@ func _can_use_group_rule():
 Callable Functions for Actions
 """
 func _roll_die():
-	print("Rolling Die");
 	turn_status.text = "%s is rolling the die" %_turn_player.playerName;
 	special_dice.visible = false;
 	_hasRoll = false;
@@ -98,22 +97,18 @@ func _roll_die():
 	dice.rollDie();
 	
 func _roll_special_die():
-	print("Rolling Special Die");
 	turn_status.text = "%s is rolling the special die" %_turn_player.playerName;
 	dice.visible = false;
 	_hasSpecialDie= false;
 	special_dice.rollDie();
 	
 func _use_escape_ticket():
-	print("Using Escape Ticket");
 	turn_status.text = "%s used an escape ticket to leave jail" % _turn_player.playerName;
 	_turn_player.removeEscapeTicket();
 	await _turn_player.escapeFromJail();
 	_calculate_actions();
 
 func _use_group_rule():
-	print("Using Group Rule");
-	
 	#first we pay the cost
 	var cost = GroupRules.group_action.getActionCost();
 	match cost:
@@ -123,24 +118,19 @@ func _use_group_rule():
 			_turn_player.removeEscapeTicket();
 		GroupAction.CostType.DIE:
 			_hasRoll = false;
-			
-	print("The Cost Has Been Paid");
-			
+					
 	#next we perform the action
 	await group_rule_manager.trigger_effect_for_player(_turn_player);
-	print("The Effect Has Been Used");
 	_calculate_actions();
 
 """
 Handle Turn Actions
 """
 func _on_dice_has_rolled(type: Dice.Type, roll: Variant) -> void:
-	print("Dice has been rolled.");
-	roll = "Jail";
-	print("Rolled a %s" %roll);
-	if await group_rule_manager.checkRollTrigger(_turn_player, roll):
+	if await group_rule_manager.check_roll_trigger(_turn_player, roll):
 		turn_status.text = "%s triggered the group rule" %_turn_player.playerName;
 		_calculate_actions();
+		return;#break out of function
 	match roll:
 		"Jail":
 			var sentToJail = await _turn_player.sendToJail();

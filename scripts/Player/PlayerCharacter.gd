@@ -121,3 +121,11 @@ func setActionOptions(_options: Dictionary[Actions.Type, Callable]):
 func selectOfficeReward():
 	push_error("PlayerCharacter.selectOfficeReward needs to be overridden");
 	pass;
+	
+func confirmGroupEffect():
+	push_error("PlayerCharacter.confirmGroupEffect needs to be overridden");
+	pass;
+
+func selectTargetPlayer(playerlist: Array[Player], is_can_rule):
+	push_error("PlayerCharacter.selectTargetPlayer needs to be overridden");
+	pass;

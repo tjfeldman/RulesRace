@@ -48,10 +48,33 @@ func _enable_all_actions():
 """
 Functions for Prompts
 """
+func _get_scene():
+	return get_tree().current_scene.get_parent();
+
 func select_office_reward():
 	var officeChoiceBox = preload("res://scenes/officeChoice.tscn");
 	var choiceBox = officeChoiceBox.instantiate();
-	var scene = get_tree().current_scene.get_parent();
-	print(scene);
+	var scene = _get_scene();
 	scene.add_child(choiceBox);
 	return await choiceBox.choice_selected;
+	
+#prompts the player who triggered the rule if they want to use the effect
+func confirm_group_rule_use():		
+	var confirmBox = preload("res://scenes/confirmRuleUsage.tscn");
+	var confirm = confirmBox.instantiate();
+	var scene = _get_scene();
+	scene.add_child(confirm);
+	confirm.setLabel(GroupRules.group_action.getEffectLabel());
+	var cost = GroupRules.group_action.getActionCost();
+	if cost: confirm.setCostLabel(cost);
+	return await confirm.choice_choosen;
+
+#prompt the player who they want to target
+func select_target_for_effect(targetList: Array[Player], is_can_rule):
+	var selectPrompt = preload("res://scenes/selectPlayerPrompt.tscn");
+	var prompt = selectPrompt.instantiate();
+	var scene = _get_scene();
+	scene.add_child(prompt);
+	prompt.setLabel(GroupRules.group_action.getEffectLabel());
+	prompt.setPlayerList(targetList, is_can_rule);
+	return await prompt.selected_player;

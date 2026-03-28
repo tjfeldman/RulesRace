@@ -4,14 +4,11 @@ class_name PlayerManager
 @export var board: Gameboard;
 
 static var _players : Array[Player];
-static var _leadingPlayer: Player = null; 
-static var _leadingPos: int = 0;
+static var _leading_player: Player = null; 
+static var _leading_pos: int = 0;
 static func getPlayers(): return _players.duplicate();
 static func getPrisonPlayers(): return getPlayers().filter(func(p): if p.isInJail(): return p);
-static func getLeadingPlayer(): return _leadingPlayer;
-
-static var _currentTurnPlayer : int = 0;
-static func getCurrentTurnPlayer(): return _players[_currentTurnPlayer];
+static func getLeadingPlayer(): return _leading_player;
 
 func _ready() -> void:
 	Events.player_moved.connect(_update_leading_player);
@@ -23,19 +20,12 @@ func _ready() -> void:
 func _update_leading_player(player: Player):
 	#The leading player is the single player who is furthest away on the board
 	var pos = player.getBoardPosition();
-	if pos > _leadingPos:
-		_leadingPos = pos;
-		_leadingPlayer = player;
-	elif pos == _leadingPos:
+	if pos > _leading_pos:
+		_leading_pos = pos;
+		_leading_player = player;
+	elif pos == _leading_pos:
 		#players do not share leads
-		_leadingPlayer = null;
-
-#STATIC FUNCTIONS
-static func nextTurn():
-	_currentTurnPlayer += 1;
-	if _currentTurnPlayer >= _players.size():
-		_currentTurnPlayer -= _players.size();
-	Events.emit_signal("start_turn");
+		_leading_player = null;
 
 static func getPlayerAhead(player: Player):
 	#This isn't optimized, but max player size will be 12 so the affect is negligible
