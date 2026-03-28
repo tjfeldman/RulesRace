@@ -24,22 +24,71 @@ const LABEL_TEXT = {
 	GroupRules.Effect.TRANSFER_TICKET: "Pick player to transfer an escape ticket to",
 }
 
-#TODO: Maybe change to Static Class
-var _groupAction: GroupAction; #TODO: Make Group Action a static class instead or merge with GroupRuleSelector
-
 func _ready() -> void:
 	group_rule_selector.visible = false;
 	group_rule_selector.rules_updated.connect(_on_rules_updated);
-	Events.perform_rule_effect.connect(_useEffect);
-	Events.turn_state_changed.connect(_promptPrisoners);
-	Events.player_sent_to_jail.connect(_check_prison_trigger);
 	
+"""
+PUBLIC ACCESSIBLE FUNCTIONS
+"""
+func trigger_event(pair: EventPair, _turnPlayer: Player):
+	match pair.action:
+		EventPair.ActionChecks.JAIL:
+			#Prison action triggers on moving to Prison when it is a player in Prison
+			if triggerRule == GroupRules.Trigger.MOVES_PRISON and whenRule == GroupRules.When.PRISON:
+				await _prompt_all_prisoners(pair.player);
+				
+
 func prompt_group_rule_change_for_player(player: Player):
 	if player.isBot():
 		group_rule_selector.random_rule();
 	else:
 		group_rule_selector.set_for_editing();
+		
+func trigger_effect_for_player(player: Player):
+	if effectRule in targetsAnotherPlayer:
+		print("Target Effect");
+		await _target_effect(player);
+	else:
+		print("Trigger Effect");
+		await _trigger_effect(player);
+		
+func checkRollTrigger(player: Player, roll: Variant):
+	#if the when condition is not met or player is in jail
+	#then we return false
+	if not GroupRules.verify_when(player, whenRule) or player.isInJail():
+		return false;
+		
+	match [triggerRule, roll]:
+		[GroupRules.Trigger.ROLL_PRISON, "Jail"]:
+			#DO NOT GO TO JAIL AND CAN USE EFFECT
+			if GroupRules.verify_player_can_use_rule(player, effectRule):
+				await trigger_effect_for_player(player);
+			return true;
+		[GroupRules.Trigger.ROLL_ONE, 1]:
+			#MOVE PLAYER FORWARD 1 AND CAN USE EFFECT
+			await player.movePlayerXSpaces(1);
+			if GroupRules.verify_player_can_use_rule(player, effectRule):
+				await trigger_effect_for_player(player);
+			return true;
+		[GroupRules.Trigger.ROLL_TWO, 2]:
+			#MOVE PLAYER FORWARD 2 AND CAN USE EFFECT
+			await player.movePlayerXSpaces(2);
+			if GroupRules.verify_player_can_use_rule(player, effectRule):
+				await trigger_effect_for_player(player);
+			return true;
+		[GroupRules.Trigger.ROLL_THREE, 3]:
+			#MOVE PLAYER FORWARD 3 AND CAN USE EFFECT
+			await player.movePlayerXSpaces(3);
+			if GroupRules.verify_player_can_use_rule(player, effectRule): 
+				await trigger_effect_for_player(player);
+			return true;
+		_:
+			return false;
 	
+"""
+PRIVATE FUNCTIONS
+"""
 func _on_background_gui_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_click") and not group_rule_selector.isEditing():
 		group_rule_selector.visible = !group_rule_selector.visible;
@@ -52,10 +101,6 @@ func _on_rules_updated(whenRuleBtn: RuleButton, triggerRuleBtn: RuleButton, effe
 	whenRule = whenRuleBtn.type;
 	triggerRule = triggerRuleBtn.type;
 	effectRule = effectRuleBtn.type;
-	
-	#after we update the display, we must know create a group action object to emit back
-	_groupAction = GroupAction.new(whenRule, triggerRule, effectRule);
-	Events.emit_signal("update_group_action", _groupAction);
 
 func _trigger_effect(affectedPlayer: Player):
 	#if the rule can be used, asked the player if they want to use it
@@ -68,9 +113,9 @@ func _trigger_effect(affectedPlayer: Player):
 		GroupRules.Effect.GAIN_TICKET:
 			affectedPlayer.addEscapeTicket();
 		GroupRules.Effect.REROLL_DIE:
-			Events.emit_signal("gain_die_roll", false);
+			await Events.emit_signal("gain_die_roll", false);
 		GroupRules.Effect.ROLL_SPECIAL_DIE:
-			Events.emit_signal("gain_die_roll", true);
+			await Events.emit_signal("gain_die_roll", true);
 		GroupRules.Effect.MOVE_TO_PLAYER_AHEAD:
 			await affectedPlayer.moveToPlayer(PlayerManager.getPlayerAhead(affectedPlayer));
 		GroupRules.Effect.MOVE_BACK:
@@ -98,46 +143,6 @@ func _target_effect(affectedPlayer: Player):
 			if not target: return;	#if no target is selected, exit
 			affectedPlayer.removeEscapeTicket();
 			target.addEscapeTicket();
-			
-func checkRollTrigger(player: Player, roll: Variant):
-	#if the when condition is not met or player is in jail
-	#then we return false
-	if not GroupRules.verify_when(player, whenRule) or player.isInJail():
-		return false;
-		
-	match [triggerRule, roll]:
-		[GroupRules.Trigger.ROLL_PRISON, "Jail"]:
-			#DO NOT GO TO JAIL AND CAN USE EFFECT
-			if GroupRules.verify_player_can_use_rule(player, effectRule):
-				await _useEffect(player);
-			return true;
-		[GroupRules.Trigger.ROLL_ONE, 1]:
-			#MOVE PLAYER FORWARD 1 AND CAN USE EFFECT
-			await player.movePlayerXSpaces(1);
-			if GroupRules.verify_player_can_use_rule(player, effectRule):
-				await _useEffect(player);
-			return true;
-		[GroupRules.Trigger.ROLL_TWO, 2]:
-			#MOVE PLAYER FORWARD 2 AND CAN USE EFFECT
-			await player.movePlayerXSpaces(2);
-			if GroupRules.verify_player_can_use_rule(player, effectRule):
-				await _useEffect(player);
-			return true;
-		[GroupRules.Trigger.ROLL_THREE, 3]:
-			#MOVE PLAYER FORWARD 3 AND CAN USE EFFECT
-			await player.movePlayerXSpaces(3);
-			if GroupRules.verify_player_can_use_rule(player, effectRule): 
-				await _useEffect(player);
-			return true;
-		_:
-			return false;
-			
-func _useEffect(player: Player):
-	if effectRule in targetsAnotherPlayer:
-		await _target_effect(player);
-	else:
-		await _trigger_effect(player);
-	Events.emit_signal("group_rule_finished");
 
 #prompts the player who triggered the rule if they want to use the effect
 func _promptForEffect(cost: String = ""):		
@@ -159,37 +164,9 @@ func _promptTargetEffect(targetList: Array[Player]):
 	prompt.setPlayerList(targetList, triggerRule in canRules);
 	return await prompt.selected_player;
 	
-func _check_prison_trigger(playerSent: Player):
-	#first we check to make sure the trigger rule is when another is sent to prison
-	if triggerRule == GroupRules.Trigger.MOVES_PRISON:
-		#next we check the when trigger
-		match whenRule:
-			#TODO: Currently no way for a player to be sent to prison outside of their turn
-			GroupRules.When.PRISON:
-				#let's grab a list of all other players who are in prison
-				var prisonPlayers = PlayerManager.getListOfAllOtherPlayers(playerSent).filter(func(p): return p.isInJail());
-				#TODO: Allow bots to use this trigger rule
-				var nonBotPlayers = prisonPlayers.filter(func(p): return !p.isBot());
-				if nonBotPlayers.size() > 0:
-					#there is only 1 non bot right now, so let's grab the only item
-					var player = nonBotPlayers[0];
-					#let's verify the player can use the rule and then use the effect
-					if GroupRules.verify_player_can_use_rule(player, effectRule):
-						await _useEffect(player);
-				pass;
-			_:
-				#default case, do nothing.
-				pass;
+func _prompt_all_prisoners(triggerPlayer: Player):
+	var prisoners = PlayerManager.getPrisonPlayers();
+	for prisoner in prisoners:
+		if prisoner != triggerPlayer:
+			await trigger_effect_for_player(prisoner);
 	
-#TODO: The problem with this function atm is that the action manager does not wait for this to finish. This would require a rework when bot logic is updated.
-func _promptPrisoners():
-	if whenRule == GroupRules.When.PRISON:
-		var prisoners: Array[Player] = PlayerManager.getPlayers().filter(func(p): return p.isInJail() and p != PlayerManager.getCurrentTurnPlayer());
-		for prisoner in prisoners:
-			var passed = false;
-			while !passed and _groupAction.isValid() and _groupAction.canPay(prisoner):
-				var confirm = await _promptForEffect(_groupAction.getCostString());
-				if confirm:
-					await _useEffect(prisoner);
-				else:
-					passed = true;

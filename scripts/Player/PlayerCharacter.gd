@@ -1,12 +1,8 @@
 extends Node2D
-
 class_name Player
 
 @export var playerName: String = "Player";
-@export var bot : bool = false;
-
 @onready var piece : Sprite2D = $PlayerPiece;
-#@onready var board : Node2D = $"../Board";
 
 #set the game board once
 var board : Gameboard = null :
@@ -46,7 +42,7 @@ func hasFinished():
 	
 func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
 	#TODO: Should be calculated by the board based on pieces on tile
-	if bot:
+	if isBot():
 		newPos.x += 12;
 	else:
 		newPos.x -= 12;
@@ -97,7 +93,7 @@ func sendToJail():
 	if !_inJail:
 		await _movePlayer(board.getJailPosition(), playerMoveSpeed * 3);
 		_inJail = true;
-		Events.emit_signal("player_sent_to_jail", self);
+		Events.emit_signal("action_trigger", EventPair.new(self, EventPair.ActionChecks.JAIL));
 		return true;
 	return false;
 		
@@ -113,4 +109,15 @@ func isInJail():
 	return _inJail;
 	
 func isBot():
-	return bot;
+	return self is BotPlayer;
+	
+"""
+Override Functions
+"""
+func setActionOptions(_options: Dictionary[Actions.Type, Callable]):
+	push_error("PlayerCharacter.setActionOptions needs to be overridden");
+	pass;
+	
+func selectOfficeReward():
+	push_error("PlayerCharacter.selectOfficeReward needs to be overridden");
+	pass;

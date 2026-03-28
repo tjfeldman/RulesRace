@@ -7,6 +7,7 @@ static var _players : Array[Player];
 static var _leadingPlayer: Player = null; 
 static var _leadingPos: int = 0;
 static func getPlayers(): return _players.duplicate();
+static func getPrisonPlayers(): return getPlayers().filter(func(p): if p.isInJail(): return p);
 static func getLeadingPlayer(): return _leadingPlayer;
 
 static var _currentTurnPlayer : int = 0;

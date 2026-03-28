@@ -12,6 +12,8 @@ var _action_cost_type: CostType;
 var _action_effect: GroupRules.Effect;
 var _action_when: GroupRules.When;
 
+func getActionCost(): return _action_cost_type;
+
 func _init(
 	actionWhen: GroupRules.When = GroupRules.When.NONE,
 	trigger_rule: GroupRules.Trigger = GroupRules.Trigger.NONE, 
@@ -38,7 +40,7 @@ func isGrantReroll():
 func isValid():
 	return _action_cost_type != CostType.NONE;
 	
-func canPay(player: Player):
+func canPay(player: Player, hasNormalDie):
 	var canActivate = GroupRules.verify_when(player, _action_when);
 	if canActivate and GroupRules.verify_player_can_use_rule(player, _action_effect):
 		match _action_cost_type:
@@ -47,8 +49,7 @@ func canPay(player: Player):
 			CostType.TICKET:
 				return player.getEscapeTicketCount() >= (2 if _action_effect == GroupRules.Effect.TRANSFER_TICKET else 1);
 			CostType.DIE:
-				#If the turn state is the start of turn, then the player can forfeit that die roll
-				return ActionManager.getCurrentTurnState() == ActionManager.TurnState.START;
+				return hasNormalDie;
 			_:
 				return true;
 	else:
@@ -64,14 +65,3 @@ func getCostString():
 			return "(Forfeit Roll)";
 		_:
 			return "(Cost)";
-
-func performAction(player: Player):
-	#pay the cost, then perform effect
-	match _action_cost_type:
-		CostType.MOVE_BACK:
-			player.movePlayerXSpaces(-2);
-		CostType.TICKET:
-			player.removeEscapeTicket();
-		CostType.DIE:
-			Events.emit_signal("forfeit_die_roll");
-	Events.emit_signal("perform_rule_effect", player);
