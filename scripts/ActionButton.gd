@@ -5,7 +5,6 @@ class_name ActionButton
 var _c: Callable;
 
 func setButton(c):
-	print("Setting Button for Callable %s" %c);
 	if action_type == Actions.Type.GROUP:
 		self.text = "Group Rule %s" % GroupRules.group_action.getCostString();
 	if c is Callable:

@@ -9,7 +9,12 @@ var board : Gameboard = null :
 	set(value):
 		if board == null:
 			board = value;
+var board_offset: int = -1:
+	set(value):
+		if board_offset == -1:
+			board_offset = value;
 var playerMoveSpeed: float = 0.33;
+var _x_offsets = [-24, 0, 24];
 
 #private variables
 var _escapeTickets : int = 0:
@@ -42,10 +47,7 @@ func hasFinished():
 	
 func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
 	#TODO: Should be calculated by the board based on pieces on tile
-	if isBot():
-		newPos.x += 12;
-	else:
-		newPos.x -= 12;
+	newPos.x += _x_offsets[board_offset];
 	var tween =  create_tween();
 	tween.tween_property(piece, "position", newPos, moveSpeed);
 	await tween.finished;
@@ -58,7 +60,7 @@ func movePlayerXSpaces(x: int):
 		else:
 			await _movePlayerBackward();
 			x += 1;
-	Events.emit_signal("player_moved", self);
+	Events.emit_signal("player_moved");
 	
 func moveToPlayer(player: Player):
 	var dist = player.getBoardPosition() - _boardPosition;
@@ -69,7 +71,7 @@ func moveToPlayer(player: Player):
 		else:
 			await _movePlayerBackward();
 			dist += 1;
-	Events.emit_signal("player_moved", self);
+	Events.emit_signal("player_moved");
 	
 func _movePlayerForward():
 	#prevent movement if player is in jail or has finished
@@ -120,4 +122,12 @@ func setActionOptions(_options: Dictionary[Actions.Type, Callable]):
 	
 func selectOfficeReward():
 	push_error("PlayerCharacter.selectOfficeReward needs to be overridden");
+	pass;
+	
+func confirmGroupEffect():
+	push_error("PlayerCharacter.confirmGroupEffect needs to be overridden");
+	pass;
+
+func selectTargetPlayer(_playerlist: Array[Player], _is_can_rule):
+	push_error("PlayerCharacter.selectTargetPlayer needs to be overridden");
 	pass;

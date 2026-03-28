@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bfjvv7ybhocmc"]
+[gd_scene load_steps=13 format=3 uid="uid://bfjvv7ybhocmc"]
 
 [ext_resource type="Script" uid="uid://cru50j3o060kc" path="res://scripts/Main.gd" id="1_hc47j"]
 [ext_resource type="Script" uid="uid://dy6tjq1ffk4ot" path="res://scripts/TurnManager.gd" id="2_7x4bf"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://d6pvjx5qicyu" path="res://scenes/actionUI.tscn" id="7_1i1ln"]
 [ext_resource type="PackedScene" uid="uid://cpjihb12mmhvt" path="res://scenes/groupRuleDisplay.tscn" id="8_rv52q"]
 [ext_resource type="PackedScene" uid="uid://domcs12gwth4y" path="res://scenes/dice.tscn" id="10_8aqfc"]
+[ext_resource type="Script" uid="uid://cml2xwgfpweuc" path="res://scripts/Player/SmartBotPlayer.gd" id="11_8aqfc"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_hc47j")
@@ -82,6 +83,21 @@ offset_top = -12.0
 offset_right = 35.0
 offset_bottom = 11.0
 text = "B"
+
+[node name="SmartBot" type="Node2D" parent="TurnManager/PlayerManager"]
+script = ExtResource("11_8aqfc")
+playerName = "Smart Bot"
+
+[node name="PlayerPiece" type="Sprite2D" parent="TurnManager/PlayerManager/SmartBot"]
+position = Vector2(347, 615)
+texture = ExtResource("2_qq0id")
+
+[node name="Label" type="Label" parent="TurnManager/PlayerManager/SmartBot/PlayerPiece"]
+offset_left = -5.0
+offset_top = -12.0
+offset_right = 35.0
+offset_bottom = 11.0
+text = "S"
 
 [node name="GroupRuleManager" parent="TurnManager" instance=ExtResource("8_rv52q")]
 offset_left = 410.0

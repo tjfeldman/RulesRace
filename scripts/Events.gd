@@ -10,8 +10,11 @@ signal updated_escape_tickets(player: Player);
 signal gain_die_roll(special: bool);
 
 #Move Events
-signal player_moved(player: Player);
+signal player_moved();
 signal player_reached_goal(player: Player);
 
 #Group Rule Events
 signal action_trigger(pair: EventPair);
+
+#Game Over Event
+signal game_over();

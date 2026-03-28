@@ -32,6 +32,9 @@ enum Effect {
 	NONE
 }
 
+const BENEFICIAL_EFFECTS: Array[Effect] = [Effect.MOVE_ONE, Effect.GAIN_TICKET, Effect.REROLL_DIE, Effect.MOVE_TO_PLAYER_AHEAD, Effect.ROLL_SPECIAL_DIE, Effect.SEND_PLAYER_BACK_ONE];
+const HARMFUL_EFFECTS: Array[Effect] = [Effect.SEND_PLAYER_BACK_ONE];
+
 @export var whenGroup: ButtonGroup;
 @export var triggerGroup: ButtonGroup;
 @export var effectGroup: ButtonGroup;
@@ -41,9 +44,9 @@ enum Effect {
 @onready var confirm_btn: Button = $PanelContainer/MarginContainer/VBoxContainer/ConfirmBtn
 func isEditing(): return confirm_btn.visible;
 
-var currentWhenRule : WhenButton;
-var currentTriggerRule : TriggerButton;
-var currentEffectRule : EffectButton;
+static var _currentWhenRule : WhenButton;
+static var _currentTriggerRule : TriggerButton;
+static var _currentEffectRule : EffectButton;
 
 static var group_action: GroupAction = GroupAction.new(When.NONE, Trigger.NONE, Effect.NONE);
 
@@ -76,15 +79,18 @@ func set_for_display():
 	incomplete_rule_warning_label.visible = false;
 	confirm_btn.visible = false;
 	
+static func existing_group_rule():
+	return _currentWhenRule and _currentTriggerRule and _currentEffectRule;
+	
 #checks if the player triggering a rule can activate the rule
-static func verify_when(triggerPlayer: Player, whenRule: When):
+static func verify_when(triggering_player: Player, whenRule: When):
 	match whenRule:
 		When.TURN:
-			return PlayerManager.getCurrentTurnPlayer() == triggerPlayer;
+			return TurnManager.get_turn_player() == triggering_player;
 		When.PRISON:
-			return triggerPlayer.isInJail();
+			return triggering_player.isInJail();
 		When.LEADING:
-			return PlayerManager.getLeadingPlayer() == triggerPlayer;
+			return PlayerManager.getLeadingPlayer() == triggering_player;
 		_:
 			return false;
 	
@@ -106,11 +112,10 @@ static func verify_player_can_use_rule(affectedPlayer: Player, effectRule: Effec
 			return affectedPlayer.hasEscapeTicket();
 		Effect.REROLL_DIE, Effect.ROLL_SPECIAL_DIE:
 			#dice can only be used on player's turn
-			return PlayerManager.getCurrentTurnPlayer() == affectedPlayer;
+			return TurnManager.get_turn_player() == affectedPlayer;
 		_:
 			return true;
 
-#TODO: Better logic as not all rules are created equal
 func random_rule():
 	#select random group rules
 	var sameWhen = true;
@@ -123,26 +128,31 @@ func random_rule():
 	
 	#pick random rules and make sure it is not the same existing rule
 	while sameWhen and sameTrigger and sameEffect:
-		selectedWhen = whenGroup.get_buttons().pick_random();
-		selectedTrigger = triggerGroup.get_buttons().pick_random();
-		selectedEffect = effectGroup.get_buttons().pick_random();
+		var random_rule = ValidRules.VALID_RULES.pick_random();	
+		selectedWhen = whenGroup.get_buttons().filter(func(btn): if btn.type == random_rule[0]: return btn)[0];
+		selectedTrigger = triggerGroup.get_buttons().filter(func(btn):  if btn.type == random_rule[1]: return btn)[0];
+		selectedEffect = effectGroup.get_buttons().filter(func(btn):  if btn.type == random_rule[2]: return btn)[0];
+		print(random_rule);
+		print(selectedWhen);
+		print(selectedTrigger);
+		print(selectedEffect);
 		
-		sameWhen = selectedWhen == currentWhenRule;
-		sameTrigger = selectedTrigger == currentTriggerRule;
-		sameEffect = selectedEffect == currentEffectRule;
+		sameWhen = selectedWhen == _currentWhenRule;
+		sameTrigger = selectedTrigger == _currentTriggerRule;
+		sameEffect = selectedEffect == _currentEffectRule;
 	
-	currentWhenRule = selectedWhen;
-	currentTriggerRule = selectedTrigger;
-	currentEffectRule = selectedEffect;
+	_currentWhenRule = selectedWhen;
+	_currentTriggerRule = selectedTrigger;
+	_currentEffectRule = selectedEffect;
 	
 	#toggle selected
-	currentWhenRule.button_pressed = true;
-	currentTriggerRule.button_pressed = true;
-	currentEffectRule.button_pressed = true;
+	_currentWhenRule.button_pressed = true;
+	_currentTriggerRule.button_pressed = true;
+	_currentEffectRule.button_pressed = true;
 	
 	set_for_display();
-	group_action = GroupAction.new(currentWhenRule.type, currentTriggerRule.type, currentEffectRule.type);
-	rules_updated.emit(currentWhenRule, currentTriggerRule, currentEffectRule);
+	group_action = GroupAction.new(_currentWhenRule.type, _currentTriggerRule.type, _currentEffectRule.type);
+	rules_updated.emit(_currentWhenRule, _currentTriggerRule, _currentEffectRule);
 
 func _on_confirm_btn_pressed() -> void:
 	#verify that the selected btns are not the same ones already selected
@@ -150,9 +160,9 @@ func _on_confirm_btn_pressed() -> void:
 	var selectedTrigger = triggerGroup.get_pressed_button();
 	var selectedEffect = effectGroup.get_pressed_button();
 	
-	var sameWhen = selectedWhen == currentWhenRule;
-	var sameTrigger = selectedTrigger == currentTriggerRule;
-	var sameEffect = selectedEffect == currentEffectRule;
+	var sameWhen = selectedWhen == _currentWhenRule;
+	var sameTrigger = selectedTrigger == _currentTriggerRule;
+	var sameEffect = selectedEffect == _currentEffectRule;
 	
 	#verify that the player has selected a rule in each category
 	if selectedWhen == null or selectedTrigger == null or selectedEffect == null:
@@ -164,28 +174,24 @@ func _on_confirm_btn_pressed() -> void:
 		incomplete_rule_warning_label.visible = false;
 	else:
 		#update the current rule
-		currentWhenRule = selectedWhen;
-		currentTriggerRule = selectedTrigger;
-		currentEffectRule = selectedEffect;
+		_currentWhenRule = selectedWhen;
+		_currentTriggerRule = selectedTrigger;
+		_currentEffectRule = selectedEffect;
 		
 		self.visible = false;
 		set_for_display();
-		group_action = GroupAction.new(currentWhenRule.type, currentTriggerRule.type, currentEffectRule.type);
-		rules_updated.emit(currentWhenRule, currentTriggerRule, currentEffectRule);
+		group_action = GroupAction.new(_currentWhenRule.type, _currentTriggerRule.type, _currentEffectRule.type);
+		rules_updated.emit(_currentWhenRule, _currentTriggerRule, _currentEffectRule);
 		
 #TESTING ONLY METHOD
 func _set_new_rule():
-	var selectedWhen = When.PRISON;
-	var selectedTrigger = Trigger.MOVES_PRISON;
-	var selectedEffect = Effect.GAIN_TICKET;
+	var selectedWhen = When.TURN;
+	var selectedTrigger = Trigger.FORFEIT_DIE;
+	var selectedEffect = Effect.ROLL_SPECIAL_DIE;
 	
 	var whenBtn = whenGroup.get_buttons().filter(func(btn): if btn.type == selectedWhen: return btn)[0];
 	var triggerBtn = triggerGroup.get_buttons().filter(func(btn):  if btn.type == selectedTrigger: return btn)[0];
 	var effectBtn = effectGroup.get_buttons().filter(func(btn):  if btn.type == selectedEffect: return btn)[0];
-	
-	print(whenBtn);
-	print(triggerBtn);
-	print(effectBtn);
 	
 	whenBtn.button_pressed = true;
 	triggerBtn.button_pressed = true;
