@@ -7,6 +7,7 @@ extends Node2D
 
 func _ready() -> void:
 	#start game
+	Events.game_over.connect(_game_is_over);
 	call_deferred("_start_game");
 	
 func _start_game():
@@ -24,3 +25,10 @@ func _start_game():
 	#turn_status.text = "%s's Turn" % PlayerManager.getCurrentTurnPlayer().playerName;
 	#Events.emit_signal("start_turn");
 	turn_manager.startRace();	
+
+func _game_is_over():
+	for child in turn_manager.get_children():
+		child.visible = false;
+	var results = preload("res://scenes/results.tscn");
+	var results_ui = results.instantiate();
+	self.get_parent().add_child(results_ui);

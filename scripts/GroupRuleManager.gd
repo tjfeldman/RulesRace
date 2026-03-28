@@ -100,9 +100,9 @@ func _trigger_effect(affectedPlayer: Player):
 		GroupRules.Effect.GAIN_TICKET:
 			affectedPlayer.addEscapeTicket();
 		GroupRules.Effect.REROLL_DIE:
-			await Events.emit_signal("gain_die_roll", false);
+			Events.gain_die_roll.emit(false);
 		GroupRules.Effect.ROLL_SPECIAL_DIE:
-			await Events.emit_signal("gain_die_roll", true);
+			Events.gain_die_roll.emit(true);
 		GroupRules.Effect.MOVE_TO_PLAYER_AHEAD:
 			await affectedPlayer.moveToPlayer(PlayerManager.getPlayerAhead(affectedPlayer));
 		GroupRules.Effect.MOVE_BACK:

@@ -58,7 +58,7 @@ func movePlayerXSpaces(x: int):
 		else:
 			await _movePlayerBackward();
 			x += 1;
-	Events.emit_signal("player_moved", self);
+	Events.emit_signal("player_moved");
 	
 func moveToPlayer(player: Player):
 	var dist = player.getBoardPosition() - _boardPosition;
@@ -69,7 +69,7 @@ func moveToPlayer(player: Player):
 		else:
 			await _movePlayerBackward();
 			dist += 1;
-	Events.emit_signal("player_moved", self);
+	Events.emit_signal("player_moved");
 	
 func _movePlayerForward():
 	#prevent movement if player is in jail or has finished
@@ -126,6 +126,6 @@ func confirmGroupEffect():
 	push_error("PlayerCharacter.confirmGroupEffect needs to be overridden");
 	pass;
 
-func selectTargetPlayer(playerlist: Array[Player], is_can_rule):
+func selectTargetPlayer(_playerlist: Array[Player], _is_can_rule):
 	push_error("PlayerCharacter.selectTargetPlayer needs to be overridden");
 	pass;

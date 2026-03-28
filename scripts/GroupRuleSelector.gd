@@ -179,8 +179,8 @@ func _on_confirm_btn_pressed() -> void:
 #TESTING ONLY METHOD
 func _set_new_rule():
 	var selectedWhen = When.TURN;
-	var selectedTrigger = Trigger.ROLL_PRISON;
-	var selectedEffect = Effect.SEND_PLAYER_BACK_ONE;
+	var selectedTrigger = Trigger.FORFEIT_DIE;
+	var selectedEffect = Effect.ROLL_SPECIAL_DIE;
 	
 	var whenBtn = whenGroup.get_buttons().filter(func(btn): if btn.type == selectedWhen: return btn)[0];
 	var triggerBtn = triggerGroup.get_buttons().filter(func(btn):  if btn.type == selectedTrigger: return btn)[0];

@@ -12,6 +12,7 @@ enum Type {
 };
 
 func _ready() -> void:
+	Events.player_reached_goal.connect(_player_has_finished);
 	#connect button event to send itself
 	for action_button in action_buttons.get_children():
 		action_button.pressed.connect(_on_action_btn_pressed.bind(action_button));
@@ -45,6 +46,9 @@ func _enable_all_actions():
 	for action_button in action_buttons.get_children():
 		action_button.disabled = false;
 		
+func _player_has_finished(player: Player):
+	if player == TurnManager.get_turn_player():
+		self.visible = false;
 """
 Functions for Prompts
 """

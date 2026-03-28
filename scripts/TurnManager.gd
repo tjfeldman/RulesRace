@@ -31,19 +31,25 @@ Before they roll this die, they can use an escape ticket or group rule.
 Once they roll the standard die, their turn ends and they cannot use escape tickets or group rules.
 """	
 func _start_next_turn():
+	if PlayerManager.isGameOver(): return; #End the Game
 	#refresh round order if round order is empty
 	if _round_order.is_empty(): _round_order = PlayerManager.getPlayers();
 	_turn_player = _round_order.pop_front();
 	_hasRoll = true;
 	_hasReroll = false;
 	_hasSpecialDie = false;
-	
+
 	#update turn status
 	turn_status.text = "%s's Turn" % _turn_player.playerName;
 	_calculate_actions();
 	
 func _calculate_actions():
 	await _verify_all_players_ready();
+	#if player has finished, instantly end their turn and move to nextr player
+	if _turn_player.hasFinished():
+		_start_next_turn();
+		return;#make sure we break out of function
+		
 	#create a dictionary of actions.
 	#Key = Actions
 	#Value = callable func
@@ -67,7 +73,6 @@ func _calculate_actions():
 	_turn_player.setActionOptions(actions);
 
 func _gain_die(special_die: bool):
-	var actions: Dictionary[Actions.Type, Callable];
 	if special_die:
 		_hasSpecialDie = true;
 	else:
@@ -126,7 +131,7 @@ func _use_group_rule():
 """
 Handle Turn Actions
 """
-func _on_dice_has_rolled(type: Dice.Type, roll: Variant) -> void:
+func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 	if await group_rule_manager.check_roll_trigger(_turn_player, roll):
 		turn_status.text = "%s triggered the group rule" %_turn_player.playerName;
 		_calculate_actions();
