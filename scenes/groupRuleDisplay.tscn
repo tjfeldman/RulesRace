@@ -1,7 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://cpjihb12mmhvt"]
+[gd_scene load_steps=6 format=3 uid="uid://cpjihb12mmhvt"]
 
 [ext_resource type="Script" uid="uid://be4kfyxeoeqn1" path="res://scripts/GroupRuleManager.gd" id="1_03cib"]
 [ext_resource type="PackedScene" uid="uid://df1kr1qk1gne6" path="res://scenes/groupRuleSelector.tscn" id="1_rnt2w"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_03cib"]
+resource_name = "When"
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_h8xjj"]
+resource_name = "Trigger"
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_e80j6"]
+resource_name = "Effect"
 
 [node name="GroupRuleManager" type="Control"]
 layout_mode = 3
@@ -71,5 +80,8 @@ offset_left = -288.0
 offset_top = 109.0
 offset_right = 825.0
 offset_bottom = 421.0
+whenGroup = SubResource("ButtonGroup_03cib")
+triggerGroup = SubResource("ButtonGroup_h8xjj")
+effectGroup = SubResource("ButtonGroup_e80j6")
 
 [connection signal="gui_input" from="Background" to="." method="_on_background_gui_input"]

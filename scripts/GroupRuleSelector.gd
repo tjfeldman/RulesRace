@@ -45,10 +45,13 @@ var currentWhenRule : WhenButton;
 var currentTriggerRule : TriggerButton;
 var currentEffectRule : EffectButton;
 
+static var group_action: GroupAction = GroupAction.new(When.NONE, Trigger.NONE, Effect.NONE);
+
 signal rules_updated(whenRule: RuleButton, triggerRule: RuleButton, effectRule: RuleButton);
 
 func _ready() -> void:
-	#call_deferred("random_rule");
+	#call_deferred("_set_new_rule");
+	set_for_display();
 	pass;
 
 func set_for_editing():
@@ -137,7 +140,8 @@ func random_rule():
 	currentTriggerRule.button_pressed = true;
 	currentEffectRule.button_pressed = true;
 	
-	set_for_display();			
+	set_for_display();
+	group_action = GroupAction.new(currentWhenRule.type, currentTriggerRule.type, currentEffectRule.type);
 	rules_updated.emit(currentWhenRule, currentTriggerRule, currentEffectRule);
 
 func _on_confirm_btn_pressed() -> void:
@@ -166,4 +170,28 @@ func _on_confirm_btn_pressed() -> void:
 		
 		self.visible = false;
 		set_for_display();
+		group_action = GroupAction.new(currentWhenRule.type, currentTriggerRule.type, currentEffectRule.type);
 		rules_updated.emit(currentWhenRule, currentTriggerRule, currentEffectRule);
+		
+#TESTING ONLY METHOD
+func _set_new_rule():
+	var selectedWhen = When.PRISON;
+	var selectedTrigger = Trigger.MOVES_PRISON;
+	var selectedEffect = Effect.GAIN_TICKET;
+	
+	var whenBtn = whenGroup.get_buttons().filter(func(btn): if btn.type == selectedWhen: return btn)[0];
+	var triggerBtn = triggerGroup.get_buttons().filter(func(btn):  if btn.type == selectedTrigger: return btn)[0];
+	var effectBtn = effectGroup.get_buttons().filter(func(btn):  if btn.type == selectedEffect: return btn)[0];
+	
+	print(whenBtn);
+	print(triggerBtn);
+	print(effectBtn);
+	
+	whenBtn.button_pressed = true;
+	triggerBtn.button_pressed = true;
+	effectBtn.button_pressed = true;
+	
+	
+	group_action = GroupAction.new(selectedWhen, selectedTrigger, selectedEffect);
+	rules_updated.emit(whenBtn, triggerBtn, effectBtn);
+	

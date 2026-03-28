@@ -7,13 +7,8 @@ extends Sprite2D
 
 signal dice_has_rolled(type : Dice.Type, roll: Variant);
 
-func _ready() -> void:
-	Events.roll_die_action.connect(rollDie);
-
-func rollDie(special: bool):
-	if !_correct_die(special):
-		self.visible = false;
-	elif timer.is_stopped():
+func rollDie():
+	if timer.is_stopped():
 		self.visible = true;
 		animationPlayer.play("Roll");
 		timer.start();

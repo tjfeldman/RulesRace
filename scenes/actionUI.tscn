@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://d6pvjx5qicyu"]
+[gd_scene load_steps=3 format=3 uid="uid://d6pvjx5qicyu"]
 
 [ext_resource type="Script" uid="uid://b856uu3gnttim" path="res://scripts/ActionManager.gd" id="1_vtobp"]
+[ext_resource type="Script" uid="uid://b5t5ov7dur6gy" path="res://scripts/ActionButton.gd" id="2_8g1ch"]
 
 [node name="ActionUI" type="Control"]
 layout_mode = 3
@@ -19,31 +20,39 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
+[node name="ActionButtons" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
 layout_mode = 2
 
-[node name="Escape" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Escape" type="Button" parent="PanelContainer/MarginContainer/ActionButtons"]
+visible = false
 layout_mode = 2
 text = "Escape Jail (-1 Ticket)"
+script = ExtResource("2_8g1ch")
+action_type = 2
 
-[node name="Dice" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Dice" type="Button" parent="PanelContainer/MarginContainer/ActionButtons"]
+visible = false
 layout_mode = 2
 text = "Roll Die"
+script = ExtResource("2_8g1ch")
 
-[node name="Special" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Special" type="Button" parent="PanelContainer/MarginContainer/ActionButtons"]
+visible = false
 layout_mode = 2
 text = "Roll Special Die"
+script = ExtResource("2_8g1ch")
+action_type = 1
 
-[node name="Group" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="Group" type="Button" parent="PanelContainer/MarginContainer/ActionButtons"]
+visible = false
 layout_mode = 2
 text = "Group Rule (Cost)"
+script = ExtResource("2_8g1ch")
+action_type = 3
 
-[node name="End" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="End" type="Button" parent="PanelContainer/MarginContainer/ActionButtons"]
+visible = false
 layout_mode = 2
 text = "End Turn"
-
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Escape" to="." method="_on_escape_pressed"]
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Dice" to="." method="_on_dice_pressed"]
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Special" to="." method="_on_special_pressed"]
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Group" to="." method="_on_group_pressed"]
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/End" to="." method="_on_end_pressed"]
+script = ExtResource("2_8g1ch")
+action_type = 4
