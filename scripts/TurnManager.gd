@@ -115,8 +115,11 @@ func _use_escape_ticket():
 	_calculate_actions();
 
 func _use_group_rule():
+	turn_status.text = "%s used the group rule" % _turn_player.playerName;
 	#first we pay the cost
-	group_rule_manager.pay_cost_for_player(_turn_player);					
+	await group_rule_manager.pay_cost_for_player(_turn_player);
+	#slight delay
+	await get_tree().create_timer(0.5).timeout;
 	#next we perform the action
 	await group_rule_manager.trigger_effect_for_player(_turn_player);
 	_calculate_actions();

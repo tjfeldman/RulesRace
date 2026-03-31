@@ -16,7 +16,7 @@ var _currentEffectRule : EffectButton;
 signal rules_updated(whenRule: RuleButton, triggerRule: RuleButton, effectRule: RuleButton);
 
 func _ready() -> void:
-	call_deferred("_set_new_rule");
+	#call_deferred("_set_new_rule");
 	_set_for_display();
 
 func set_for_editing():
