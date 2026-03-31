@@ -89,7 +89,7 @@ func _can_use_group_rule():
 	#if the rule grants a reroll, the player does not have their roll
 	elif group_rule_manager.does_grant_reroll():
 		return canPay and not _hasRoll
-	#otherwise just make sure it is valid and the cost can be paid
+	#otherwise just make sure the cost can be paid
 	return canPay;
 
 """
