@@ -57,11 +57,9 @@ static var _whenRule: GroupRules.When = GroupRules.When.NONE;
 static var _triggerRule: GroupRules.Trigger = GroupRules.Trigger.NONE;
 static var _effectRule: GroupRules.Effect = GroupRules.Effect.NONE;
 #public getters
-static func is_group_rule_active(): return _whenRule != When.NONE and _triggerRule != Trigger.NONE and _effectRule != Effect.NONE;
 static func get_when(): return _whenRule;
 static func get_trigger(): return _triggerRule;
 static func get_effect(): return _effectRule;
-static func get_effect_label(): return LABEL_TEXT[_effectRule];
 
 var _canRules = [GroupRules.Trigger.ROLL_PRISON, GroupRules.Trigger.ROLL_ONE, GroupRules.Trigger.ROLL_TWO, \
 				GroupRules.Trigger.ROLL_THREE, GroupRules.Trigger.MOVES_PRISON];
@@ -74,19 +72,12 @@ func _ready() -> void:
 """
 STATIC FUNCTIONS
 """
-static func can_pay(player: Player, hasNormalDie):
-	var canActivate = _verify_when(player);
-	if canActivate and _verify_player_can_use_rule(player):
-		match _triggerRule:
-			Trigger.MOVE_BACK_TWO:
-				return !player.isInJail() and player.getBoardPosition() >= 2;
-			Trigger.DISCARD_TICKET:
-				return player.getEscapeTicketCount() >= (2 if _effectRule == Effect.TRANSFER_TICKET else 1);
-			Trigger.FORFEIT_DIE:
-				return hasNormalDie;
-		#END MATCH
-	return false; #If cannot activate or not a proper trigger, return false
+static func is_group_rule_active(): 
+	return _whenRule != When.NONE and _triggerRule != Trigger.NONE and _effectRule != Effect.NONE;
 	
+static func get_effect_label(): 
+	return LABEL_TEXT[_effectRule];
+
 static func get_cost_string():
 	match _triggerRule:
 		Trigger.MOVE_BACK_TWO:
@@ -97,27 +88,12 @@ static func get_cost_string():
 			return "(Forfeit Roll)";
 		_:
 			return null;
-			
-static func does_grant_special_die():
-	return _effectRule == Effect.ROLL_SPECIAL_DIE;
-	
-static func does_grant_reroll():
-	return _effectRule == Effect.REROLL_DIE;
-	
-static func pay_cost_for_player(player: Player):
-	match _triggerRule:
-		Trigger.MOVE_BACK_TWO:
-			await player.movePlayerXSpaces(-2);
-		Trigger.DISCARD_TICKET:
-			player.removeEscapeTicket();
-		Trigger.FORFEIT_DIE:
-			TurnManager.spend_die();
 	
 """
 VERIFY FUNCTIONS
 """
 #checks if the player triggering a rule can activate the rule
-static func _verify_when(triggering_player: Player):
+func _verify_when(triggering_player: Player):
 	match _whenRule:
 		When.TURN:
 			return TurnManager.get_turn_player() == triggering_player;
@@ -128,7 +104,7 @@ static func _verify_when(triggering_player: Player):
 		_:
 			return false;
 	
-static func _verify_player_can_use_rule(affectedPlayer: Player):
+func _verify_player_can_use_rule(affectedPlayer: Player):
 	#if player has made it to the goal, they cannot benefit from the effect
 	if affectedPlayer.hasFinished(): return false;
 	
@@ -205,6 +181,35 @@ func check_roll_trigger(turn_player: Player, roll: Variant):
 			return true;
 		_:
 			return false;
+	#END MATCH
+
+func can_pay(player: Player, hasNormalDie):
+	var canActivate = _verify_when(player);
+	if canActivate and _verify_player_can_use_rule(player):
+		match _triggerRule:
+			Trigger.MOVE_BACK_TWO:
+				return !player.isInJail() and player.getBoardPosition() >= 2;
+			Trigger.DISCARD_TICKET:
+				return player.getEscapeTicketCount() >= (2 if _effectRule == Effect.TRANSFER_TICKET else 1);
+			Trigger.FORFEIT_DIE:
+				return hasNormalDie;
+		#END MATCH
+	return false; #If cannot activate or not a proper trigger, return false
+	
+func pay_cost_for_player(player: Player):
+	match _triggerRule:
+		Trigger.MOVE_BACK_TWO:
+			await player.movePlayerXSpaces(-2);
+		Trigger.DISCARD_TICKET:
+			player.removeEscapeTicket();
+		Trigger.FORFEIT_DIE:
+			TurnManager.spend_die();
+			
+func does_grant_special_die():
+	return _effectRule == Effect.ROLL_SPECIAL_DIE;
+	
+func does_grant_reroll():
+	return _effectRule == Effect.REROLL_DIE;
 	
 """
 PRIVATE FUNCTIONS
