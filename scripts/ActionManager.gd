@@ -68,8 +68,8 @@ func confirm_group_rule_use():
 	var confirm = confirmBox.instantiate();
 	var scene = _get_scene();
 	scene.add_child(confirm);
-	confirm.setLabel(GroupRules.group_action.getEffectLabel());
-	var cost = GroupRules.group_action.getActionCost();
+	confirm.setLabel(GroupRules.get_effect_label());
+	var cost = GroupRules.get_cost_string();
 	if cost: confirm.setCostLabel(cost);
 	return await confirm.choice_choosen;
 
@@ -79,6 +79,6 @@ func select_target_for_effect(targetList: Array[Player], is_can_rule):
 	var prompt = selectPrompt.instantiate();
 	var scene = _get_scene();
 	scene.add_child(prompt);
-	prompt.setLabel(GroupRules.group_action.getEffectLabel());
+	prompt.setLabel(GroupRules.get_effect_label());
 	prompt.setPlayerList(targetList, is_can_rule);
 	return await prompt.selected_player;

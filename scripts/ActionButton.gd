@@ -6,7 +6,7 @@ var _c: Callable;
 
 func setButton(c):
 	if action_type == Actions.Type.GROUP:
-		self.text = "Group Rule %s" % GroupRules.group_action.getCostString();
+		self.text = "Group Rule %s" % GroupRules.get_cost_string();
 	if c is Callable:
 		_c = c;
 		self.visible = true;
