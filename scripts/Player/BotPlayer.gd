@@ -34,12 +34,12 @@ func selectOfficeReward():
 func confirmGroupEffect():
 	#Bot Player waits a bit for human players
 	await get_tree().create_timer(0.5).timeout;
-	return GroupRules.BENEFICIAL_EFFECTS.has(GroupRules.group_action.getEffect());
+	return GroupRules.BENEFICIAL_EFFECTS.has(GroupRules.get_effect());
 
 #Basic Bot only uses negative effects that target other players and selects randomly
 func selectTargetPlayer(playerlist: Array[Player], is_can_rule):
 	#Bot Player waits a bit for human players
 	await get_tree().create_timer(0.5).timeout;
-	if is_can_rule and GroupRules.HARMFUL_EFFECTS.has(GroupRules.group_action.getEffect()) or !is_can_rule:
+	if is_can_rule and GroupRules.HARMFUL_EFFECTS.has(GroupRules.get_effect()) or !is_can_rule:
 		return playerlist.pick_random();
 	return null;

@@ -9,11 +9,13 @@ class_name TurnManager #TODO Find a better way to get Turn Player without making
 
 static var _turn_player: Player;
 static func get_turn_player(): return _turn_player;
-var _round_order: Array[Player];
+static var _round_order: Array[Player];
 
-var _hasRoll: bool = false;
-var _hasReroll: bool = false;
-var _hasSpecialDie: bool = false;
+#TODO: Maybe player should hold their die
+static var _hasRoll: bool = false;
+static var _hasReroll: bool = false;
+static var _hasSpecialDie: bool = false;
+static func spend_die(): _hasRoll = false;
 
 var _queue: Array[EventPair];
 
@@ -79,17 +81,16 @@ func _gain_die(special_die: bool):
 		_hasReroll = true;
 
 func _can_use_group_rule():
-	var isValid = GroupRules.group_action.isValid();
-	var canPay = GroupRules.group_action.canPay(_turn_player, _hasRoll);
+	var canPay = GroupRules.can_pay(_turn_player, _hasRoll);
 	
 	#If the rule grants special dice, the player does not already have a special die
-	if GroupRules.group_action.isGrantSpecialDie():
-		return isValid and canPay and not _hasSpecialDie;
+	if GroupRules.does_grant_special_die():
+		return canPay and not _hasSpecialDie;
 	#if the rule grants a reroll, the player does not have their roll
-	elif GroupRules.group_action.isGrantReroll():
-		return isValid and canPay and not _hasRoll
+	elif GroupRules.does_grant_reroll():
+		return canPay and not _hasRoll
 	#otherwise just make sure it is valid and the cost can be paid
-	return isValid and canPay;
+	return canPay;
 
 """
 Callable Functions for Actions
@@ -115,15 +116,7 @@ func _use_escape_ticket():
 
 func _use_group_rule():
 	#first we pay the cost
-	var cost = GroupRules.group_action.getActionCost();
-	match cost:
-		GroupAction.CostType.MOVE_BACK:
-			_turn_player.movePlayerXSpaces(-1);
-		GroupAction.CostType.TICKET:
-			_turn_player.removeEscapeTicket();
-		GroupAction.CostType.DIE:
-			_hasRoll = false;
-					
+	group_rule_manager.pay_cost_for_player(_turn_player);					
 	#next we perform the action
 	await group_rule_manager.trigger_effect_for_player(_turn_player);
 	_calculate_actions();

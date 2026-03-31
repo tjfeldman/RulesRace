@@ -63,6 +63,7 @@ func movePlayerXSpaces(x: int):
 	Events.emit_signal("player_moved");
 	
 func moveToPlayer(player: Player):
+	print("Moving %s to %s"%[self, player]);
 	var dist = player.getBoardPosition() - _boardPosition;
 	while dist != 0:
 		if dist > 0:
