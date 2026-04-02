@@ -1,11 +1,11 @@
 [gd_scene load_steps=2 format=3 uid="uid://d4edrr0dtbmtw"]
 
-[ext_resource type="Script" uid="uid://ch2rwk0k6v5ax" path="res://scripts/OfficeChoice.gd" id="1_2v6ay"]
+[ext_resource type="Script" uid="uid://ch2rwk0k6v5ax" path="res://scripts/Prompts/OfficeChoice.gd" id="1_t8c55"]
 
 [node name="OfficeChoice" type="CenterContainer"]
 offset_right = 1280.0
 offset_bottom = 720.0
-script = ExtResource("1_2v6ay")
+script = ExtResource("1_t8c55")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2

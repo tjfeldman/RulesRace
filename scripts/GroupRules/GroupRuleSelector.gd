@@ -56,10 +56,10 @@ func random_rule():
 	
 	#pick random rules and make sure it is not the same existing rule
 	while sameWhen and sameTrigger and sameEffect:
-		var random_rule = ValidRules.VALID_RULES.pick_random();	
-		selectedWhen = whenGroup.get_buttons().filter(func(btn): if btn.type == random_rule[0]: return btn)[0];
-		selectedTrigger = triggerGroup.get_buttons().filter(func(btn):  if btn.type == random_rule[1]: return btn)[0];
-		selectedEffect = effectGroup.get_buttons().filter(func(btn):  if btn.type == random_rule[2]: return btn)[0];
+		var random_rule_arr = ValidRules.VALID_RULES.pick_random();	
+		selectedWhen = whenGroup.get_buttons().filter(func(btn): if btn.type == random_rule_arr[0]: return btn)[0];
+		selectedTrigger = triggerGroup.get_buttons().filter(func(btn):  if btn.type == random_rule_arr[1]: return btn)[0];
+		selectedEffect = effectGroup.get_buttons().filter(func(btn):  if btn.type == random_rule_arr[2]: return btn)[0];
 		
 		sameWhen = selectedWhen == _currentWhenRule;
 		sameTrigger = selectedTrigger == _currentTriggerRule;

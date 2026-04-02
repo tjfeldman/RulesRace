@@ -56,29 +56,31 @@ func _get_scene():
 	return get_tree().current_scene.get_parent();
 
 func select_office_reward():
-	var officeChoiceBox = preload("res://scenes/officeChoice.tscn");
-	var choiceBox = officeChoiceBox.instantiate();
-	var scene = _get_scene();
-	scene.add_child(choiceBox);
+	var choiceBox = PromptManager.get_office_choice_prompt();
+	_get_scene().add_child(choiceBox);
 	return await choiceBox.choice_selected;
 	
 #prompts the player who triggered the rule if they want to use the effect
 func confirm_group_rule_use():		
-	var confirmBox = preload("res://scenes/confirmRuleUsage.tscn");
-	var confirm = confirmBox.instantiate();
-	var scene = _get_scene();
-	scene.add_child(confirm);
+	var confirm = PromptManager.get_confirm_rule_prompt();
+	_get_scene().add_child(confirm);
 	confirm.setLabel(GroupRules.get_effect_label());
 	var cost = GroupRules.get_cost_string();
 	if cost: confirm.setCostLabel(cost);
 	return await confirm.choice_choosen;
+	
+#prompts the player to acknowledge personal rules have triggered
+func acknowledge_personal_rule(events: Array[PersonalRuleAction]):
+	var acknowledge = PromptManager.get_acknowledge_personal_rule_prompt();
+	_get_scene().add_child(acknowledge);
+	acknowledge.create_event_labels(events);
+	await acknowledge.acknowledged;
 
 #prompt the player who they want to target
 func select_target_for_effect(targetList: Array[Player], is_can_rule):
-	var selectPrompt = preload("res://scenes/selectPlayerPrompt.tscn");
+	var selectPrompt = PromptManager.get_select_player_prompt();
 	var prompt = selectPrompt.instantiate();
-	var scene = _get_scene();
-	scene.add_child(prompt);
+	_get_scene().add_child(prompt);
 	prompt.setLabel(GroupRules.get_effect_label());
 	prompt.setPlayerList(targetList, is_can_rule);
 	return await prompt.selected_player;

@@ -22,7 +22,6 @@ func _ready() -> void:
 			_player_board_order.append(child);
 			#set piece offset
 			PersonalRuleManager.register_personal_rule(child);
-			print (child.getPersonalRule());
 			
 			child.board_offset = offset;
 			offset += 1;

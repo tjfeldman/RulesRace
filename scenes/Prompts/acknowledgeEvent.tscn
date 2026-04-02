@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3 uid="uid://mqvvfqmdxdsd"]
+
+[ext_resource type="Script" uid="uid://6pudb16j1bbv" path="res://scripts/Prompts/AcknowledgeEvent.gd" id="1_lscbu"]
+
+[node name="ConfirmRuleEffect" type="CenterContainer"]
+offset_right = 1280.0
+offset_bottom = 720.0
+script = ExtResource("1_lscbu")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "The following Personal Rules have triggered:"
+horizontal_alignment = 1
+
+[node name="PersonalRuleEvents" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Ok" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Ok"
+
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/Ok" to="." method="_on_ok_pressed"]

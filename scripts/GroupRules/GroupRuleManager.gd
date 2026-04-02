@@ -53,17 +53,17 @@ const HARMFUL_EFFECTS: Array[Effect] = [Effect.SEND_PLAYER_BACK_ONE];
 @onready var effectLabel: Label = $EffectDisplay/Label
 
 #set to -1 to represent None
-static var _whenRule: GroupRules.When = GroupRules.When.NONE;
-static var _triggerRule: GroupRules.Trigger = GroupRules.Trigger.NONE;
-static var _effectRule: GroupRules.Effect = GroupRules.Effect.NONE;
+static var _whenRule: When = When.NONE;
+static var _triggerRule: Trigger = Trigger.NONE;
+static var _effectRule: Effect = Effect.NONE;
 #public getters
 static func get_when(): return _whenRule;
 static func get_trigger(): return _triggerRule;
 static func get_effect(): return _effectRule;
 
-var _canRules = [GroupRules.Trigger.ROLL_PRISON, GroupRules.Trigger.ROLL_ONE, GroupRules.Trigger.ROLL_TWO, \
-				GroupRules.Trigger.ROLL_THREE, GroupRules.Trigger.MOVES_PRISON];
-var _targetsAnotherPlayer = [GroupRules.Effect.TRANSFER_TICKET, GroupRules.Effect.SEND_PLAYER_BACK_ONE];
+var _canRules = [Trigger.ROLL_PRISON, Trigger.ROLL_ONE, Trigger.ROLL_TWO, \
+				Trigger.ROLL_THREE, Trigger.MOVES_PRISON];
+var _targetsAnotherPlayer = [Effect.TRANSFER_TICKET, Effect.SEND_PLAYER_BACK_ONE];
 
 func _ready() -> void:
 	group_rule_selector.visible = false;
@@ -133,7 +133,7 @@ func trigger_event(pair: EventPair, _turnPlayer: Player):
 	match pair.action:
 		EventPair.ActionChecks.JAIL:
 			#Prison action triggers on moving to Prison when it is a player in Prison
-			if _triggerRule == GroupRules.Trigger.MOVES_PRISON and _whenRule == GroupRules.When.PRISON:
+			if _triggerRule == Trigger.MOVES_PRISON and _whenRule == When.PRISON:
 				await _prompt_all_prisoners(pair.player);
 				
 
@@ -156,24 +156,24 @@ func check_roll_trigger(turn_player: Player, roll: Variant):
 		return false;
 		
 	match [_triggerRule, roll]:
-		[GroupRules.Trigger.ROLL_PRISON, "Jail"]:
+		[Trigger.ROLL_PRISON, "Jail"]:
 			#DO NOT GO TO JAIL AND CAN USE EFFECT
 			if _verify_player_can_use_rule(turn_player):
 				await trigger_effect_for_player(turn_player);
 			return true;
-		[GroupRules.Trigger.ROLL_ONE, 1]:
+		[Trigger.ROLL_ONE, 1]:
 			#MOVE PLAYER FORWARD 1 AND CAN USE EFFECT
 			await turn_player.movePlayerXSpaces(1);
 			if _verify_player_can_use_rule(turn_player):
 				await trigger_effect_for_player(turn_player);
 			return true;
-		[GroupRules.Trigger.ROLL_TWO, 2]:
+		[Trigger.ROLL_TWO, 2]:
 			#MOVE PLAYER FORWARD 2 AND CAN USE EFFECT
 			await turn_player.movePlayerXSpaces(2);
 			if _verify_player_can_use_rule(turn_player):
 				await trigger_effect_for_player(turn_player);
 			return true;
-		[GroupRules.Trigger.ROLL_THREE, 3]:
+		[Trigger.ROLL_THREE, 3]:
 			#MOVE PLAYER FORWARD 3 AND CAN USE EFFECT
 			await turn_player.movePlayerXSpaces(3);
 			if _verify_player_can_use_rule(turn_player): 
@@ -233,17 +233,17 @@ func _trigger_effect(affectedPlayer: Player):
 		#exit if they decline
 		if await affectedPlayer.confirmGroupEffect(): return;
 	match _effectRule:
-		GroupRules.Effect.MOVE_ONE:
+		Effect.MOVE_ONE:
 			await affectedPlayer.movePlayerXSpaces(1);
-		GroupRules.Effect.GAIN_TICKET:
+		Effect.GAIN_TICKET:
 			affectedPlayer.addEscapeTicket();
-		GroupRules.Effect.REROLL_DIE:
+		Effect.REROLL_DIE:
 			Events.gain_die_roll.emit(false);
-		GroupRules.Effect.ROLL_SPECIAL_DIE:
+		Effect.ROLL_SPECIAL_DIE:
 			Events.gain_die_roll.emit(true);
-		GroupRules.Effect.MOVE_TO_PLAYER_AHEAD:
+		Effect.MOVE_TO_PLAYER_AHEAD:
 			await affectedPlayer.moveToPlayer(PlayerManager.getPlayerAhead(affectedPlayer));
-		GroupRules.Effect.MOVE_BACK:
+		Effect.MOVE_BACK:
 			await affectedPlayer.movePlayerXSpaces(-1);
 				
 func _target_effect(affectedPlayer: Player):
@@ -251,13 +251,13 @@ func _target_effect(affectedPlayer: Player):
 	var playerlist = PlayerManager.getListOfAllOtherPlayers(affectedPlayer);
 	var is_can_rule = _triggerRule in _canRules;
 	match _effectRule:
-		GroupRules.Effect.SEND_PLAYER_BACK_ONE:
+		Effect.SEND_PLAYER_BACK_ONE:
 			#can't move players who are at start or currently in jail
 			playerlist.filter(func(p): return p.getBoardPosition() > 0 and not p.isInJail());
 			var target = await affectedPlayer.selectTargetPlayer(playerlist, is_can_rule);
 			if not target: return;	#if no target is selected, exit
 			await target.movePlayerXSpaces(-1);
-		GroupRules.Effect.TRANSFER_TICKET:
+		Effect.TRANSFER_TICKET:
 			var target = await affectedPlayer.selectTargetPlayer(playerlist, is_can_rule);
 			if not target: return;	#if no target is selected, exit
 			affectedPlayer.removeEscapeTicket();

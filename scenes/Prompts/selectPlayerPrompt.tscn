@@ -1,11 +1,11 @@
 [gd_scene load_steps=2 format=3 uid="uid://bkcvgkppr4cdj"]
 
-[ext_resource type="Script" uid="uid://bqkbfljk2qwdr" path="res://scripts/SelectPlayerPrompt.gd" id="1_o04oh"]
+[ext_resource type="Script" uid="uid://bqkbfljk2qwdr" path="res://scripts/Prompts/SelectPlayerPrompt.gd" id="1_c8120"]
 
 [node name="SelectPlayer" type="CenterContainer"]
 offset_right = 1280.0
 offset_bottom = 720.0
-script = ExtResource("1_o04oh")
+script = ExtResource("1_c8120")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2

@@ -34,10 +34,12 @@ func _start_game():
 		
 	#create PersonalRuleManager
 	_personal_rule_manager = PersonalRuleManager.new();
+	self.add_child(_personal_rule_manager);
 		
 	#create TurnManager
 	_turn_manager = TurnManager.new(turn_status, group_rule_manager, _personal_rule_manager);
 	_turn_manager.startRace();
+	self.add_child(_turn_manager);
 		
 	#register dice events
 	Events.roll_die.connect(_roll_dice);
@@ -55,6 +57,5 @@ func _roll_dice(special: bool):
 func _game_is_over():
 	for child in self.get_children():
 		child.visible = false;
-	var results = preload("res://scenes/results.tscn");
-	var results_ui = results.instantiate();
+	var results_ui = PromptManager.get_results_prompt();
 	self.get_parent().add_child(results_ui);

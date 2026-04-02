@@ -48,9 +48,27 @@ layout_mode = 2
 
 [node name="Trigger" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/PersonalRule"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.984314, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "A player who is in same space"
 
 [node name="Condition" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/PersonalRule"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.984314, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "rolls a die and gets a 3"
+
+[node name="Target" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/PersonalRule"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.984314, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "I"
+
+[node name="Effect" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/PersonalRule"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.984314, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "move one step forward"
 
 [node name="Finished" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
 visible = false

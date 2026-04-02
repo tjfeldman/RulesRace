@@ -1,20 +1,20 @@
 v0.4 Tasklist
-- [ ] PlayerCharacter holds a randomized personal rule
+- [x] PlayerCharacter holds a randomized personal rule
 - [ ] Personal Rule shows up on HUD for player
-- [ ] All Personal Rules are registered in a manager and verifies the Trigger and Condition have been met.
-- [ ] Personal Rules when activated create a prompt for the person to ok and update Status Label
+- [x] All Personal Rules are registered in a manager and verifies the Condition have been met.
+- [x] Personal Rules when activated create a prompt for the person to ok
 - [ ] Register Personal Rule Triggers
-- [ ] Add Trigger Check for "player who is in same space"
+- [x] Add Trigger Check for "player who is in same space"
 - [ ] Add Trigger Check for "player who is in prison"
 - [ ] Add Trigger Check for "player who moves after" | Add utility function in PlayerManager to get Next Player
 - [ ] Add Trigger Check for "player who is leading"
 - [ ] Add Trigger Check for "player who is trailing"
-- [ ] Register Personal Rule Conditions
-- [ ] Add Condition check for "rolls a dice and get 1" | Should occur before movement by dice
-- [ ] Add Condition check for "rolls a dice and get 2" | Should occur before movement by dice
-- [ ] Add Condition check for "rolls a dice and get 3" | Should occur before movement by dice
-- [ ] Add Condition check for "rolls a dice and get prison" | Should occur before movement by dice
-- [ ] Add Condition check for "rolls a dice and get escape" | Should occur before movement by dice
+- [x] Register Personal Rule Conditions
+- [x] Add Condition check for "rolls a dice and get 1" | Should occur before movement by dice
+- [x] Add Condition check for "rolls a dice and get 2" | Should occur before movement by dice
+- [x] Add Condition check for "rolls a dice and get 3" | Should occur before movement by dice
+- [x] Add Condition check for "rolls a dice and get prison" | Should occur before movement by dice
+- [x] Add Condition check for "rolls a dice and get escape" | Should occur before movement by dice
 - [ ] Add Condition check for "is sent to prison"
 - [ ] Add Condition check for "escapes from prison"
 - [ ] Add Condition check for "discards a ticket"
@@ -22,14 +22,14 @@ v0.4 Tasklist
 - [ ] Add Condition check for "is moved by a personal rule"
 - [ ] Add Condition check for "is moved by a group rule"
 - [ ] Register Personal Rule Target
-- [ ] Add Target check for "I"
+- [x] Add Target check for "I"
 - [ ] Add Target check for "player in same space"
 - [ ] Add Target check for "a player in prison"
 - [ ] Add Target check for "a player who moves after"
 - [ ] Add Target check for "a player leading the race"
 - [ ] Add Target check for "a player trailing the race"
 - [ ] Register Personal Rule Effect
-- [ ] Add Effect for "moves one step forward"
+- [x] Add Effect for "moves one step forward"
 - [ ] Add Effect for "moves one step backwards"
 - [ ] Add Effect for "moves towards the nearest color"
 - [ ] Add Effect for "moves towards the nearest office"

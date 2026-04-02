@@ -1,5 +1,7 @@
 extends Control
 
+#TODO: Each player should have control of their own UI instead of relying on events
+
 @onready var leading: Label = $PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/Leading
 @onready var player_name: Label = $PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/PlayerName
 @onready var ticket_counter: HBoxContainer = $PanelContainer/MarginContainer/VBoxContainer/TicketCounter
@@ -7,6 +9,8 @@ extends Control
 @onready var finished: Label = $PanelContainer/MarginContainer/VBoxContainer/Finished
 @onready var trigger: Label = $PanelContainer/MarginContainer/VBoxContainer/PersonalRule/Trigger
 @onready var condition: Label = $PanelContainer/MarginContainer/VBoxContainer/PersonalRule/Condition
+@onready var target: Label = $PanelContainer/MarginContainer/VBoxContainer/PersonalRule/Target
+@onready var effect: Label = $PanelContainer/MarginContainer/VBoxContainer/PersonalRule/Effect
 
 #only allow set player to be assigned once
 var assignedPlayer : Player:
@@ -25,6 +29,8 @@ func _ready() -> void:
 	var personal_rule = assignedPlayer.getPersonalRule();
 	trigger.text = PersonalRules.get_trigger_str(personal_rule.get_trigger());
 	condition.text = PersonalRules.get_condition_str(personal_rule.get_condition());
+	target.text = PersonalRules.get_target_str(personal_rule.get_target());
+	effect.text = PersonalRules.get_effect_str(personal_rule.get_effect());
 			
 func update_ui():
 	count.text = str(assignedPlayer.getEscapeTicketCount());

@@ -120,7 +120,10 @@ func on_office_space():
 	return !_in_jail and board.isOfficeSpace(_board_position);
 	
 func is_sharing_space_with_player(player: Player):
-	return !_in_jail and _board_position == player.getBoardPosition();
+	if !_in_jail: 
+		return _board_position == player.getBoardPosition();
+	else:
+		return player.isInJail();
 	
 func isBot():
 	return self is BotPlayer;
@@ -128,18 +131,20 @@ func isBot():
 """
 Override Functions
 """
-func setActionOptions(_options: Dictionary[Actions.Type, Callable]):
+func setActionOptions(_options: Dictionary[Actions.Type, Callable]) -> void:
 	push_error("PlayerCharacter.setActionOptions needs to be overridden");
-	pass;
 	
-func selectOfficeReward():
+func selectOfficeReward() -> OfficeChoice.Option:
 	push_error("PlayerCharacter.selectOfficeReward needs to be overridden");
-	pass;
+	return OfficeChoice.Option.NONE;
 	
-func confirmGroupEffect():
+func confirmGroupEffect() -> GroupRules.Effect:
 	push_error("PlayerCharacter.confirmGroupEffect needs to be overridden");
-	pass;
+	return GroupRules.Effect.NONE;
 
-func selectTargetPlayer(_playerlist: Array[Player], _is_can_rule):
+func acknowledgePersonalRule(_events: Array[PersonalRuleAction]) -> void:
+	push_error("PlayerCharacter.acknowledgePersonalRule needs to be overridden");
+
+func selectTargetPlayer(_playerlist: Array[Player], _is_can_rule) -> Player:
 	push_error("PlayerCharacter.selectTargetPlayer needs to be overridden");
-	pass;
+	return null;

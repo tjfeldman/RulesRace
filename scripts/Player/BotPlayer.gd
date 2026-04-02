@@ -43,3 +43,7 @@ func selectTargetPlayer(playerlist: Array[Player], is_can_rule):
 	if is_can_rule and GroupRules.HARMFUL_EFFECTS.has(GroupRules.get_effect()) or !is_can_rule:
 		return playerlist.pick_random();
 	return null;
+
+#Basic Bot acknowledges the rule
+func acknowledgePersonalRule(_events: Array[PersonalRuleAction]):
+	pass;

@@ -171,7 +171,7 @@ func _handle_office_space():
 		OfficeChoice.Option.RULE:
 			_turn_status.text = "%s is changing the group rule" % _turn_player.playerName;
 			_group_rule_manager.prompt_group_rule_change_for_player(_turn_player);
-
+	
 """
 Handle Between Turn Actions
 """

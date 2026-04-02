@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://du8y68lf1j8x7"]
 
-[ext_resource type="Script" uid="uid://b3fkq5ncjuf25" path="res://scripts/Results.gd" id="1_qh7lt"]
+[ext_resource type="Script" uid="uid://b3fkq5ncjuf25" path="res://scripts/Prompts/Results.gd" id="1_cd5vp"]
 
 [node name="Leaderboard" type="CenterContainer"]
 anchors_preset = 15
@@ -8,7 +8,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_qh7lt")
+script = ExtResource("1_cd5vp")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2
