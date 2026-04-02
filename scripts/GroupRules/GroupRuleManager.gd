@@ -96,7 +96,7 @@ VERIFY FUNCTIONS
 func _verify_when(triggering_player: Player):
 	match _whenRule:
 		When.TURN:
-			return TurnManager.get_turn_player() == triggering_player;
+			return get_tree().current_scene.get_turn_player() == triggering_player;
 		When.PRISON:
 			return triggering_player.isInJail();
 		When.LEADING:
@@ -122,7 +122,7 @@ func _verify_player_can_use_rule(affectedPlayer: Player):
 			return affectedPlayer.hasEscapeTicket();
 		Effect.REROLL_DIE, Effect.ROLL_SPECIAL_DIE:
 			#dice can only be used on player's turn
-			return TurnManager.get_turn_player() == affectedPlayer;
+			return get_tree().current_scene.get_turn_player() == affectedPlayer;
 		_:
 			return true;
 	
@@ -203,7 +203,7 @@ func pay_cost_for_player(player: Player):
 		Trigger.DISCARD_TICKET:
 			player.removeEscapeTicket();
 		Trigger.FORFEIT_DIE:
-			TurnManager.spend_die();
+			get_tree().current_scene.spend_die();
 			
 func does_grant_special_die():
 	return _effectRule == Effect.ROLL_SPECIAL_DIE;

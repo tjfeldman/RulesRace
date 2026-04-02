@@ -116,6 +116,12 @@ func escapeFromJail():
 func isInJail():
 	return _in_jail;
 	
+func on_office_space():
+	return !_in_jail and board.isOfficeSpace(_board_position);
+	
+func is_sharing_space_with_player(player: Player):
+	return !_in_jail and _board_position == player.getBoardPosition();
+	
 func isBot():
 	return self is BotPlayer;
 	

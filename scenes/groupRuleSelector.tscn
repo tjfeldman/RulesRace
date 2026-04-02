@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=3 uid="uid://df1kr1qk1gne6"]
 
-[ext_resource type="Script" uid="uid://bavdaked06e7c" path="res://scripts/GroupRuleSelector.gd" id="1_lxafq"]
+[ext_resource type="Script" uid="uid://bavdaked06e7c" path="res://scripts/GroupRules/GroupRuleSelector.gd" id="1_lxafq"]
 [ext_resource type="Theme" uid="uid://b1apnwye66uxq" path="res://themes/when_button.tres" id="2_bqmq2"]
 [ext_resource type="ButtonGroup" uid="uid://b0f4yxvdgh8d1" path="res://btnGroups/WhenGroup.tres" id="2_ht25b"]
 [ext_resource type="Theme" uid="uid://bnpru5ian53ls" path="res://themes/trigger_button.tres" id="3_1lymc"]

@@ -1,9 +1,19 @@
 extends Node2D
 
 @onready var hud: CanvasLayer = $HUD
-@onready var turn_manager: Node = $TurnManager
-#TODO: Send turn_status label to other Managers so they can update the status too
-@onready var turn_status: Label = $TurnManager/TurnStatus
+@onready var dice: Sprite2D = $Dice
+@onready var special_dice: Sprite2D = $SpecialDice
+@onready var turn_status: Label = $TurnStatus
+@onready var group_rule_manager: GroupRules = $GroupRuleManager
+
+var _turn_manager: TurnManager;
+var _personal_rule_manager: PersonalRuleManager;
+
+"""
+public functions
+"""
+func get_turn_player(): _turn_manager.get_turn_player();
+func spend_die(): _turn_manager.spend_die();
 
 func _ready() -> void:
 	#start game
@@ -21,13 +31,29 @@ func _start_game():
 		hud.add_child(ui);
 		ui.position += Vector2(0, offset);
 		offset+= ui.size.y + 16;
+		
+	#create PersonalRuleManager
+	_personal_rule_manager = PersonalRuleManager.new();
+		
+	#create TurnManager
+	_turn_manager = TurnManager.new(turn_status, group_rule_manager, _personal_rule_manager);
+	_turn_manager.startRace();
+		
+	#register dice events
+	Events.roll_die.connect(_roll_dice);
+	dice.dice_has_rolled.connect(_turn_manager._on_dice_has_rolled);
+	special_dice.dice_has_rolled.connect(_turn_manager._on_dice_has_rolled);
 	
-	#turn_status.text = "%s's Turn" % PlayerManager.getCurrentTurnPlayer().playerName;
-	#Events.emit_signal("start_turn");
-	turn_manager.startRace();	
+func _roll_dice(special: bool):
+	if special:
+		dice.visible = false;
+		special_dice.rollDie();
+	else:
+		special_dice.visible = false;
+		dice.rollDie();
 
 func _game_is_over():
-	for child in turn_manager.get_children():
+	for child in self.get_children():
 		child.visible = false;
 	var results = preload("res://scenes/results.tscn");
 	var results_ui = results.instantiate();

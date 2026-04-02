@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://cpjihb12mmhvt"]
 
-[ext_resource type="Script" uid="uid://be4kfyxeoeqn1" path="res://scripts/GroupRuleManager.gd" id="1_03cib"]
+[ext_resource type="Script" uid="uid://be4kfyxeoeqn1" path="res://scripts/GroupRules/GroupRuleManager.gd" id="1_03cib"]
 [ext_resource type="PackedScene" uid="uid://df1kr1qk1gne6" path="res://scenes/groupRuleSelector.tscn" id="1_rnt2w"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_03cib"]

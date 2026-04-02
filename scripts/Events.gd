@@ -6,7 +6,8 @@ extends Node
 #Player Events
 signal updated_escape_tickets(player: Player);
 
-#Action Events
+#Dice Events
+signal roll_die(special: bool);
 signal gain_die_roll(special: bool);
 
 #Move Events

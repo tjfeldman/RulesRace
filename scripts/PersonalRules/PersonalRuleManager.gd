@@ -40,6 +40,6 @@ func _check_personal_rule_trigger(player: Player, causer: Player):
 	match trigger:
 		PersonalRules.Trigger.SAME_SPACE:
 			#Check the rule is triggered by someone other than the causer and the causer and player are in the same space
-			if player != causer and player.getBoardPosition() == causer.getBoardPosition():
+			if player != causer and player.is_sharing_space_with_player(causer):
 				print("%s triggered their personal rule"%player);
 				

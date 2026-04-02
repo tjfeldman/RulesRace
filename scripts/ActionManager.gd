@@ -47,7 +47,7 @@ func _enable_all_actions():
 		action_button.disabled = false;
 		
 func _player_has_finished(player: Player):
-	if player == TurnManager.get_turn_player():
+	if player == get_tree().current_scene.get_turn_player():
 		self.visible = false;
 """
 Functions for Prompts
