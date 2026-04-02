@@ -5,6 +5,8 @@ extends Control
 @onready var ticket_counter: HBoxContainer = $PanelContainer/MarginContainer/VBoxContainer/TicketCounter
 @onready var count: Label = $PanelContainer/MarginContainer/VBoxContainer/TicketCounter/Count
 @onready var finished: Label = $PanelContainer/MarginContainer/VBoxContainer/Finished
+@onready var trigger: Label = $PanelContainer/MarginContainer/VBoxContainer/PersonalRule/Trigger
+@onready var condition: Label = $PanelContainer/MarginContainer/VBoxContainer/PersonalRule/Condition
 
 #only allow set player to be assigned once
 var assignedPlayer : Player:
@@ -19,6 +21,10 @@ func _ready() -> void:
 	Events.player_moved.connect(_update_leading);
 	Events.player_reached_goal.connect(_on_player_finished);
 	Events.game_over.connect(_game_is_over);
+	
+	var personal_rule = assignedPlayer.getPersonalRule();
+	trigger.text = PersonalRules.get_trigger_str(personal_rule.get_trigger());
+	condition.text = PersonalRules.get_condition_str(personal_rule.get_condition());
 			
 func update_ui():
 	count.text = str(assignedPlayer.getEscapeTicketCount());

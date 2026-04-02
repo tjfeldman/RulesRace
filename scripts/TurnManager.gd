@@ -1,11 +1,13 @@
 extends Node
-class_name TurnManager #TODO Find a better way to get Turn Player without making this class static accessible
+class_name TurnManager 
+#TODO Find a better way to get Turn Player without making this class static accessible
 
 @onready var turn_status: Label = $TurnStatus
 @onready var dice: Sprite2D = $Dice
 @onready var special_dice: Sprite2D = $SpecialDice
 @onready var board: Gameboard = $Board
 @onready var group_rule_manager: Control = $GroupRuleManager
+@onready var personal_rule_manager: Node = $PersonalRuleManager
 
 static var _turn_player: Player;
 static func get_turn_player(): return _turn_player;
@@ -128,6 +130,7 @@ func _use_group_rule():
 Handle Turn Actions
 """
 func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
+	await personal_rule_manager.check_roll_condition(_turn_player, roll);
 	if await group_rule_manager.check_roll_trigger(_turn_player, roll):
 		turn_status.text = "%s triggered the group rule" %_turn_player.playerName;
 		_calculate_actions();

@@ -43,6 +43,15 @@ text = "Escape Tickets:"
 layout_mode = 2
 text = "0"
 
+[node name="PersonalRule" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Trigger" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/PersonalRule"]
+layout_mode = 2
+
+[node name="Condition" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/PersonalRule"]
+layout_mode = 2
+
 [node name="Finished" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
 visible = false
 layout_mode = 2

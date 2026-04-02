@@ -17,30 +17,36 @@ var playerMoveSpeed: float = 0.33;
 var _x_offsets = [-24, 0, 24];
 
 #private variables
-var _escapeTickets : int = 0:
+#TODO: Might be cleaner as a class
+var _escape_tickets : int = 0:
 	set(value):
 		#Update value and then emit signal
-		_escapeTickets = value;
+		_escape_tickets = value;
 		Events.emit_signal("updated_escape_tickets", self);
 		
-var _boardPosition : int = 0;
-var _inJail : bool = false;
+var _board_position : int = 0;
+var _in_jail : bool = false;
 var _finished : bool = false;
+var _personal_rule: PersonalRule = PersonalRule.get_random_personal_rule();
 
+#TODO: refactor name convention to follow snake_case
 func getBoardPosition():
-	return _boardPosition;
+	return _board_position;
 	
 func hasEscapeTicket():
-	return _escapeTickets > 0;
+	return _escape_tickets > 0;
 	
 func getEscapeTicketCount():
-	return _escapeTickets;
+	return _escape_tickets;
 	
 func addEscapeTicket():
-	_escapeTickets += 1;
+	_escape_tickets += 1;
 	
 func removeEscapeTicket():
-	_escapeTickets -= 1;
+	_escape_tickets -= 1;
+	
+func getPersonalRule():
+	return _personal_rule;
 	
 func hasFinished():
 	return _finished;
@@ -63,7 +69,7 @@ func movePlayerXSpaces(x: int):
 	Events.emit_signal("player_moved");
 	
 func moveToPlayer(player: Player):
-	var dist = player.getBoardPosition() - _boardPosition;
+	var dist = player.getBoardPosition() - _board_position;
 	while dist != 0:
 		if dist > 0:
 			await _movePlayerForward();
@@ -75,40 +81,40 @@ func moveToPlayer(player: Player):
 	
 func _movePlayerForward():
 	#prevent movement if player is in jail or has finished
-	if !_inJail and !_finished:
-		_boardPosition += 1;
-		var targetTile = board.getTilePosition(_boardPosition);
+	if !_in_jail and !_finished:
+		_board_position += 1;
+		var targetTile = board.getTilePosition(_board_position);
 		await _movePlayer(targetTile);
 		
 		#check if player reached goal
-		if board.isGoalSpace(_boardPosition):
+		if board.isGoalSpace(_board_position):
 			_finished = true;
 			Events.emit_signal("player_reached_goal", self);
 			
 func _movePlayerBackward():
-	if !_inJail and _boardPosition > 0:
-		_boardPosition -= 1;
-		var targetTile = board.getTilePosition(_boardPosition);
+	if !_in_jail and _board_position > 0:
+		_board_position -= 1;
+		var targetTile = board.getTilePosition(_board_position);
 		await _movePlayer(targetTile);
 	
 func sendToJail():
-	if !_inJail:
+	if !_in_jail:
 		await _movePlayer(board.getJailPosition(), playerMoveSpeed * 3);
-		_inJail = true;
+		_in_jail = true;
 		Events.emit_signal("action_trigger", EventPair.new(self, EventPair.ActionChecks.JAIL));
 		return true;
 	return false;
 		
 #returns true if player escaped from jail and should roll again
 func escapeFromJail():
-	if _inJail:
-		await _movePlayer(board.getTilePosition(_boardPosition), playerMoveSpeed * 3);
-		_inJail = false;
+	if _in_jail:
+		await _movePlayer(board.getTilePosition(_board_position), playerMoveSpeed * 3);
+		_in_jail = false;
 		return true;
 	return false;
 
 func isInJail():
-	return _inJail;
+	return _in_jail;
 	
 func isBot():
 	return self is BotPlayer;

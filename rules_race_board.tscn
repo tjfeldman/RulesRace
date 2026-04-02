@@ -1,9 +1,10 @@
-[gd_scene load_steps=13 format=3 uid="uid://bfjvv7ybhocmc"]
+[gd_scene load_steps=14 format=3 uid="uid://bfjvv7ybhocmc"]
 
 [ext_resource type="Script" uid="uid://cru50j3o060kc" path="res://scripts/Main.gd" id="1_hc47j"]
 [ext_resource type="Script" uid="uid://dy6tjq1ffk4ot" path="res://scripts/TurnManager.gd" id="2_7x4bf"]
 [ext_resource type="PackedScene" uid="uid://bykn11n338pv0" path="res://scenes/board.tscn" id="2_oi1hd"]
 [ext_resource type="Texture2D" uid="uid://dvou8cmqetxjd" path="res://assets/player_piece.png" id="2_qq0id"]
+[ext_resource type="Script" uid="uid://cox8h1cvcid5s" path="res://scripts/PersonalRules/PersonalRuleManager.gd" id="3_4cpy1"]
 [ext_resource type="Script" uid="uid://dfq7rx0jqalbj" path="res://scripts/PlayerManager.gd" id="3_k5sdh"]
 [ext_resource type="Script" uid="uid://5sw4m82tmdan" path="res://scripts/Player/HumanPlayer.gd" id="4_q22oy"]
 [ext_resource type="PackedScene" uid="uid://bxyr41hboor7s" path="res://scenes/specialDice.tscn" id="4_s36df"]
@@ -18,6 +19,9 @@ script = ExtResource("1_hc47j")
 
 [node name="TurnManager" type="Node" parent="."]
 script = ExtResource("2_7x4bf")
+
+[node name="PersonalRuleManager" type="Node" parent="TurnManager"]
+script = ExtResource("3_4cpy1")
 
 [node name="TurnStatus" type="Label" parent="TurnManager"]
 anchors_preset = -1
