@@ -18,11 +18,11 @@ script = ExtResource("1_hc47j")
 
 [node name="Dice" parent="." instance=ExtResource("10_8aqfc")]
 visible = false
-position = Vector2(550, 390)
+position = Vector2(550, 490)
 
 [node name="SpecialDice" parent="." instance=ExtResource("4_s36df")]
 visible = false
-position = Vector2(550, 390)
+position = Vector2(550, 490)
 
 [node name="Board" parent="." instance=ExtResource("2_oi1hd")]
 position = Vector2(640, 360)
@@ -105,9 +105,9 @@ offset_bottom = 238.0
 
 [node name="ActionUI" parent="." instance=ExtResource("7_1i1ln")]
 visible = false
-offset_left = 745.0
-offset_top = 366.0
-offset_right = 745.0
-offset_bottom = 366.0
+offset_left = 700.0
+offset_top = 460.0
+offset_right = 700.0
+offset_bottom = 460.0
 
 [node name="HUD" type="CanvasLayer" parent="."]

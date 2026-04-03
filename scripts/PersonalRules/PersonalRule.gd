@@ -36,9 +36,9 @@ func _to_string() -> String:
 	
 #TESTING
 static func get_random_personal_rule():
-	var t = PersonalRules.Trigger.SAME_SPACE;
+	var t = PersonalRules.Trigger.PRISON;
 	#var c = PersonalRules.Condition.values().pick_random();
-	var c = PersonalRules.Condition.SENT_JAIL;
+	var c = PersonalRules.Condition.ESCAPE_JAIL;
 	var r = PersonalRules.Target.I;
 	var e = PersonalRules.Effect.MOVE_ONE;
 	return PersonalRule.new(t,c,r,e);

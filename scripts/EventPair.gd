@@ -8,6 +8,7 @@ It stores the triggering player and the caused action
 
 enum ActionChecks {
 	JAIL,
+	ESCAPE,
 }
 
 var _player: Player;

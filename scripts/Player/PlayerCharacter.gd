@@ -101,7 +101,7 @@ func sendToJail():
 	if !_in_jail:
 		await _movePlayer(board.getJailPosition(), playerMoveSpeed * 3);
 		_in_jail = true;
-		Events.emit_signal("action_trigger", EventPair.new(self, EventPair.ActionChecks.JAIL));
+		Events.action_trigger.emit(EventPair.new(self, EventPair.ActionChecks.JAIL));
 		return true;
 	return false;
 		
@@ -110,6 +110,7 @@ func escapeFromJail():
 	if _in_jail:
 		await _movePlayer(board.getTilePosition(_board_position), playerMoveSpeed * 3);
 		_in_jail = false;
+		Events.action_trigger.emit(EventPair.new(self, EventPair.ActionChecks.ESCAPE));
 		return true;
 	return false;
 
@@ -138,12 +139,15 @@ func setActionOptions(_options: Dictionary[Actions.Type, Callable]) -> void:
 	
 func selectOfficeReward() -> OfficeChoice.Option:
 	push_error("PlayerCharacter.selectOfficeReward needs to be overridden");
+	await get_tree().create_timer(0).timeout; #in order to make function considered async
 	return OfficeChoice.Option.NONE;
 	
 func confirmGroupEffect() -> GroupRules.Effect:
 	push_error("PlayerCharacter.confirmGroupEffect needs to be overridden");
+	await get_tree().create_timer(0).timeout; #in order to make function considered async
 	return GroupRules.Effect.NONE;
 
 func selectTargetPlayer(_playerlist: Array[Player], _is_can_rule) -> Player:
 	push_error("PlayerCharacter.selectTargetPlayer needs to be overridden");
+	await get_tree().create_timer(0).timeout; #in order to make function considered async
 	return null;

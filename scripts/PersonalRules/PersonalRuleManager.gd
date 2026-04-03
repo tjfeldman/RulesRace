@@ -43,6 +43,8 @@ func check_event_condition(pair: EventPair) -> void:
 	match pair.get_action():
 		EventPair.ActionChecks.JAIL:
 			condition = PersonalRules.Condition.SENT_JAIL;
+		EventPair.ActionChecks.ESCAPE:
+			condition = PersonalRules.Condition.ESCAPE_JAIL;
 			
 	#END MATCH
 	#If the player_arr exists, then for each player in the arr we should check their trigger
@@ -51,14 +53,19 @@ func check_event_condition(pair: EventPair) -> void:
 		await _check_personal_rule_trigger(player, pair.get_player(), condition);
 				
 func _check_personal_rule_trigger(player: Player, causer: Player, condition: PersonalRules.Condition) -> void:
-	var info = "";
+	var valid: bool = false;
 	match player.getPersonalRule().get_trigger():
 		PersonalRules.Trigger.SAME_SPACE:
-			#Check the rule is triggered by someone other than the causer and the causer and player are in the same space
-			if player != causer and player.is_sharing_space_with_player(causer, condition):
-				info = await _find_rule_target(player);
+			#Trigger is valid is player is not the causer and is sharing a space with the causer
+			valid = player != causer and player.is_sharing_space_with_player(causer, condition);
+		PersonalRules.Trigger.PRISON:
+			#Trigger is valid is the condition is ESCAPING JAIL or the causer is in jail
+			valid = condition == PersonalRules.Condition.ESCAPE_JAIL || causer.isInJail();
+				
 	#END MATCH
-	if !info.is_empty(): Events.update_game_status.emit("%s activated personal rule: %s"%[player.playerName, info]);
+	if valid: 
+		var info = await _find_rule_target(player);
+		if !info.is_empty(): Events.update_game_status.emit("%s activated personal rule: %s"%[player.playerName, info]);
 				
 #Locate the target of the personal rule
 func _find_rule_target(player: Player) -> String:
@@ -72,6 +79,7 @@ func _find_rule_target(player: Player) -> String:
 func _trigger_effect(effect: PersonalRules.Effect, target: Player) -> String: 
 	match effect:
 		PersonalRules.Effect.MOVE_ONE:
-			await target.movePlayerXSpaces(1);
-			return "moves one space";
+			if !target.isInJail(): #players in jail cannot move
+				await target.movePlayerXSpaces(1);
+				return "moves one space";
 	return "";

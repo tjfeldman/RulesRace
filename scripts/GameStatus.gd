@@ -7,5 +7,6 @@ func _ready() -> void:
 
 #TODO Better Stylization, Add timestamp information or a turn number
 func _update_game_status(info: String):
+	text_field.append_text("%s: "%Time.get_time_string_from_system());
 	text_field.append_text(info);
 	text_field.newline();

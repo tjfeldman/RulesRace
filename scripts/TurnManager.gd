@@ -130,8 +130,8 @@ func _use_group_rule():
 Handle Turn Actions
 """
 func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
-	#if _turn_player.isInJail(): roll="Escape";
-	#else: roll="Jail";
+	if _turn_player.isInJail(): roll="Escape";
+	else: roll="Jail";
 	await _personal_rule_manager.check_roll_condition(_turn_player, roll);
 	if await _group_rule_manager.check_roll_trigger(_turn_player, roll):
 		Events.update_game_status.emit("%s triggered the group rule" %_turn_player.playerName);

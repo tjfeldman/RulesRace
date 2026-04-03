@@ -6,6 +6,7 @@ Enums
 """
 enum Trigger {
 	SAME_SPACE,
+	PRISON,
 }
 
 enum Condition{
@@ -15,6 +16,7 @@ enum Condition{
 	ROLL_PRISON,
 	ROLL_ESCAPE,
 	SENT_JAIL,
+	ESCAPE_JAIL,
 }
 
 enum Target{
@@ -29,7 +31,8 @@ enum Effect{
 String Conversion
 """
 const TRIGGER_STR: Array[String] = [
-	"A player who is in the same space",
+	"When a player who is in the same space",
+	"When a player who is in prison",
 ]
 
 const CONDITION_STR: Array[String] = [
@@ -38,7 +41,8 @@ const CONDITION_STR: Array[String] = [
 	"rolls a die and gets a 3",
 	"rolls a die and gets jail",
 	"rolls a die and gets escape",
-	"is sent to prison"
+	"is sent to prison",
+	"escapes from prison",
 ]
 
 const TARGET_STR: Array[String] = [
