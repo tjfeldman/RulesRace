@@ -60,6 +60,9 @@ func _calculate_actions():
 	#Key = Actions
 	#Value = callable func
 	var actions: Dictionary[Actions.Type, Callable];
+	#If When is Prison and turn player is in prison, then group rule can always be activated.
+	if GroupRules.When.PRISON and _turn_player.isInJail() and _can_use_group_rule():
+		actions[Actions.Type.GROUP] = _use_group_rule;
 	if _hasRoll:
 		#if the player has a normal die, it is the start of their turn
 		actions[Actions.Type.DIE] = _roll_die;
@@ -129,6 +132,7 @@ func _use_group_rule():
 Handle Turn Actions
 """
 func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
+	roll = "Jail";
 	await _personal_rule_manager.check_roll_condition(_turn_player, roll);
 	if await _group_rule_manager.check_roll_trigger(_turn_player, roll):
 		await _calculate_actions();
@@ -178,9 +182,23 @@ func _verify_all_players_ready():
 		await get_tree().create_timer(0.3).timeout;
 		var pair: EventPair = _queue.pop_front();
 		await _personal_rule_manager.check_event_condition(pair);
-		await _group_rule_manager.trigger_event(pair, _turn_player);
-	#Now let's have the group manager check if anyone can utilize the group rule
-	pass;
+		await _group_rule_manager.trigger_event(pair);
+	
+	#We we check if there are out of turn group actions
+	#TODO: Instead of prompting individually each time, create a new prompt that asks the player how many escape tickets to discard
+	if GroupRules.get_when() == GroupRules.When.PRISON and GroupRules.get_trigger() == GroupRules.Trigger.DISCARD_TICKET:
+		var repeat = false;
+		var prisoners = PlayerManager.getPrisonPlayers();
+		if prisoners.is_empty(): return; #break if no prisoners
+		for prisoner in prisoners:
+			#no need to spam the turn player when they can use the group rule themselves
+			#TODO: Update Game Status so other players know someone is considering using a group rule
+			if prisoner != _turn_player and await prisoner.confirmGroupEffect():
+				repeat = true;
+				await _group_rule_manager.pay_cost_for_player(prisoner)
+				await _group_rule_manager.trigger_effect_for_player(prisoner);
+		#END FOR
+		if repeat: await _verify_all_players_ready();
 
 func _add_to_queue(pair: EventPair):
 	_queue.push_back(pair);

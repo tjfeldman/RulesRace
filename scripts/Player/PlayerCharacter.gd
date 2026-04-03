@@ -18,7 +18,7 @@ var _x_offsets = [-24, 0, 24];
 
 #private variables
 #TODO: Might be cleaner as a class
-var _escape_tickets : int = 0:
+var _escape_tickets : int = 1:
 	set(value):
 		#Update value and then emit signal
 		_escape_tickets = value;
@@ -150,10 +150,10 @@ func selectOfficeReward() -> OfficeChoice.Option:
 	await get_tree().create_timer(0).timeout; #in order to make function considered async
 	return OfficeChoice.Option.NONE;
 	
-func confirmGroupEffect() -> GroupRules.Effect:
+func confirmGroupEffect() -> bool:
 	push_error("PlayerCharacter.confirmGroupEffect needs to be overridden");
 	await get_tree().create_timer(0).timeout; #in order to make function considered async
-	return GroupRules.Effect.NONE;
+	return false;
 
 func selectTargetPlayer(_playerlist: Array[Player], _is_can_rule) -> Player:
 	push_error("PlayerCharacter.selectTargetPlayer needs to be overridden");

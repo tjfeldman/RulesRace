@@ -34,7 +34,10 @@ func selectOfficeReward():
 func confirmGroupEffect():
 	#Bot Player waits a bit for human players
 	await get_tree().create_timer(0.5).timeout;
-	return GroupRules.BENEFICIAL_EFFECTS.has(GroupRules.get_effect());
+	var confirm = GroupRules.BENEFICIAL_EFFECTS.has(GroupRules.get_effect());
+	#prevent infinite loop by the bot refusing to discard escape tickets for an escape ticket
+	if GroupRules.Trigger.DISCARD_TICKET and GroupRules.Effect.GAIN_TICKET: return false; #TODO: Maybe this should be it's own method
+	return confirm;
 
 #Basic Bot only uses negative effects that target other players and selects randomly
 func selectTargetPlayer(playerlist: Array[Player], is_can_rule):

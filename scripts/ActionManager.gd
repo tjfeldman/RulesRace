@@ -55,13 +55,13 @@ Functions for Prompts
 func _get_scene():
 	return get_tree().current_scene.get_parent();
 
-func select_office_reward():
+func select_office_reward() -> OfficeChoice.Option:
 	var choiceBox = PromptManager.get_office_choice_prompt();
 	_get_scene().add_child(choiceBox);
 	return await choiceBox.choice_selected;
 	
 #prompts the player who triggered the rule if they want to use the effect
-func confirm_group_rule_use():		
+func confirm_group_rule_use() -> GroupRules.Effect:		
 	var confirm = PromptManager.get_confirm_rule_prompt();
 	_get_scene().add_child(confirm);
 	confirm.setLabel(GroupRules.get_effect_label());
@@ -70,7 +70,7 @@ func confirm_group_rule_use():
 	return await confirm.choice_choosen;
 	
 #prompt the player who they want to target
-func select_target_for_effect(targetList: Array[Player], is_can_rule):
+func select_target_for_effect(targetList: Array[Player], is_can_rule) -> Player:
 	var selectPrompt = PromptManager.get_select_player_prompt();
 	var prompt = selectPrompt.instantiate();
 	_get_scene().add_child(prompt);

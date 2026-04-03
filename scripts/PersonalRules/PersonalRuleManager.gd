@@ -34,7 +34,7 @@ func check_roll_condition(roller: Player, roll: Variant) -> void:
 	#END MATCH
 	
 	#If the player_arr exists, then for each player in the arr we should check their trigger
-	await _check_personal_rule_condition(roller, condition);
+	if condition: await _check_personal_rule_condition(roller, condition);
 			
 func check_event_condition(pair: EventPair) -> void:
 	var condition = null;
@@ -47,7 +47,7 @@ func check_event_condition(pair: EventPair) -> void:
 			condition = PersonalRules.Condition.DISCARD_TICKET;
 			
 	#END MATCH
-	await _check_personal_rule_condition(pair.get_player(), condition);
+	if condition: await _check_personal_rule_condition(pair.get_player(), condition);
 
 """
 Private Functions

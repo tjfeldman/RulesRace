@@ -92,58 +92,61 @@ static func get_cost_string():
 """
 VERIFY FUNCTIONS
 """
-#checks if the player triggering a rule can activate the rule
-func _verify_when(triggering_player: Player):
+#checks if the player can activate the rule
+func _verify_when(player: Player) -> bool:
 	match _whenRule:
 		When.TURN:
-			return get_tree().current_scene.get_turn_player() == triggering_player;
+			return get_tree().current_scene.get_turn_player() == player;
 		When.PRISON:
-			return triggering_player.isInJail();
+			return player.isInJail();
 		When.LEADING:
-			return PlayerManager.getLeadingPlayer() == triggering_player;
+			return PlayerManager.getLeadingPlayer() == player;
 		_:
 			return false;
 	
-func _verify_player_can_use_rule(affectedPlayer: Player):
+func _verify_effect(player: Player) -> bool:
 	#if player has made it to the goal, they cannot benefit from the effect
-	if affectedPlayer.hasFinished(): return false;
+	if player.hasFinished(): return false;
 	
 	match _effectRule:
 		Effect.MOVE_ONE:
-			return !affectedPlayer.isInJail();
+			return !player.isInJail();
 		Effect.MOVE_TO_PLAYER_AHEAD:
-			return !affectedPlayer.isInJail() and PlayerManager.getPlayerAhead(affectedPlayer);
+			return !player.isInJail() and PlayerManager.getPlayerAhead(player);
 		Effect.MOVE_BACK:
-			return !affectedPlayer.isInJail() and affectedPlayer.getBoardPosition() > 0;
+			return !player.isInJail() and player.getBoardPosition() > 0;
 		Effect.SEND_PLAYER_BACK_ONE:
 			#we can't move players who are at the start, are currently in jail, or has finished the race
-			return PlayerManager.getListOfAllOtherPlayers(affectedPlayer).filter(func(p): return p.getBoardPosition() > 0 and not p.isInJail() and not p.hasFinished());
+			return PlayerManager.getListOfAllOtherPlayers(player).filter(func(p): return p.getBoardPosition() > 0 and not p.isInJail() and not p.hasFinished());
 		Effect.TRANSFER_TICKET:
-			return affectedPlayer.hasEscapeTicket();
+			return player.hasEscapeTicket();
 		Effect.REROLL_DIE, Effect.ROLL_SPECIAL_DIE:
 			#dice can only be used on player's turn
-			return get_tree().current_scene.get_turn_player() == affectedPlayer;
+			return get_tree().current_scene.get_turn_player() == player;
 		_:
 			return true;
 	
 """
 PUBLIC ACCESSIBLE FUNCTIONS
 """
-func trigger_event(pair: EventPair, _turnPlayer: Player):
-	match pair.get_action():
-		EventPair.ActionChecks.JAIL:
-			#Prison action triggers on moving to Prison when it is a player in Prison
-			if _triggerRule == Trigger.MOVES_PRISON and _whenRule == When.PRISON:
-				await _prompt_all_prisoners(pair.get_player());
+func trigger_event(pair: EventPair) -> void:
+	#The only relevant group event is another playing heading to jail
+	if pair.get_action() == EventPair.ActionChecks.JAIL and _triggerRule == Trigger.MOVES_PRISON:
+		var triggering_player = pair.get_player();
+		var players = PlayerManager.getPlayers();
+		for player in players:
+			#verify the player can use the effect at this time as long as it is not the same player
+			if _verify_effect(player) and _verify_when(player) and triggering_player != player:
+				await trigger_effect_for_player(player);
 				
 
-func prompt_group_rule_change_for_player(player: Player):
+func prompt_group_rule_change_for_player(player: Player) -> void:
 	if player.isBot():
 		group_rule_selector.random_rule();
 	else:
 		group_rule_selector.set_for_editing();
 		
-func trigger_effect_for_player(player: Player):
+func trigger_effect_for_player(player: Player) -> void:
 	var effect_info;
 	if _effectRule in _targetsAnotherPlayer:
 		effect_info = await _target_effect(player);
@@ -154,7 +157,7 @@ func trigger_effect_for_player(player: Player):
 		_update_game_status(player, effect_info[1]);
 		await effect_info[0].call();
 		
-func check_roll_trigger(turn_player: Player, roll: Variant):
+func check_roll_trigger(turn_player: Player, roll: Variant) -> bool:
 	#if the when condition is not met or player is in jail
 	#then we return false
 	if not _verify_when(turn_player) or turn_player.isInJail():
@@ -163,34 +166,34 @@ func check_roll_trigger(turn_player: Player, roll: Variant):
 	match [_triggerRule, roll]:
 		[Trigger.ROLL_PRISON, "Jail"]:
 			#DO NOT GO TO JAIL AND CAN USE EFFECT
-			if _verify_player_can_use_rule(turn_player):
+			if _verify_effect(turn_player):
 				await trigger_effect_for_player(turn_player);
 			return true;
 		[Trigger.ROLL_ONE, 1]:
 			#MOVE PLAYER FORWARD 1 AND CAN USE EFFECT
 			await turn_player.movePlayerXSpaces(1);
-			if _verify_player_can_use_rule(turn_player):
+			if _verify_effect(turn_player):
 				await trigger_effect_for_player(turn_player);
 			return true;
 		[Trigger.ROLL_TWO, 2]:
 			#MOVE PLAYER FORWARD 2 AND CAN USE EFFECT
 			await turn_player.movePlayerXSpaces(2);
-			if _verify_player_can_use_rule(turn_player):
+			if _verify_effect(turn_player):
 				await trigger_effect_for_player(turn_player);
 			return true;
 		[Trigger.ROLL_THREE, 3]:
 			#MOVE PLAYER FORWARD 3 AND CAN USE EFFECT
 			await turn_player.movePlayerXSpaces(3);
-			if _verify_player_can_use_rule(turn_player): 
+			if _verify_effect(turn_player): 
 				await trigger_effect_for_player(turn_player);
 			return true;
 		_:
 			return false;
 	#END MATCH
 
-func can_pay(player: Player, hasNormalDie):
+func can_pay(player: Player, hasNormalDie) -> bool:
 	var canActivate = _verify_when(player);
-	if canActivate and _verify_player_can_use_rule(player):
+	if canActivate and _verify_effect(player):
 		match _triggerRule:
 			Trigger.MOVE_BACK_TWO:
 				return !player.isInJail() and player.getBoardPosition() >= 2;
@@ -201,7 +204,7 @@ func can_pay(player: Player, hasNormalDie):
 		#END MATCH
 	return false; #If cannot activate or not a proper trigger, return false
 	
-func pay_cost_for_player(player: Player):
+func pay_cost_for_player(player: Player) -> void:
 	match _triggerRule:
 		Trigger.MOVE_BACK_TWO:
 			await player.movePlayerXSpaces(-2);
@@ -210,10 +213,10 @@ func pay_cost_for_player(player: Player):
 		Trigger.FORFEIT_DIE:
 			get_tree().current_scene.spend_die();
 			
-func does_grant_special_die():
+func does_grant_special_die() -> bool:
 	return _effectRule == Effect.ROLL_SPECIAL_DIE;
 	
-func does_grant_reroll():
+func does_grant_reroll() -> bool:
 	return _effectRule == Effect.REROLL_DIE;
 	
 """
@@ -239,7 +242,7 @@ func _trigger_effect(affectedPlayer: Player):
 	#if the rule can be used, asked the player if they want to use it
 	if _triggerRule in _canRules:
 		#exit if they decline
-		if await affectedPlayer.confirmGroupEffect(): return "";
+		if await affectedPlayer.confirmGroupEffect() == false: return null;
 	match _effectRule:
 		Effect.MOVE_ONE:
 			return [affectedPlayer.movePlayerXSpaces.bind(1), "move forward 1 space"];
@@ -275,12 +278,6 @@ func _target_effect(affectedPlayer: Player):
 	#END MATCH
 #END FUNC
 	
-func _prompt_all_prisoners(triggerPlayer: Player):
-	var prisoners = PlayerManager.getPrisonPlayers();
-	for prisoner in prisoners:
-		if prisoner != triggerPlayer:
-			await trigger_effect_for_player(prisoner);
-	
 func _update_game_status(user: Player, effect_info: String) -> void:
 	if effect_info.is_empty(): return; #break if no info to update
 	var trigger_info = "";
@@ -294,8 +291,8 @@ func _update_game_status(user: Player, effect_info: String) -> void:
 		Trigger.ROLL_THREE:
 			trigger_info = "rolls 3 and";
 		#TODO: Implement
-		#Trigger.MOVES_PRISON:
-			#trigger_info = "another player moves to prison"
+		Trigger.MOVES_PRISON:
+			trigger_info = "because another player went to prison chose to"
 		Trigger.MOVE_BACK_TWO:
 			trigger_info = "moves back 2 spaces to";
 		Trigger.DISCARD_TICKET:
