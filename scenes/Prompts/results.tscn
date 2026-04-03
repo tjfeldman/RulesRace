@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://du8y68lf1j8x7"]
+[gd_scene load_steps=3 format=3 uid="uid://du8y68lf1j8x7"]
 
 [ext_resource type="Script" uid="uid://b3fkq5ncjuf25" path="res://scripts/Prompts/Results.gd" id="1_cd5vp"]
+[ext_resource type="StyleBox" uid="uid://dfr6rokg4kg7e" path="res://themes/prompt_box.tres" id="2_fv4d6"]
 
 [node name="Leaderboard" type="CenterContainer"]
 anchors_preset = 15
@@ -12,6 +13,7 @@ script = ExtResource("1_cd5vp")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2
+theme_override_styles/panel = ExtResource("2_fv4d6")
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
 layout_mode = 2

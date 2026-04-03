@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c5tsnkglm28r2"]
+[gd_scene load_steps=3 format=3 uid="uid://c5tsnkglm28r2"]
 
 [ext_resource type="Script" uid="uid://c8lwviwrafohw" path="res://scripts/Prompts/ConfirmEffect.gd" id="1_hatho"]
+[ext_resource type="StyleBox" uid="uid://dfr6rokg4kg7e" path="res://themes/prompt_box.tres" id="2_ll73r"]
 
 [node name="ConfirmRuleEffect" type="CenterContainer"]
 offset_right = 1280.0
@@ -9,6 +10,7 @@ script = ExtResource("1_hatho")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2
+theme_override_styles/panel = ExtResource("2_ll73r")
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
 layout_mode = 2

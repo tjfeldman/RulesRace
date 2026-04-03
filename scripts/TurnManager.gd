@@ -185,6 +185,7 @@ func _verify_all_players_ready():
 		await _group_rule_manager.trigger_event(pair);
 	
 	#We we check if there are out of turn group actions
+	#TODO: Favors the player fastest in turn order and not the player's turn.
 	#TODO: Instead of prompting individually each time, create a new prompt that asks the player how many escape tickets to discard
 	if GroupRules.get_when() == GroupRules.When.PRISON and GroupRules.get_trigger() == GroupRules.Trigger.DISCARD_TICKET:
 		var repeat = false;
