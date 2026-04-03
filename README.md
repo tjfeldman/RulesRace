@@ -15,7 +15,7 @@ v0.4 Tasklist
 - [x] Add Condition check for "rolls a dice and get 3" | Should occur before movement by dice
 - [x] Add Condition check for "rolls a dice and get prison" | Should occur before movement by dice
 - [x] Add Condition check for "rolls a dice and get escape" | Should occur before movement by dice
-- [ ] Add Condition check for "is sent to prison"
+- [x] Add Condition check for "is sent to prison"
 - [ ] Add Condition check for "escapes from prison"
 - [ ] Add Condition check for "discards a ticket"
 - [ ] Add Condition check for "uses a ticket"

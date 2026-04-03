@@ -69,13 +69,6 @@ func confirm_group_rule_use():
 	if cost: confirm.setCostLabel(cost);
 	return await confirm.choice_choosen;
 	
-#prompts the player to acknowledge personal rules have triggered
-func acknowledge_personal_rule(events: Array[PersonalRuleAction]):
-	var acknowledge = PromptManager.get_acknowledge_personal_rule_prompt();
-	_get_scene().add_child(acknowledge);
-	acknowledge.create_event_labels(events);
-	await acknowledge.acknowledged;
-
 #prompt the player who they want to target
 func select_target_for_effect(targetList: Array[Player], is_can_rule):
 	var selectPrompt = PromptManager.get_select_player_prompt();

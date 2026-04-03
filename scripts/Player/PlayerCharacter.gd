@@ -144,9 +144,6 @@ func confirmGroupEffect() -> GroupRules.Effect:
 	push_error("PlayerCharacter.confirmGroupEffect needs to be overridden");
 	return GroupRules.Effect.NONE;
 
-func acknowledgePersonalRule(_events: Array[PersonalRuleAction]) -> void:
-	push_error("PlayerCharacter.acknowledgePersonalRule needs to be overridden");
-
 func selectTargetPlayer(_playerlist: Array[Player], _is_can_rule) -> Player:
 	push_error("PlayerCharacter.selectTargetPlayer needs to be overridden");
 	return null;
