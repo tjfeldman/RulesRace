@@ -30,25 +30,25 @@ var _finished : bool = false;
 var _personal_rule: PersonalRule = PersonalRule.get_random_personal_rule();
 
 #TODO: refactor name convention to follow snake_case
-func getBoardPosition():
+func getBoardPosition() -> int:
 	return _board_position;
 	
-func hasEscapeTicket():
+func hasEscapeTicket() -> bool:
 	return _escape_tickets > 0;
 	
-func getEscapeTicketCount():
+func getEscapeTicketCount() -> int:
 	return _escape_tickets;
 	
-func addEscapeTicket():
+func addEscapeTicket() -> void:
 	_escape_tickets += 1;
 	
-func removeEscapeTicket():
+func removeEscapeTicket() -> void:
 	_escape_tickets -= 1;
 	
-func getPersonalRule():
+func getPersonalRule() -> PersonalRule:
 	return _personal_rule;
 	
-func hasFinished():
+func hasFinished() -> bool:
 	return _finished;
 	
 func _movePlayer(newPos: Vector2, moveSpeed = playerMoveSpeed):
@@ -119,11 +119,13 @@ func isInJail():
 func on_office_space():
 	return !_in_jail and board.isOfficeSpace(_board_position);
 	
-func is_sharing_space_with_player(player: Player):
-	if !_in_jail: 
+func is_sharing_space_with_player(player: Player, condition: PersonalRules.Condition):
+	#if the condition is sent to jail or player is not in jail, then we just to compare board position
+	if condition == PersonalRules.Condition.SENT_JAIL || !_in_jail:
 		return _board_position == player.getBoardPosition();
-	else:
-		return player.isInJail();
+	#otherwise then we just need to check if both players are in jail
+	else: 
+		return _in_jail and player.isInJail();
 	
 func isBot():
 	return self is BotPlayer;

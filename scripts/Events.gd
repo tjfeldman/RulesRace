@@ -3,6 +3,9 @@ extends Node
 #since this is an event bus class, the signals will never be used within the class itself
 @warning_ignore_start("unused_signal")
 
+#Main Events
+signal update_game_status(info: String);
+
 #Player Events
 signal updated_escape_tickets(player: Player);
 

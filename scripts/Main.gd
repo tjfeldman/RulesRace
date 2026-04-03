@@ -3,7 +3,6 @@ extends Node2D
 @onready var hud: CanvasLayer = $HUD
 @onready var dice: Sprite2D = $Dice
 @onready var special_dice: Sprite2D = $SpecialDice
-@onready var turn_status: Label = $TurnStatus
 @onready var group_rule_manager: GroupRules = $GroupRuleManager
 
 var _turn_manager: TurnManager;
@@ -12,9 +11,12 @@ var _personal_rule_manager: PersonalRuleManager;
 """
 public functions
 """
-func get_turn_player(): _turn_manager.get_turn_player();
-func spend_die(): _turn_manager.spend_die();
+func get_turn_player() -> Player: return _turn_manager.get_turn_player();
+func spend_die() -> void: _turn_manager.spend_die();
 
+"""
+Private Class
+"""
 func _ready() -> void:
 	#start game
 	Events.game_over.connect(_game_is_over);
@@ -37,7 +39,7 @@ func _start_game():
 	self.add_child(_personal_rule_manager);
 		
 	#create TurnManager
-	_turn_manager = TurnManager.new(turn_status, group_rule_manager, _personal_rule_manager);
+	_turn_manager = TurnManager.new(group_rule_manager, _personal_rule_manager);
 	_turn_manager.startRace();
 	self.add_child(_turn_manager);
 		

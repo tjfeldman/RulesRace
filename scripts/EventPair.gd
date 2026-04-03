@@ -10,10 +10,12 @@ enum ActionChecks {
 	JAIL,
 }
 
-var player: Player;
-var action: ActionChecks;
+var _player: Player;
+var _action: ActionChecks;
 
 func _init(a: Player,b: ActionChecks):
-	player = a;
-	action = b;
+	_player = a;
+	_action = b;
 	
+func get_player() -> Player: return _player;
+func get_action() -> ActionChecks: return _action;

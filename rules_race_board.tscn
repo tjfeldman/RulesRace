@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bfjvv7ybhocmc"]
+[gd_scene load_steps=13 format=3 uid="uid://bfjvv7ybhocmc"]
 
 [ext_resource type="Script" uid="uid://cru50j3o060kc" path="res://scripts/Main.gd" id="1_hc47j"]
 [ext_resource type="PackedScene" uid="uid://bykn11n338pv0" path="res://scenes/board.tscn" id="2_oi1hd"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://cpjihb12mmhvt" path="res://scenes/groupRuleDisplay.tscn" id="8_rv52q"]
 [ext_resource type="PackedScene" uid="uid://domcs12gwth4y" path="res://scenes/dice.tscn" id="10_8aqfc"]
 [ext_resource type="Script" uid="uid://cml2xwgfpweuc" path="res://scripts/Player/SmartBotPlayer.gd" id="11_8aqfc"]
+[ext_resource type="PackedScene" uid="uid://bxwcdvgifebfh" path="res://scenes/game_status_box.tscn" id="12_8aqfc"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_hc47j")
@@ -25,13 +26,6 @@ position = Vector2(550, 390)
 
 [node name="Board" parent="." instance=ExtResource("2_oi1hd")]
 position = Vector2(640, 360)
-
-[node name="ActionUI" parent="." instance=ExtResource("7_1i1ln")]
-visible = false
-offset_left = 670.0
-offset_top = 300.0
-offset_right = 670.0
-offset_bottom = 300.0
 
 [node name="PlayerManager" type="Node2D" parent="." node_paths=PackedStringArray("board")]
 script = ExtResource("3_k5sdh")
@@ -87,18 +81,33 @@ offset_top = 130.0
 offset_right = 410.0
 offset_bottom = 130.0
 
-[node name="TurnStatus" type="Label" parent="."]
+[node name="TurnStatus" type="RichTextLabel" parent="."]
+visible = false
 anchors_preset = -1
 anchor_left = 0.5
 anchor_top = 0.3
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 585.0
-offset_top = 250.0
-offset_right = 695.0
-offset_bottom = 273.0
+offset_left = 411.0
+offset_top = 247.0
+offset_right = 861.0
+offset_bottom = 347.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "STATUS LABEL"
+scroll_following = true
+
+[node name="GameStatus" parent="." instance=ExtResource("12_8aqfc")]
+offset_left = 415.0
+offset_top = 238.0
+offset_right = 415.0
+offset_bottom = 238.0
+
+[node name="ActionUI" parent="." instance=ExtResource("7_1i1ln")]
+visible = false
+offset_left = 745.0
+offset_top = 366.0
+offset_right = 745.0
+offset_bottom = 366.0
 
 [node name="HUD" type="CanvasLayer" parent="."]

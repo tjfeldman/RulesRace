@@ -17,6 +17,7 @@ func _on_timer_timeout() -> void:
 	#Get random value from the metadata of SIDES
 	var rolledValue = get_meta("SIDES").pick_random();
 	animationPlayer.play(str(rolledValue));
+	#TODO: Create ENUM Value for Dice roll
 	emit_signal("dice_has_rolled", type, rolledValue);
 
 func _correct_die(special: bool):

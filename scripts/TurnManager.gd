@@ -1,12 +1,11 @@
 extends Node
 class_name TurnManager 
 
-var _turn_status: Label;
 var _group_rule_manager: Control;
 var _personal_rule_manager: PersonalRuleManager;
 
 var _turn_player: Player;
-func get_turn_player(): return _turn_player;
+func get_turn_player() -> Player: return _turn_player;
 var _round_order: Array[Player];
 
 #TODO: Maybe player should hold their die
@@ -17,13 +16,12 @@ func spend_die(): _hasRoll = false;
 
 var _queue: Array[EventPair];
 
-func _init(turn_status: Label, group_rule_manager: Control, personal_rule_manager: PersonalRuleManager) -> void:
+func _init(group_rule_manager: Control, personal_rule_manager: PersonalRuleManager) -> void:
 	#Register Event Listeners
 	Events.gain_die_roll.connect(_gain_die);
 	Events.action_trigger.connect(_add_to_queue);
 	
 	#set variables
-	_turn_status = turn_status;
 	_group_rule_manager = group_rule_manager;
 	_personal_rule_manager = personal_rule_manager;
 	
@@ -48,7 +46,7 @@ func _start_next_turn():
 	_hasSpecialDie = false;
 
 	#update turn status
-	_turn_status.text = "%s's Turn" % _turn_player.playerName;
+	Events.update_game_status.emit("%s's Turn" % _turn_player.playerName);
 	_calculate_actions();
 	
 func _calculate_actions():
@@ -102,24 +100,24 @@ func _can_use_group_rule():
 Callable Functions for Actions
 """
 func _roll_die():
-	_turn_status.text = "%s is rolling the die" %_turn_player.playerName;
+	Events.update_game_status.emit("%s is rolling the die" %_turn_player.playerName);
 	_hasRoll = false;
 	_hasReroll = false;
 	Events.roll_die.emit(false);
 	
 func _roll_special_die():
-	_turn_status.text = "%s is rolling the special die" %_turn_player.playerName;
+	Events.update_game_status.emit("%s is rolling the special die" %_turn_player.playerName);
 	_hasSpecialDie= false;
 	Events.roll_die.emit(true);
 	
 func _use_escape_ticket():
-	_turn_status.text = "%s used an escape ticket to leave jail" % _turn_player.playerName;
+	Events.update_game_status.emit("%s used an escape ticket to leave jail" % _turn_player.playerName);
 	_turn_player.removeEscapeTicket();
 	await _turn_player.escapeFromJail();
 	_calculate_actions();
 
 func _use_group_rule():
-	_turn_status.text = "%s used the group rule" % _turn_player.playerName;
+	Events.update_game_status.emit("%s used the group rule" % _turn_player.playerName);
 	#first we pay the cost
 	await _group_rule_manager.pay_cost_for_player(_turn_player);
 	#slight delay
@@ -132,25 +130,27 @@ func _use_group_rule():
 Handle Turn Actions
 """
 func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
+	#if _turn_player.isInJail(): roll="Escape";
+	#else: roll="Jail";
 	await _personal_rule_manager.check_roll_condition(_turn_player, roll);
 	if await _group_rule_manager.check_roll_trigger(_turn_player, roll):
-		_turn_status.text = "%s triggered the group rule" %_turn_player.playerName;
+		Events.update_game_status.emit("%s triggered the group rule" %_turn_player.playerName);
 		_calculate_actions();
 		return;#break out of function
 	match roll:
 		"Jail":
 			var sentToJail = await _turn_player.sendToJail();
 			if sentToJail:
-				_turn_status.text = "%s went to jail" %_turn_player.playerName;
+				Events.update_game_status.emit("%s went to jail" %_turn_player.playerName);
 			_calculate_actions();
 		"Escape":
 			var escapeFromJail = await _turn_player.escapeFromJail();
 			if escapeFromJail:
-				_turn_status.text = "%s escaped jail" %_turn_player.playerName;
+				Events.update_game_status.emit("%s escaped jail" %_turn_player.playerName);
 			_calculate_actions();
 		_:
 			if !_turn_player.isInJail(): 
-				_turn_status.text = "%s is moving %s spaces" %[_turn_player.playerName, roll];
+				Events.update_game_status.emit("%s is moving %s spaces" %[_turn_player.playerName, roll]);
 				await _turn_player.movePlayerXSpaces(roll);
 				#if player moves onto office space via roll, then they can pick an office space reward
 				if _turn_player.on_office_space():
@@ -159,17 +159,17 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 				
 
 func _handle_office_space():
-	_turn_status.text = "%s landed on office" %_turn_player.playerName;
+	Events.update_game_status.emit("%s landed on office" %_turn_player.playerName);
 	var picked = await _turn_player.selectOfficeReward();
 	match picked:
 		OfficeChoice.Option.TICKET:
-			_turn_status.text = "%s recieved an escape ticket" % _turn_player.playerName;
+			Events.update_game_status.emit("%s recieved an escape ticket" % _turn_player.playerName);
 			_turn_player.addEscapeTicket();
 		OfficeChoice.Option.DIE:
-			_turn_status.text = "%s can roll the special die" % _turn_player.playerName;
+			Events.update_game_status.emit("%s can roll the special die" % _turn_player.playerName);
 			_gain_die(true);
 		OfficeChoice.Option.RULE:
-			_turn_status.text = "%s is changing the group rule" % _turn_player.playerName;
+			Events.update_game_status.emit("%s is changing the group rule" % _turn_player.playerName);
 			_group_rule_manager.prompt_group_rule_change_for_player(_turn_player);
 	
 """
@@ -178,6 +178,7 @@ Handle Between Turn Actions
 func _verify_all_players_ready():
 	while !_queue.is_empty():
 		var pair: EventPair = _queue.pop_front();
+		await _personal_rule_manager.check_event_condition(pair);
 		await _group_rule_manager.trigger_event(pair, _turn_player);
 
 func _add_to_queue(pair: EventPair):

@@ -14,6 +14,7 @@ enum Condition{
 	ROLL_THREE,
 	ROLL_PRISON,
 	ROLL_ESCAPE,
+	SENT_JAIL,
 }
 
 enum Target{
@@ -37,6 +38,7 @@ const CONDITION_STR: Array[String] = [
 	"rolls a die and gets a 3",
 	"rolls a die and gets jail",
 	"rolls a die and gets escape",
+	"is sent to prison"
 ]
 
 const TARGET_STR: Array[String] = [

@@ -130,11 +130,11 @@ func _verify_player_can_use_rule(affectedPlayer: Player):
 PUBLIC ACCESSIBLE FUNCTIONS
 """
 func trigger_event(pair: EventPair, _turnPlayer: Player):
-	match pair.action:
+	match pair.get_action():
 		EventPair.ActionChecks.JAIL:
 			#Prison action triggers on moving to Prison when it is a player in Prison
 			if _triggerRule == Trigger.MOVES_PRISON and _whenRule == When.PRISON:
-				await _prompt_all_prisoners(pair.player);
+				await _prompt_all_prisoners(pair.get_player());
 				
 
 func prompt_group_rule_change_for_player(player: Player):
