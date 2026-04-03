@@ -16,7 +16,7 @@ var _currentEffectRule : EffectButton;
 signal rules_updated(whenRule: RuleButton, triggerRule: RuleButton, effectRule: RuleButton);
 
 func _ready() -> void:
-	#call_deferred("_set_new_rule");
+	call_deferred("_set_new_rule");
 	_set_for_display();
 
 func set_for_editing():
@@ -28,6 +28,7 @@ func set_for_editing():
 	for btn in effectGroup.get_buttons():
 		btn.enable();
 	confirm_btn.visible = true;
+	get_tree().current_scene.toggle_hud();
 	
 func _set_for_display():
 	#disable all other buttons
@@ -106,9 +107,9 @@ func _on_confirm_btn_pressed() -> void:
 		
 #TESTING ONLY METHOD
 func _set_new_rule():
-	var selectedWhen = GroupRules.When.TURN;
-	var selectedTrigger = GroupRules.Trigger.MOVE_BACK_TWO;
-	var selectedEffect = GroupRules.Effect.MOVE_TO_PLAYER_AHEAD;
+	var selectedWhen = GroupRules.When.PRISON;
+	var selectedTrigger = GroupRules.Trigger.DISCARD_TICKET;
+	var selectedEffect = GroupRules.Effect.GAIN_TICKET;
 	
 	#Grab the buttons
 	_currentWhenRule = whenGroup.get_buttons().filter(func(btn): if btn.type == selectedWhen: return btn)[0];

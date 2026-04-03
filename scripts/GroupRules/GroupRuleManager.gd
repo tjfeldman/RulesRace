@@ -144,10 +144,15 @@ func prompt_group_rule_change_for_player(player: Player):
 		group_rule_selector.set_for_editing();
 		
 func trigger_effect_for_player(player: Player):
+	var effect_info;
 	if _effectRule in _targetsAnotherPlayer:
-		await _target_effect(player);
+		effect_info = await _target_effect(player);
 	else:
-		await _trigger_effect(player);
+		effect_info = await _trigger_effect(player);
+		
+	if effect_info:
+		_update_game_status(player, effect_info[1]);
+		await effect_info[0].call();
 		
 func check_roll_trigger(turn_player: Player, roll: Variant):
 	#if the when condition is not met or player is in jail
@@ -201,7 +206,7 @@ func pay_cost_for_player(player: Player):
 		Trigger.MOVE_BACK_TWO:
 			await player.movePlayerXSpaces(-2);
 		Trigger.DISCARD_TICKET:
-			player.removeEscapeTicket();
+			player.removeEscapeTicket(true);
 		Trigger.FORFEIT_DIE:
 			get_tree().current_scene.spend_die();
 			
@@ -217,6 +222,7 @@ PRIVATE FUNCTIONS
 func _on_background_gui_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_click") and not group_rule_selector.isEditing():
 		group_rule_selector.visible = !group_rule_selector.visible;
+		get_tree().current_scene.toggle_hud(!group_rule_selector.visible);
 		
 func _on_rules_updated(_whenRuleBtn: RuleButton, _triggerRuleBtn: RuleButton, _effectRuleBtn: RuleButton):
 	whenLabel.text = _whenRuleBtn.description;
@@ -226,25 +232,30 @@ func _on_rules_updated(_whenRuleBtn: RuleButton, _triggerRuleBtn: RuleButton, _e
 	_whenRule = _whenRuleBtn.type;
 	_triggerRule = _triggerRuleBtn.type;
 	_effectRule = _effectRuleBtn.type;
+	
+	get_tree().current_scene.toggle_hud(true);
 
 func _trigger_effect(affectedPlayer: Player):
 	#if the rule can be used, asked the player if they want to use it
 	if _triggerRule in _canRules:
 		#exit if they decline
-		if await affectedPlayer.confirmGroupEffect(): return;
+		if await affectedPlayer.confirmGroupEffect(): return "";
 	match _effectRule:
 		Effect.MOVE_ONE:
-			await affectedPlayer.movePlayerXSpaces(1);
+			return [affectedPlayer.movePlayerXSpaces.bind(1), "move forward 1 space"];
 		Effect.GAIN_TICKET:
-			affectedPlayer.addEscapeTicket();
+			return [affectedPlayer.addEscapeTicket, "gain 1 escape ticket"];
 		Effect.REROLL_DIE:
-			Events.gain_die_roll.emit(false);
+			return [Events.gain_die_roll.emit.bind(false), "roll their die again"];
 		Effect.ROLL_SPECIAL_DIE:
-			Events.gain_die_roll.emit(true);
+			return [Events.gain_die_roll.emit.bind(true), "gain a special die to roll"];
 		Effect.MOVE_TO_PLAYER_AHEAD:
-			await affectedPlayer.moveToPlayer(PlayerManager.getPlayerAhead(affectedPlayer));
+			var ahead_player = PlayerManager.getPlayerAhead(affectedPlayer);
+			return [affectedPlayer.moveToPlayer.bind(ahead_player), "move to the space of %s"%ahead_player.playerName];
 		Effect.MOVE_BACK:
-			await affectedPlayer.movePlayerXSpaces(-1);
+			return [affectedPlayer.movePlayerXSpaces.bind(-1), "move back 1 space"];
+	#END MATCH
+#END FUNC
 				
 func _target_effect(affectedPlayer: Player):
 	#we can't move players who are at the start or are currently in jail
@@ -255,13 +266,14 @@ func _target_effect(affectedPlayer: Player):
 			#can't move players who are at start or currently in jail
 			playerlist.filter(func(p): return p.getBoardPosition() > 0 and not p.isInJail());
 			var target = await affectedPlayer.selectTargetPlayer(playerlist, is_can_rule);
-			if not target: return;	#if no target is selected, exit
-			await target.movePlayerXSpaces(-1);
+			if target:	#if no target is selected, exit
+				return [target.movePlayerXSpaces.bind(-1), "send %s back 1 space"%affectedPlayer.playerName];
 		Effect.TRANSFER_TICKET:
 			var target = await affectedPlayer.selectTargetPlayer(playerlist, is_can_rule);
-			if not target: return;	#if no target is selected, exit
-			affectedPlayer.removeEscapeTicket();
-			target.addEscapeTicket();
+			if target:	#if no target is selected, exit
+				return [affectedPlayer.transferEscapeTicket.bind(target), "transfer 1 escape ticket to %s"%target.playerName];
+	#END MATCH
+#END FUNC
 	
 func _prompt_all_prisoners(triggerPlayer: Player):
 	var prisoners = PlayerManager.getPrisonPlayers();
@@ -269,3 +281,27 @@ func _prompt_all_prisoners(triggerPlayer: Player):
 		if prisoner != triggerPlayer:
 			await trigger_effect_for_player(prisoner);
 	
+func _update_game_status(user: Player, effect_info: String) -> void:
+	if effect_info.is_empty(): return; #break if no info to update
+	var trigger_info = "";
+	match _triggerRule:
+		Trigger.ROLL_PRISON:
+			trigger_info = "rolls prison and";
+		Trigger.ROLL_ONE:
+			trigger_info = "rolls 1 and";
+		Trigger.ROLL_TWO:
+			trigger_info = "rolls 2 and";
+		Trigger.ROLL_THREE:
+			trigger_info = "rolls 3 and";
+		#TODO: Implement
+		#Trigger.MOVES_PRISON:
+			#trigger_info = "another player moves to prison"
+		Trigger.MOVE_BACK_TWO:
+			trigger_info = "moves back 2 spaces to";
+		Trigger.DISCARD_TICKET:
+			trigger_info = "discards a ticket to";
+		Trigger.FORFEIT_DIE:
+			trigger_info = "gives up their roll to";
+	#END MATCH
+	Events.update_game_status.emit("%s %s %s"%[user.playerName, trigger_info, effect_info]);
+		

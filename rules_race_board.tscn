@@ -75,12 +75,6 @@ offset_right = 35.0
 offset_bottom = 11.0
 text = "S"
 
-[node name="GroupRuleManager" parent="." instance=ExtResource("8_rv52q")]
-offset_left = 410.0
-offset_top = 130.0
-offset_right = 410.0
-offset_bottom = 130.0
-
 [node name="TurnStatus" type="RichTextLabel" parent="."]
 visible = false
 anchors_preset = -1
@@ -105,9 +99,15 @@ offset_bottom = 238.0
 
 [node name="ActionUI" parent="." instance=ExtResource("7_1i1ln")]
 visible = false
-offset_left = 700.0
+offset_left = 650.0
 offset_top = 460.0
-offset_right = 700.0
+offset_right = 650.0
 offset_bottom = 460.0
+
+[node name="GroupRuleManager" parent="." instance=ExtResource("8_rv52q")]
+offset_left = 410.0
+offset_top = 130.0
+offset_right = 410.0
+offset_bottom = 130.0
 
 [node name="HUD" type="CanvasLayer" parent="."]

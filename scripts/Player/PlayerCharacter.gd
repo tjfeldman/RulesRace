@@ -22,7 +22,7 @@ var _escape_tickets : int = 0:
 	set(value):
 		#Update value and then emit signal
 		_escape_tickets = value;
-		Events.emit_signal("updated_escape_tickets", self);
+		Events.updated_escape_tickets.emit(self);
 		
 var _board_position : int = 0;
 var _in_jail : bool = false;
@@ -42,8 +42,16 @@ func getEscapeTicketCount() -> int:
 func addEscapeTicket() -> void:
 	_escape_tickets += 1;
 	
-func removeEscapeTicket() -> void:
+func removeEscapeTicket(discarded: bool = false) -> void:
 	_escape_tickets -= 1;
+	if discarded: 
+		Events.action_trigger.emit(EventPair.new(self, EventPair.ActionChecks.DISCARD));
+	else: 
+		Events.action_trigger.emit(EventPair.new(self, EventPair.ActionChecks.USE));
+	
+func transferEscapeTicket(player: Player) -> void:
+	_escape_tickets -= 1;
+	player.addEscapeTicket();
 	
 func getPersonalRule() -> PersonalRule:
 	return _personal_rule;
@@ -89,7 +97,7 @@ func _movePlayerForward():
 		#check if player reached goal
 		if board.isGoalSpace(_board_position):
 			_finished = true;
-			Events.emit_signal("player_reached_goal", self);
+			Events.player_reached_goal.emit(self);
 			
 func _movePlayerBackward():
 	if !_in_jail and _board_position > 0:

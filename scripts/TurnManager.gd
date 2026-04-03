@@ -47,7 +47,7 @@ func _start_next_turn():
 
 	#update turn status
 	Events.update_game_status.emit("%s's Turn" % _turn_player.playerName);
-	_calculate_actions();
+	await _calculate_actions();
 	
 func _calculate_actions():
 	await _verify_all_players_ready();
@@ -114,40 +114,36 @@ func _use_escape_ticket():
 	Events.update_game_status.emit("%s used an escape ticket to leave jail" % _turn_player.playerName);
 	_turn_player.removeEscapeTicket();
 	await _turn_player.escapeFromJail();
-	_calculate_actions();
+	await _calculate_actions();
 
 func _use_group_rule():
-	Events.update_game_status.emit("%s used the group rule" % _turn_player.playerName);
 	#first we pay the cost
 	await _group_rule_manager.pay_cost_for_player(_turn_player);
 	#slight delay
 	await get_tree().create_timer(0.5).timeout;
 	#next we perform the action
 	await _group_rule_manager.trigger_effect_for_player(_turn_player);
-	_calculate_actions();
+	await _calculate_actions();
 
 """
 Handle Turn Actions
 """
 func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
-	if _turn_player.isInJail(): roll="Escape";
-	else: roll="Jail";
 	await _personal_rule_manager.check_roll_condition(_turn_player, roll);
 	if await _group_rule_manager.check_roll_trigger(_turn_player, roll):
-		Events.update_game_status.emit("%s triggered the group rule" %_turn_player.playerName);
-		_calculate_actions();
+		await _calculate_actions();
 		return;#break out of function
 	match roll:
 		"Jail":
 			var sentToJail = await _turn_player.sendToJail();
 			if sentToJail:
 				Events.update_game_status.emit("%s went to jail" %_turn_player.playerName);
-			_calculate_actions();
+			await _calculate_actions();
 		"Escape":
 			var escapeFromJail = await _turn_player.escapeFromJail();
 			if escapeFromJail:
 				Events.update_game_status.emit("%s escaped jail" %_turn_player.playerName);
-			_calculate_actions();
+			await _calculate_actions();
 		_:
 			if !_turn_player.isInJail(): 
 				Events.update_game_status.emit("%s is moving %s spaces" %[_turn_player.playerName, roll]);
@@ -155,7 +151,7 @@ func _on_dice_has_rolled(_type: Dice.Type, roll: Variant) -> void:
 				#if player moves onto office space via roll, then they can pick an office space reward
 				if _turn_player.on_office_space():
 					await _handle_office_space();
-			_calculate_actions();
+			await _calculate_actions();
 				
 
 func _handle_office_space():
@@ -176,10 +172,15 @@ func _handle_office_space():
 Handle Between Turn Actions
 """
 func _verify_all_players_ready():
+	#Let's empty the event queue
 	while !_queue.is_empty():
+		#slight delay between checks
+		await get_tree().create_timer(0.3).timeout;
 		var pair: EventPair = _queue.pop_front();
 		await _personal_rule_manager.check_event_condition(pair);
 		await _group_rule_manager.trigger_event(pair, _turn_player);
+	#Now let's have the group manager check if anyone can utilize the group rule
+	pass;
 
 func _add_to_queue(pair: EventPair):
 	_queue.push_back(pair);

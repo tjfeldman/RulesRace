@@ -34,9 +34,7 @@ func check_roll_condition(roller: Player, roll: Variant) -> void:
 	#END MATCH
 	
 	#If the player_arr exists, then for each player in the arr we should check their trigger
-	var player_arr = _registered_conditions.get(condition);
-	if player_arr:	for player in player_arr: 
-		await _check_personal_rule_trigger(player, roller, condition)
+	await _check_personal_rule_condition(roller, condition);
 			
 func check_event_condition(pair: EventPair) -> void:
 	var condition = null;
@@ -45,14 +43,24 @@ func check_event_condition(pair: EventPair) -> void:
 			condition = PersonalRules.Condition.SENT_JAIL;
 		EventPair.ActionChecks.ESCAPE:
 			condition = PersonalRules.Condition.ESCAPE_JAIL;
+		EventPair.ActionChecks.DISCARD:
+			condition = PersonalRules.Condition.DISCARD_TICKET;
 			
 	#END MATCH
+	await _check_personal_rule_condition(pair.get_player(), condition);
+
+"""
+Private Functions
+"""
+func _check_personal_rule_condition(causer: Player, condition: PersonalRules.Condition):
 	#If the player_arr exists, then for each player in the arr we should check their trigger
 	var player_arr = _registered_conditions.get(condition);
 	if player_arr: for player in player_arr:
-		await _check_personal_rule_trigger(player, pair.get_player(), condition);
+		if player.hasFinished(): player_arr.erase(player); #remove player from registery if they have finished
+		else: await _check_personal_rule_trigger(player, causer, condition);
+	
 				
-func _check_personal_rule_trigger(player: Player, causer: Player, condition: PersonalRules.Condition) -> void:
+func _check_personal_rule_trigger(player: Player, causer: Player, condition: PersonalRules.Condition):
 	var valid: bool = false;
 	match player.getPersonalRule().get_trigger():
 		PersonalRules.Trigger.SAME_SPACE:
@@ -64,22 +72,22 @@ func _check_personal_rule_trigger(player: Player, causer: Player, condition: Per
 				
 	#END MATCH
 	if valid: 
-		var info = await _find_rule_target(player);
-		if !info.is_empty(): Events.update_game_status.emit("%s activated personal rule: %s"%[player.playerName, info]);
+		var info = _find_rule_target(player);
+		if info: 
+			Events.update_game_status.emit("%s activated their personal rule: %s"%[player.playerName, info[1]]);
+			await info[0].call();
 				
 #Locate the target of the personal rule
-func _find_rule_target(player: Player) -> String:
+func _find_rule_target(player: Player):
 	var rule = player.getPersonalRule()
 	match rule.get_target():
 		PersonalRules.Target.I:
-			var effect_str = await _trigger_effect(rule.get_effect(), player);
-			if !effect_str.is_empty(): return "%s %s"%[player.playerName, effect_str];
-	return "";
+			var arr = _trigger_effect(rule.get_effect(), player);
+			if arr: return [arr[0], "%s %s"%[player.playerName, arr[1]]];
 				
-func _trigger_effect(effect: PersonalRules.Effect, target: Player) -> String: 
+func _trigger_effect(effect: PersonalRules.Effect, target: Player): 
 	match effect:
 		PersonalRules.Effect.MOVE_ONE:
 			if !target.isInJail(): #players in jail cannot move
-				await target.movePlayerXSpaces(1);
-				return "moves one space";
-	return "";
+				#await target.movePlayerXSpaces(1);
+				return [target.movePlayerXSpaces.bind(1), "moves one space"];

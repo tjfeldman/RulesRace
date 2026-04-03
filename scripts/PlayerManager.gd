@@ -26,10 +26,12 @@ func _ready() -> void:
 			child.board_offset = offset;
 			offset += 1;
 	
+#TODO: Track Ties. Personal Rules and Group Rules could cause players to finish at the same time	
 func _player_reaches_goal(player: Player):
 	_players.erase(player);
 	_player_board_order.erase(player);
 	_winning_order.push_back(player);
+	Events.update_game_status.emit("%s has finished the race"%player.playerName);
 	if isGameOver():
 		_winning_order.push_back(_players[0]);
 		Events.emit_signal("game_over");

@@ -13,6 +13,12 @@ public functions
 """
 func get_turn_player() -> Player: return _turn_manager.get_turn_player();
 func spend_die() -> void: _turn_manager.spend_die();
+func toggle_hud(value = null) -> void: 
+	if !hud: return;
+	if value is bool:
+		hud.visible = value;
+	else:
+		hud.visible = !hud.visible;
 
 """
 Private Class
@@ -57,7 +63,6 @@ func _roll_dice(special: bool):
 		dice.rollDie();
 
 func _game_is_over():
-	for child in self.get_children():
-		child.visible = false;
+	self.visible = false;
 	var results_ui = PromptManager.get_results_prompt();
 	self.get_parent().add_child(results_ui);

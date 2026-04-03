@@ -5,7 +5,7 @@ v0.4 Tasklist
 - [x] Personal Rules when activated create a prompt for the person to ok
 - [ ] Register Personal Rule Triggers
 - [x] Add Trigger Check for "player who is in same space"
-- [ ] Add Trigger Check for "player who is in prison"
+- [x] Add Trigger Check for "player who is in prison"
 - [ ] Add Trigger Check for "player who moves after" | Add utility function in PlayerManager to get Next Player
 - [ ] Add Trigger Check for "player who is leading"
 - [ ] Add Trigger Check for "player who is trailing"
@@ -16,8 +16,8 @@ v0.4 Tasklist
 - [x] Add Condition check for "rolls a dice and get prison" | Should occur before movement by dice
 - [x] Add Condition check for "rolls a dice and get escape" | Should occur before movement by dice
 - [x] Add Condition check for "is sent to prison"
-- [ ] Add Condition check for "escapes from prison"
-- [ ] Add Condition check for "discards a ticket"
+- [x] Add Condition check for "escapes from prison"
+- [x] Add Condition check for "discards a ticket"
 - [ ] Add Condition check for "uses a ticket"
 - [ ] Add Condition check for "is moved by a personal rule"
 - [ ] Add Condition check for "is moved by a group rule"
